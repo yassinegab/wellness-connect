@@ -1,5 +1,6 @@
 <p align="center">
-</p><img width="452" height="292" alt="sosi-removebg-preview" src="https://github.com/user-attachments/assets/d61ed0dc-07ff-477d-acfd-060616a6a601" />
+  <img width="452" alt="Wellness Connect Logo" src="https://github.com/user-attachments/assets/d61ed0dc-07ff-477d-acfd-060616a6a601" />
+</p>
 
 # 🌿 Wellness Connect - Écosystème Bien-être
 
@@ -7,11 +8,12 @@ Wellness Connect est une solution complète de suivi du bien-être personnel. Ce
 
 ## 📌 Architecture du Projet
 
-L'écosystème se divise en deux parties distinctes qui communiquent via une API RES![Uploading sosi.png…]()
-T :
+L'écosystème se divise en deux parties distinctes qui communiquent via une **API REST** :
 
-1.  ** Web (Symfony) :** Gère la logique métier, la base de données centralisée et fournit une interface d'administration web et de client web.
-2.  **Client Desktop (JavaFX) :** Une application fluide et interactive pour l'utilisateur final, permettant un suivi quotidien sans passer par un navigateur.
+1. **Web (Symfony) :** Gère la logique métier, la base de données centralisée et fournit une interface d'administration ainsi qu'un client web.
+2. **Client Desktop (JavaFX) :** Une application fluide et interactive pour l'utilisateur final, permettant un suivi quotidien sans passer par un navigateur.
+
+[Image of a REST API architecture diagram connecting a web server and a desktop client]
 
 ---
 
@@ -27,15 +29,15 @@ T :
 * **Langage :** Java 17+
 * **Interface :** JavaFX (avec SceneBuilder pour le FXML)
 * **Gestionnaire de dépendances :** Maven / Gradle
-* **Client HTTP :** Java HttpClient (pour consommer l'API Symfony)
+* **Client HTTP :** Java HttpClient
 
 ---
 
 ## ✨ Fonctionnalités
 
-- [ ] **Authentification unifiée :** Connexion sécurisée sur les deux plateformes.
+- [x] **Authentification unifiée :** Connexion sécurisée sur les deux plateformes.
 - [ ] **Tableau de bord :** Visualisation des indicateurs de santé et de bien-être.
-
+- [ ] **Synchronisation Cloud :** Mise à jour automatique des données.
 
 ---
 
@@ -48,4 +50,5 @@ composer install
 # Configurez votre fichier .env avec vos accès DB
 php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
-php bin/console server:start
+php bin/console messenger:consume # Si nécessaire
+symfony serve -d
