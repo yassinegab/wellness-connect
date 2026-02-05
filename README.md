@@ -2,7 +2,7 @@
   <img width="452" alt="Wellness Connect Logo" src="https://github.com/user-attachments/assets/d61ed0dc-07ff-477d-acfd-060616a6a601" />
 </p>
 
-# 🌿 Wellness Connect - Écosystème Bien-être
+# 🌿 SosI Connect - Écosystème Bien-être
 
 Wellness Connect est une solution complète de suivi du bien-être personnel. Ce projet démontre l'intégration entre une application de bureau performante et une infrastructure web robuste.
 
