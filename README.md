@@ -1,1 +1,51 @@
-# wellness-connect
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5b73bee7-0c72-4d51-8c65-8c2e46ecb496" alt="Wellness Connect Logo" width="450">
+</p>
+# 🌿 Wellness Connect - Écosystème Bien-être
+
+Wellness Connect est une solution complète de suivi du bien-être personnel. Ce projet démontre l'intégration entre une application de bureau performante et une infrastructure web robuste.
+
+## 📌 Architecture du Projet
+
+L'écosystème se divise en deux parties distinctes qui communiquent via une API RES![Uploading sosi.png…]()
+T :
+
+1.  ** Web (Symfony) :** Gère la logique métier, la base de données centralisée et fournit une interface d'administration web et de client web.
+2.  **Client Desktop (JavaFX) :** Une application fluide et interactive pour l'utilisateur final, permettant un suivi quotidien sans passer par un navigateur.
+
+---
+
+## 🛠️ Stack Technique
+
+### Backend / API
+* **Framework :** Symfony 6.x / 7.x
+* **Langage :** PHP 8.2+
+* **Base de données :** MySQL / PostgreSQL
+* **Authentification :** JWT (LexikJWTAuthenticationBundle)
+
+### Desktop
+* **Langage :** Java 17+
+* **Interface :** JavaFX (avec SceneBuilder pour le FXML)
+* **Gestionnaire de dépendances :** Maven / Gradle
+* **Client HTTP :** Java HttpClient (pour consommer l'API Symfony)
+
+---
+
+## ✨ Fonctionnalités
+
+- [ ] **Authentification unifiée :** Connexion sécurisée sur les deux plateformes.
+- [ ] **Tableau de bord :** Visualisation des indicateurs de santé et de bien-être.
+
+
+---
+
+## 🚀 Installation
+
+### 1. Configuration du Backend (Symfony)
+```bash
+cd backend-directory
+composer install
+# Configurez votre fichier .env avec vos accès DB
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+php bin/console server:start
