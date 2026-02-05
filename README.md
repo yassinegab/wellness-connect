@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5b73bee7-0c72-4d51-8c65-8c2e46ecb496" alt="Wellness Connect Logo" width="450">
-</p>
+</p><img width="452" height="292" alt="sosi-removebg-preview" src="https://github.com/user-attachments/assets/d61ed0dc-07ff-477d-acfd-060616a6a601" />
+
 # 🌿 Wellness Connect - Écosystème Bien-être
 
 Wellness Connect est une solution complète de suivi du bien-être personnel. Ce projet démontre l'intégration entre une application de bureau performante et une infrastructure web robuste.
