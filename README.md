@@ -45,8 +45,7 @@ L'écosystème se divise en deux parties distinctes qui communiquent via une **A
 
 ### 1. Configuration du Backend (Symfony)
 ```bash
- cd HealthCareWebDesktopApplication
-composer install
+cd HealthCareWebDesktopApplication
 # dans le terminal taper 
 npm install -D tailwindcss@3 postcss autoprefixer
 npx tailwindcss -i ./assets/app.css -o ./public/build/tailwind.css --watch
