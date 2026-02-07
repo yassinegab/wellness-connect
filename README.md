@@ -4,7 +4,7 @@
 
 # 🌿 SosI Connect - Écosystème Bien-être
 
-Wellness Connect est une solution complète de suivi du bien-être personnel. Ce projet démontre l'intégration entre une application de bureau performante et une infrastructure web robuste.
+SOSI Connect est une solution complète de suivi du bien-être personnel. Ce projet démontre l'intégration entre une application de bureau performante et une infrastructure web robuste.
 
 ## 📌 Architecture du Projet
 
