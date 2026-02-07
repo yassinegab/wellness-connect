@@ -37,7 +37,7 @@ L'écosystème se divise en deux parties distinctes qui communiquent via une **A
 
 - [x] **Authentification unifiée :** Connexion sécurisée sur les deux plateformes.
 - [ ] **Tableau de bord :** Visualisation des indicateurs de santé et de bien-être.
-- [ ] **Synchronisation Cloud :** Mise à jour automatique des données.
+
 
 ---
 
