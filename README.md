@@ -45,10 +45,9 @@ L'écosystème se divise en deux parties distinctes qui communiquent via une **A
 
 ### 1. Configuration du Backend (Symfony)
 ```bash
-cd backend-directory
+ cd HealthCareWebDesktopApplication
 composer install
-# Configurez votre fichier .env avec vos accès DB
-php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
-php bin/console messenger:consume # Si nécessaire
-symfony serve -d
+# dans le terminal taper 
+npm install -D tailwindcss@3 postcss autoprefixer
+npx tailwindcss -i ./assets/app.css -o ./public/build/tailwind.css --watch
+symfony server:start 
