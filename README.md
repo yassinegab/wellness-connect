@@ -22,7 +22,7 @@ L'écosystème se divise en deux parties distinctes qui communiquent via une **A
 ### Backend / API
 * **Framework :** Symfony 6.x / 7.x
 * **Langage :** PHP 8.2+
-* **Base de données :** MySQL / PostgreSQL
+* **Base de données :** MySQL
 * **Authentification :** JWT (LexikJWTAuthenticationBundle)
 
 ### Desktop
