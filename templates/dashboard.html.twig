@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="flex min-h-screen bg-background">
+
+  {# Sidebar #}
+  {% include 'components/sidebar.html.twig' %}
+
+  <div class="flex flex-1 flex-col">
+
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+
+    <main class="flex-1 overflow-auto">
+      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+
+        {# Header #}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-foreground">
+              Bonjour, {{ user.prenom }} !
+            </h1>
+            <p class="text-muted-foreground">
+              Voici un aperçu de votre santé aujourd’hui
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 rounded-md border px-3 py-2">
+            📅 {{ "now"|date("l d F Y") }}
+          </div>
+        </div>
+
+        {# Stat Cards #}
+        {% include 'components/stat-cards.html.twig' %}
+
+        {# Widgets #}
+        <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          {% include 'components/widgets/health-summary.html.twig' %}
+          {% include 'components/widgets/mental.html.twig' %}
+          {% include 'components/widgets/activity.html.twig' %}
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+          {% include 'components/widgets/nutrition.html.twig' %}
+          {% include 'components/widgets/cycle.html.twig' %}
+        </div>
+
+        {# Quick Actions #}
+        <div class="rounded-xl border border-border bg-card p-4">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="font-semibold text-card-foreground">Actions rapides</h2>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {% for action in quickActions %}
+              <button class="flex items-center gap-3 rounded-lg border border-border bg-background p-3 text-left hover:bg-muted">
+                <span class="text-xl">{{ action.emoji }}</span>
+                <span class="text-sm font-medium text-card-foreground">
+                  {{ action.label }}
+                </span>
+              </button>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+
+    <!-- Tailwind -->
+    <link rel="stylesheet" href="{{ asset('build/tailwind.css') }}">
+
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="bg-background text-foreground">
+
+    {% block body %}{% endblock %}
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% set stats = [
+  {
+    'id': 'calories',
+    'label': 'Calories consommées',
+    'value': '1,842',
+    'unit': 'kcal',
+    'target': '/ 2,000',
+    'subtitle': null,
+    'icon': '🔥',
+    'color': 'text-orange-500',
+    'barColor': 'bg-orange-500',
+    'bgColor': 'bg-orange-50',
+    'progress': 92
+  },
+  {
+    'id': 'stress',
+    'label': 'Niveau de stress',
+    'value': 'Faible',
+    'unit': null,
+    'target': null,
+    'subtitle': 'Score: 28/100',
+    'icon': '🧠',
+    'color': 'text-primary',
+    'barColor': 'bg-primary',
+    'bgColor': 'bg-primary/10',
+    'progress': 28
+  },
+  {
+    'id': 'activity',
+    'label': 'Activité physique',
+    'value': '8,456',
+    'unit': 'pas',
+    'target': '/ 10,000',
+    'subtitle': null,
+    'icon': '👣',
+    'color': 'text-secondary',
+    'barColor': 'bg-secondary',
+    'bgColor': 'bg-secondary/10',
+    'progress': 85
+  },
+  {
+    'id': 'mood',
+    'label': 'Humeur du jour',
+    'value': 'Joyeuse',
+    'unit': null,
+    'target': null,
+    'subtitle': 'Énergie: Haute',
+    'icon': '😊',
+    'color': 'text-yellow-500',
+    'barColor': null,
+    'bgColor': 'bg-yellow-50',
+    'progress': null
+  },
+  {
+    'id': 'cycle',
+    'label': 'Cycle menstruel',
+    'value': 'Phase folliculaire',
+    'unit': null,
+    'target': null,
+    'subtitle': 'Jour 8 sur 28',
+    'icon': '🌸',
+    'color': 'text-pink-500',
+    'barColor': 'bg-pink-500',
+    'bgColor': 'bg-pink-50',
+    'progress': 29
+  }
+] %}
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+  {% for stat in stats %}
+    <div class="overflow-hidden rounded-lg border border-border bg-card">
+      <div class="p-4">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-xs font-medium text-muted-foreground">{{ stat.label }}</p>
+            <div class="mt-2 flex items-baseline gap-1">
+              <span class="text-2xl font-bold text-card-foreground">{{ stat.value }}</span>
+              {% if stat.unit %}
+                <span class="text-sm text-muted-foreground">{{ stat.unit }}</span>
+              {% endif %}
+            </div>
+            
+            {# This handles both target and subtitle without errors #}
+            {% if stat.target or stat.subtitle %}
+              <p class="text-xs text-muted-foreground">
+                {{ stat.target }} {{ stat.subtitle }}
+              </p>
+            {% endif %}
+          </div>
+          
+          <div class="rounded-lg p-2.5 {{ stat.bgColor }}">
+            <span class="{{ stat.color }}">{{ stat.icon }}</span>
+          </div>
+        </div>
+
+        {% if stat.progress %}
+          <div class="mt-3">
+            <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              {# CSS Variable trick to avoid IDE warnings on the style tag #}
+              <div class="h-full rounded-full transition-all {{ stat.barColor }}"
+                   style="--width: {{ stat.progress }}%; width: var(--width);">
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
