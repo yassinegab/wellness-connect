@@ -24,18 +24,34 @@ final class CycleController extends AbstractController
         // Récupérer les cycles existants
         $cycles = $em->getRepository(Cycle::class)->findAll();
 
-        // 🔥 Préparer les events pour FullCalendar
-        $calendarEvents = [];
+    $calendarEvents = [];
 
-        foreach ($cycles as $cycle) {
-            $calendarEvents[] = [
-                'title' => 'Cycle menstruel',
-                'start' => $cycle->getDateDebutM()->format('Y-m-d'),
-                'end'   => $cycle->getDateFinM()->modify('+1 day')->format('Y-m-d'),
-                'color' => '#ef4444',
-            ];
-        }
+/*foreach ($cycles as $cycle) {
+    $calendarEvents[] = [
+        'title' => '',
+        'start' => $cycle->getDateDebutM()->format('Y-m-d'),
+        'end'   => $cycle->getDateFinM()->format('Y-m-d'),
+        'allDay' => true
+    ];
+}*/
 
+foreach ($cycles as $cycle) {
+    $start = $cycle->getDateDebutM();
+    $end = $cycle->getDateFinM();
+
+    $current = clone $start;
+    while ($current <= $end) {
+        $calendarEvents[] = [
+            'title' => '🩸',                    // emoji goutte de sang
+            'start' => $current->format('Y-m-d'),
+            'allDay' => true,
+            'classNames' => ['menstruation-event']
+        ];
+        $current->modify('+1 day');
+    }
+}
+
+    
        // return $this->render('cycle/cycle.html.twig', [
          //   'user' => $user,
        //     'calendarEvents' => json_encode($calendarEvents), // ⭐ IMPORTANT
@@ -64,26 +80,45 @@ final class CycleController extends AbstractController
     ]);
 
     }
-     #[Route('/cycle/add', name: 'cycle_add_ajax', methods: ['POST'])]
-    public function addCycleAjax(
-        Request $request,
-        EntityManagerInterface $em
-    ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
+    #[Route('/cycle/add', name: 'cycle_add_ajax', methods: ['POST'])]
+public function addCycleAjax(
+    Request $request,
+    EntityManagerInterface $em
+): JsonResponse {
 
-        $start = new \DateTime($data['start']);
-        $end = new \DateTime($data['end']);
-        $end->modify('-1 day'); // FullCalendar end exclusive
+    $data = json_decode($request->getContent(), true);
 
-        $cycle = new Cycle();
-        $cycle->setDateDebutM($start);
-        $cycle->setDateFinM($end);
-
-        $em->persist($cycle);
-        $em->flush();
-
-        return new JsonResponse(['success' => true]);
+    if (!isset($data['start'], $data['end'])) {
+        return new JsonResponse(['success' => false, 'message' => 'Dates manquantes'], 400);
     }
+
+    $start = new \DateTime($data['start']);
+    $endExclusive = new \DateTime($data['end']);
+
+    // FullCalendar => end exclusif
+    $end = clone $endExclusive;
+    $end->modify('-1 day');
+
+    // 🔐 Vérification AVANT persist
+    if ($start > $end) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'La date de début doit être avant la date de fin'
+        ], 400);
+    }
+
+    $cycle = new Cycle();
+    $cycle->setDateDebutM($start);
+    $cycle->setDateFinM($end);
+
+    $em->persist($cycle);
+    $em->flush();
+
+    return new JsonResponse([
+        'success' => true
+    ]);
+}
+    
 }
 
 

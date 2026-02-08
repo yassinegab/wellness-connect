@@ -1,5 +1,67 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+<style>
+/* 🌸 Thème général rose */
+.fc {
+  --fc-border-color: #fbcfe8;
+  --fc-today-bg-color: #fce7f3;
+  --fc-page-bg-color: #fff1f2;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 🌸 Header */
+.fc-toolbar-title {
+  color: #be185d;
+  font-weight: 600;
+}
+
+.fc-button {
+  background-color: #f9a8d4 !important;
+  border: none !important;
+  color: white !important;
+}
+
+.fc-button:hover {
+  background-color: #f472b6 !important;
+}
+
+/* 🌸 Jours */
+.fc-daygrid-day-number {
+  color: #9d174d;
+  font-weight: 500;
+}
+
+/* 🌸 Jour actuel */
+.fc-day-today {
+  background-color: #fce7f3 !important;
+}
+
+/* 🩸 Icône menstruation */
+.fc-event {
+  background: transparent !important;
+  border: none !important;
+  font-size: 1.3rem;
+}
+/* 🩸 Période menstruelle - motif sang */
+.menstruation-event {
+  background-color: transparent !important;
+  border: none !important;
+
+
+  border-radius: 6px;
+}
+
+/* Supprimer le texte (au cas où) */
+.fc-event-title {
+  display: none;
+}
+
+</style>
+
+{% endblock %}
+
+
 {% block body %}
 <div class="flex min-h-screen bg-background">
 
@@ -30,55 +92,82 @@
           </div>
         </div>
         
-        <div id="calendar"></div>
+<div id="calendar"></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  let calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-    initialView: 'dayGridMonth',
-    locale: 'fr',
 
-    selectable: true,      // ⭐ IMPORTANT
-    selectMirror: true,
+    const calendarEl = document.getElementById('calendar');
 
-    events: {{ calendarEvents|default('[]')|raw }},
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'fr',
+        selectable: true,
+        selectMirror: true,
+        unselectAuto: true,
+        height: 650,
 
-    select: function(info) {
-      // info.startStr → date début
-      // info.endStr   → date fin (exclusive)
+        events: {{ calendarEvents|default('[]')|raw }},
 
-      if (confirm("Ajouter un cycle à partir de cette sélection ?")) {
-        addCycle(info.startStr, info.endStr);
-      }
-    }
-  });
+        select: function(info) {
+            const start = info.start;
+            const endExclusive = info.end;
 
-  calendar.render();
+            if (start >= endExclusive) {
+                alert("La date de début doit être avant la date de fin.");
+                calendar.unselect();
+                return;
+            }
 
-  function addCycle(start, end) {
-    fetch("{{ path('cycle_add_ajax') }}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Requested-With": "XMLHttpRequest"
-      },
-      body: JSON.stringify({
-        start: start,
-        end: end
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        calendar.addEvent({
-          title: 'Cycle menstruel',
-          start: start,
-          end: end,
-          color: '#ef4444'
-        });
-      }
+            if (!confirm("Ajouter cette période de menstruation ?")) {
+                calendar.unselect();
+                return;
+            }
+
+            // Conversion en YYYY-MM-DD
+            const startStr = start.toISOString().split('T')[0];
+            const endStr = endExclusive.toISOString().split('T')[0];
+
+            saveCycle(startStr, endStr);
+        }
     });
-  }
+
+    calendar.render();
+
+    function saveCycle(start, end) {
+        fetch("{{ path('cycle_add_ajax') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify({ start, end })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Ajouter un événement par jour de la période
+                let current = new Date(start);
+                let endDate = new Date(end);
+                while (current <= endDate) {
+                    const dayStr = current.toISOString().split('T')[0];
+                    calendar.addEvent({
+                        title: '🩸',
+                        start: dayStr,
+                        allDay: true,
+                        classNames: ['menstruation-event']
+                    });
+                    current.setDate(current.getDate() + 1);
+                }
+            }
+            calendar.unselect();
+        })
+        .catch(() => {
+            alert("Erreur lors de l'enregistrement du cycle.");
+            calendar.unselect();
+        });
+    }
+
 });
 </script>
 
