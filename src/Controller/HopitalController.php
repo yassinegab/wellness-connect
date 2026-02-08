@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/hopitaux')]
 class HopitalController extends AbstractController
 {
-    #[Route('/', name: 'app_hopital_index', methods: ['GET'])]
+#[Route('/hopitaux', name: 'frontoffice_hopitaux')]   
     public function index(HopitalRepository $hopitalRepository): Response
     {
         return $this->render('hopital/index.html.twig', [

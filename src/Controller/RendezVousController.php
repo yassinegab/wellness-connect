@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/rendez-vous')]  // <-- Utilisez les attributs PHP 8
 class RendezVousController extends AbstractController
 {
-#[Route('/', name: 'app_rendez_vous', methods: ['GET'])]
+#[Route('/rendez-vous', name: 'frontoffice_rendez_vous')]           
 public function index(RendezVousRepository $rendezVousRepository): Response
 {
     // Récupérer l'utilisateur connecté
@@ -42,8 +42,7 @@ public function index(RendezVousRepository $rendezVousRepository): Response
         'rendez_vous' => $rendezVousList,
     ]);
 }
-
-    #[Route('/nouveau', name: 'app_rendez_vous_new', methods: ['GET', 'POST'])]
+#[Route('/rendez-vous/new', name: 'frontoffice_rendez_vous_new')]  
 public function new(Request $request, EntityManagerInterface $entityManager): Response
 {
     // Récupérer le patient connecté

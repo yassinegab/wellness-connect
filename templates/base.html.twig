@@ -3,442 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SmartHealth AI - Santé Intelligente{% endblock %}</title>
-
-    <!-- Tailwind CSS (si vous l'utilisez) -->
-    {% if asset('build/tailwind.css') %}
-    <link rel="stylesheet" href="{{ asset('build/tailwind.css') }}">
+    <title>{% block title %}SmartHealth AI{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    {% if app.environment == 'prod' %}
+        <link rel="stylesheet" href="{{ asset('build/tailwind.css') }}">
+    {% else %}
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#3b82f6',
+                            'primary-dark': '#2563eb',
+                            secondary: '#10b981',
+                            danger: '#ef4444',
+                            warning: '#f59e0b',
+                            success: '#22c55e',
+                            background: '#f8fafc',
+                            foreground: '#1e293b'
+                        }
+                    }
+                }
+            }
+        </script>
     {% endif %}
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Encore/Webpack CSS -->
-    {{ encore_entry_link_tags('app') }}
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     {% block stylesheets %}
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
-
+        
         :root {
-            --primary-color: #0066FF;
-            --primary-dark: #0052CC;
-            --primary-light: #E6F0FF;
-            --secondary-color: #00C9A7;
-            --danger-color: #FF3B30;
-            --warning-color: #FF9500;
-            --success-color: #34C759;
-            --text-primary: #1D1D1F;
-            --text-secondary: #86868B;
-            --bg-primary: #FFFFFF;
-            --bg-secondary: #F5F5F7;
-            --border-color: #D2D2D7;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #22c55e;
         }
-
+        
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
+            background: #f8fafc;
         }
-
-        /* Header Styles */
-        .header {
-            background: var(--bg-primary);
-            box-shadow: var(--shadow-sm);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
+        
+        /* Smooth transitions */
+        * {
+            transition: all 0.2s ease;
         }
-
-        .header-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 72px;
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
-            font-weight: 700;
-            font-size: 24px;
-            transition: transform 0.3s ease;
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
         }
-
-        .logo:hover {
-            transform: scale(1.05);
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out;
         }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
+        
+        .animate-slideIn {
+            animation: slideIn 0.3s ease-out;
         }
-
-        .logo-text span {
-            display: block;
-            font-size: 11px;
-            font-weight: 400;
-            color: var(--text-secondary);
-            margin-top: -4px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 8px;
-            list-style: none;
-        }
-
-        .nav-menu a {
-            text-decoration: none;
-            color: var(--text-secondary);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-menu a:hover,
-        .nav-menu a.active {
-            color: var(--primary-color);
-            background: var(--primary-light);
-        }
-
-        /* User Info Display */
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 16px;
-            background: var(--primary-light);
-            border-radius: 12px;
-            border: 2px solid var(--primary-color);
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .user-details {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .user-role {
-            font-size: 12px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .user-id {
-            font-size: 11px;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .role-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .role-badge.patient {
-            background: rgba(0, 201, 167, 0.1);
-            color: var(--secondary-color);
-        }
-
-        .role-badge.medecin {
-            background: rgba(0, 102, 255, 0.1);
-            color: var(--primary-color);
-        }
-
-        /* Main Content */
-        .main-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 24px;
-            min-height: calc(100vh - 72px - 80px);
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-            padding: 24px;
-            text-align: center;
-        }
-
-        .footer-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .footer-warning {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--warning-color);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .footer-copyright {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        /* Flash Messages */
-        .flash-messages {
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 24px;
-        }
-
-        .alert {
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background: rgba(52, 199, 89, 0.1);
-            border-left: 4px solid var(--success-color);
-            color: #1e7e34;
-        }
-
-        .alert-error {
-            background: rgba(255, 59, 48, 0.1);
-            border-left: 4px solid var(--danger-color);
-            color: #c9302c;
-        }
-
-        .alert-warning {
-            background: rgba(255, 149, 0, 0.1);
-            border-left: 4px solid var(--warning-color);
-            color: #d39e00;
-        }
-
-        .alert-info {
-            background: rgba(0, 102, 255, 0.1);
-            border-left: 4px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-container {
-                padding: 0 16px;
-                height: auto;
-                flex-wrap: wrap;
-                padding-top: 12px;
-                padding-bottom: 12px;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: space-between;
-                margin-top: 12px;
-            }
-
-            .nav-menu {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: var(--bg-primary);
-                padding: 12px;
-                box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-                justify-content: space-around;
-            }
-
-            .nav-menu a span {
-                display: none;
-            }
-
-            .main-content {
-                padding: 24px 16px 80px;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .user-info {
-                width: 100%;
-                justify-content: center;
-            }
+        
+        /* Hover effects */
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
     </style>
     {% endblock %}
 </head>
-<body class="bg-background text-foreground">
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <a href="{{ path('app_dashboard') }}" class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-heartbeat"></i>
-                </div>
-                <div class="logo-text">
-                    SmartHealth AI
-                    <span>Santé Intelligente</span>
-                </div>
-            </a>
-
-            <div class="header-right">
-                <nav>
-                    <ul class="nav-menu">
-                        <li>
-                            <a href="{{ path('app_dashboard') }}" class="{% if app.request.attributes.get('_route') == 'app_dashboard' %}active{% endif %}">
-                                <i class="fas fa-home"></i>
-                                <span>Tableau de bord</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ path('app_rendez_vous') }}" class="{% if app.request.attributes.get('_route') starts with 'app_rendez_vous' %}active{% endif %}">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Mes rendez-vous</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ path('app_hopital') }}" class="{% if app.request.attributes.get('_route') starts with 'app_hopital' %}active{% endif %}">
-                                <i class="fas fa-hospital"></i>
-                                <span>Hôpitaux</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                
-                {% if app.user %}
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ app.user.prenom|slice(0, 1)|upper }}{{ app.user.nom|slice(0, 1)|upper }}
-                    </div>
-                    <div class="user-details">
-                        <div class="user-name">{{ app.user.fullName }}</div>
-                        <div class="user-role">
-                            <span class="role-badge {{ app.user.isPacient ? 'patient' : 'medecin' }}">
-                                <i class="fas fa-{{ app.user.isPacient ? 'user' : 'user-md' }}"></i>
-                                {{ app.user.roleLabel }}
-                            </span>
-                            <span class="user-id">ID: {{ app.user.id }}</span>
-                        </div>
-                    </div>
-                    <a href="{{ path('app_logout') }}" style="margin-left: 12px; color: var(--danger-color); text-decoration: none;" title="Déconnexion">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </header>
-
-    <!-- Flash Messages -->
-    {% for label, messages in app.flashes %}
-        <div class="flash-messages">
-            {% for message in messages %}
-                <div class="alert alert-{{ label }}">
-                    <i class="fas fa-{{ label == 'success' ? 'check-circle' : (label == 'error' ? 'exclamation-circle' : (label == 'warning' ? 'exclamation-triangle' : 'info-circle')) }}"></i>
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
-
-    <!-- Main Content -->
-    <main class="main-content">
-        {% block body %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                SmartHealth AI est un système d'aide à la décision. Ne remplace pas un professionnel de santé.
-            </div>
-            <div class="footer-copyright">
-                © 2024 SmartHealth. Tous droits réservés.
-            </div>
-        </div>
-    </footer>
-
-    <!-- Alpine.js (optionnel) -->
+<body class="bg-gray-50">
+    {% block body %}{% endblock %}
+    
+    <!-- Alpine.js for interactivity -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     {% block javascripts %}{% endblock %}
-    
-    <!-- Encore/Webpack JavaScript -->
-    {{ encore_entry_script_tags('app') }}
-    
-    <!-- Importmap (pour Symfony 6.4+ avec AssetMapper) -->
- 
 </body>
 </html>

@@ -1,6 +1,5 @@
 <?php
 
-// src/Controller/DashboardController.php
 namespace App\Controller;
 
 use App\Repository\RendezVousRepository;
@@ -11,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
 {
-    #[Route('/', name: 'app_dashboard')]
+    #[Route('/dashboard', name: 'frontoffice_dashboard')]
     public function index(
         RendezVousRepository $rendezVousRepository,
         HopitalRepository $hopitalRepository
@@ -30,12 +29,13 @@ class DashboardController extends AbstractController
             'serviceUrgenceDispo' => true
         ]);
 
-        // Example user data
+        // Données utilisateur (exemple statique, remplacer par authentification réelle)
         $user = [
-            'prenom' => 'Yassine',
+            'prenom' => $this->getUser() ? $this->getUser()->getPrenom() : 'Yassine',
+            'nom' => $this->getUser() ? $this->getUser()->getNom() : '',
         ];
 
-        // Example quick actions
+        // Actions rapides
         $quickActions = [
             ['emoji' => '💊', 'label' => 'Médicaments'],
             ['emoji' => '🧘', 'label' => 'Méditation'],
@@ -44,11 +44,11 @@ class DashboardController extends AbstractController
         ];
 
         return $this->render('dashboard/index.html.twig', [
+            'user' => $user,
+            'quickActions' => $quickActions,
             'upcomingAppointments' => $upcomingAppointments,
             'completedConsultations' => $completedConsultations,
             'availableHospitals' => $availableHospitals,
-            'user' => $user,
-            'quickActions' => $quickActions,
         ]);
     }
 }
