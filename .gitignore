@@ -11,7 +11,7 @@
 
 ###> phpunit/phpunit ###
 /phpunit.xml
-<<<<<<< HEAD
+
 .phpunit.result.cache
 ###< phpunit/phpunit ###
 
@@ -34,4 +34,35 @@ yarn-error.log
 =======
 /.phpunit.cache/
 ###< phpunit/phpunit ###
->>>>>>> reserver-service
+
+####################################
+# Front Office Controllers
+####################################
+src/Controller/Front_office/AnalyseAIController.php
+src/Controller/Front_office/HopitalController.php
+src/Controller/Front_office/RendezVousController.php
+
+####################################
+# Front Office Entities (TOUS)
+####################################
+src/Entity/Front_office/
+
+####################################
+# Repositories (TOUS)
+####################################
+src/Repository/
+
+####################################
+# Front Office Templates
+####################################
+templates/Front_office/analyse_ai/
+templates/Front_office/hopital/
+templates/Front_office/rendez_vous/
+templates/Front_office/consultation/
+
+####################################
+# Optionnel (sécurité)
+####################################
+.env.local
+.env.test
+.env.prod
