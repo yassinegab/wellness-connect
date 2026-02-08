@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AnalyseAI{% endblock %}
+
+{% block body %}
+    <h1>AnalyseAI</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ analyse_a_i.id }}</td>
+            </tr>
+            <tr>
+                <th>PatientId</th>
+                <td>{{ analyse_a_i.patientId }}</td>
+            </tr>
+            <tr>
+                <th>RendezVousId</th>
+                <td>{{ analyse_a_i.rendezVousId }}</td>
+            </tr>
+            <tr>
+                <th>Symptomes</th>
+                <td>{{ analyse_a_i.symptomes }}</td>
+            </tr>
+            <tr>
+                <th>NiveauRisque</th>
+                <td>{{ analyse_a_i.niveauRisque }}</td>
+            </tr>
+            <tr>
+                <th>SpecialiteRecomandee</th>
+                <td>{{ analyse_a_i.specialiteRecomandee }}</td>
+            </tr>
+            <tr>
+                <th>DecisionProposee</th>
+                <td>{{ analyse_a_i.decisionProposee }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ analyse_a_i.createdAt ? analyse_a_i.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>NotesAI</th>
+                <td>{{ analyse_a_i.notesAI }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_analyse_a_i_index') }}">back to list</a>
+
+    <a href="{{ path('app_analyse_a_i_edit', {'id': analyse_a_i.id}) }}">edit</a>
+
+    {{ include('analyse_ai/_delete_form.html.twig') }}
+{% endblock %}

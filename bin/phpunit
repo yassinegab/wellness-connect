@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+<<<<<<< HEAD
 if (!ini_get('date.timezone')) {
     ini_set('date.timezone', 'UTC');
 }
@@ -21,3 +22,6 @@ if (is_file(dirname(__DIR__).'/vendor/phpunit/phpunit/phpunit')) {
 
     require dirname(__DIR__).'/vendor/symfony/phpunit-bridge/bin/simple-phpunit.php';
 }
+=======
+require dirname(__DIR__).'/vendor/phpunit/phpunit/phpunit';
+>>>>>>> reserver-service

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+<<<<<<< HEAD
   content: ["./templates/**/*.html.twig", "./assets/**/*.js"],
   theme: {
     extend: {
@@ -42,3 +43,14 @@ module.exports = {
   },
   plugins: [],
 };
+=======
+  content: [
+    "./templates/**/*.html.twig",
+    "./assets/**/*.js"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+>>>>>>> reserver-service

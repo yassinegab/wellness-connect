@@ -1,20 +1,739 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello DashboardController!{% endblock %}
+{% block title %}Tableau de bord - SmartHealth AI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: var(--bg-primary);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--shadow-md);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .stat-icon.primary { background: linear-gradient(135deg, #0066FF, #0052CC); }
+    .stat-icon.success { background: linear-gradient(135deg, #34C759, #30B04C); }
+    .stat-icon.warning { background: linear-gradient(135deg, #FF9500, #FF8000); }
+
+    .stat-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .stat-trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 8px;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    .stat-trend.up {
+        color: var(--success-color);
+        background: rgba(52, 199, 89, 0.1);
+    }
+
+    /* AI Analyzer Section */
+    .ai-analyzer {
+        background: linear-gradient(135deg, rgba(0, 102, 255, 0.05), rgba(0, 201, 167, 0.05));
+        border: 2px solid var(--primary-light);
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 40px;
+        box-shadow: var(--shadow-md);
+    }
+
+    .ai-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .ai-header h2 {
+        font-size: 28px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ai-badge {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .risk-assessment {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .risk-meter {
+        margin-bottom: 24px;
+    }
+
+    .risk-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .risk-label h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .risk-percentage {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--warning-color);
+    }
+
+    .risk-bar {
+        height: 12px;
+        background: var(--bg-secondary);
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .risk-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--warning-color), var(--danger-color));
+        border-radius: 6px;
+        transition: width 1s ease-out;
+        position: relative;
+    }
+
+    .risk-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .risk-info {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-top: 8px;
+    }
+
+    .ai-decision {
+        background: linear-gradient(135deg, rgba(255, 149, 0, 0.1), rgba(255, 59, 48, 0.1));
+        border-left: 4px solid var(--warning-color);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+
+    .ai-decision-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .ai-decision-icon {
+        font-size: 24px;
+        color: var(--warning-color);
+    }
+
+    .ai-decision-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .ai-decision-content {
+        font-size: 15px;
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .factors-list {
+        list-style: none;
+        margin-top: 16px;
+    }
+
+    .factors-list li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .factors-list li::before {
+        content: '•';
+        color: var(--danger-color);
+        font-size: 20px;
+    }
+
+    /* Smart Journey */
+    .smart-journey {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: var(--shadow-md);
+    }
+
+    .journey-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .journey-header h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .journey-subtitle {
+        color: var(--text-secondary);
+        font-size: 15px;
+    }
+
+    .journey-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 32px;
+        margin-bottom: 32px;
+    }
+
+    .journey-step {
+        position: relative;
+    }
+
+    .step-number {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    }
+
+    .step-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .step-content {
+        color: var(--text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .upload-zone {
+        border: 2px dashed var(--border-color);
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+        background: var(--bg-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 16px;
+    }
+
+    .upload-zone:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-light);
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        color: var(--primary-color);
+        margin-bottom: 16px;
+    }
+
+    .consultation-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .consultation-card {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .consultation-card:hover,
+    .consultation-card.selected {
+        border-color: var(--primary-color);
+        background: var(--primary-light);
+        transform: translateY(-2px);
+    }
+
+    .consultation-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .consultation-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .consultation-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .recommended-badge {
+        display: inline-block;
+        background: var(--success-color);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+    }
+
+    .btn-outline {
+        background: white;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+    }
+
+    .btn-outline:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .action-footer {
+        text-align: center;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .disclaimer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        font-size: 13px;
+        margin-top: 16px;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 40px;
+    }
+
+    .quick-action-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+
+    .quick-action-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .quick-action-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--primary-light);
+        color: var(--primary-color);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin: 0 auto 12px;
+    }
+
+    .quick-action-title {
+        font-weight: 600;
+        font-size: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid,
+        .journey-steps {
+            grid-template-columns: 1fr;
+        }
+
+        .consultation-options {
+            grid-template-columns: 1fr;
+        }
+
+        .ai-analyzer,
+        .smart-journey {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="dashboard-container">
+    <!-- Stats Cards -->
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Rendez-vous à venir</div>
+                    <div class="stat-value">{{ upcomingAppointments ?? 3 }}</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 2 cette semaine
+                    </div>
+                </div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+            </div>
+        </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Consultations terminées</div>
+                    <div class="stat-value">{{ completedConsultations ?? 12 }}</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> +3 ce mois
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/HP/Downloads/project/HealthCareWebDesktopApplication/src/Controller/DashboardController.php</code></li>
-        <li>Your template at <code>C:/Users/HP/Downloads/project/HealthCareWebDesktopApplication/templates/dashboard/index.html.twig</code></li>
-    </ul>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Hôpitaux disponibles</div>
+                    <div class="stat-value">{{ availableHospitals ?? 24 }}</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-hospital"></i> Avec urgences
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-hospital-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Medical Analyzer -->
+    <div class="ai-analyzer">
+        <div class="ai-header">
+            <h2>
+                <i class="fas fa-robot"></i> AI Medical Analyzer
+            </h2>
+            <span class="ai-badge">IA Médicale</span>
+        </div>
+
+        <div class="risk-assessment">
+            <div class="risk-meter">
+                <div class="risk-label">
+                    <h3>Gravité estimée</h3>
+                    <span class="risk-percentage">82%</span>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-fill" style="width: 82%"></div>
+                </div>
+                <div class="risk-info">Analyse basée sur dossier médical</div>
+            </div>
+
+            <div class="ai-decision">
+                <div class="ai-decision-header">
+                    <span class="ai-decision-icon">⚠️</span>
+                    <h4 class="ai-decision-title">Décision AI : Priorité élevée</h4>
+                </div>
+                <div class="ai-decision-content">
+                    <strong>Consultation recommandée sous 24h</strong>
+                    <ul class="factors-list">
+                        <li>Inflammation élevée détectée</li>
+                        <li>Surface étendue affectée</li>
+                        <li>Risque infectieux présent</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Journey -->
+    <div class="smart-journey">
+        <div class="journey-header">
+            <h2>
+                <i class="fas fa-route"></i> Parcours intelligent d'accès aux soins
+            </h2>
+            <p class="journey-subtitle">Le système adapte les options selon l'analyse médicale</p>
+        </div>
+
+        <div class="journey-steps">
+            <!-- Step 1 -->
+            <div class="journey-step">
+                <div class="step-number">①</div>
+                <h3 class="step-title">Dossier médical</h3>
+                <p class="step-content">Importez vos images ou documents médicaux pour une analyse IA approfondie</p>
+                
+                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div>
+                        <strong>Cliquez pour importer</strong>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
+                            Images, PDF, documents médicaux
+                        </p>
+                    </div>
+                    <input type="file" id="fileInput" style="display: none" multiple accept="image/*,.pdf,.doc,.docx">
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="journey-step">
+                <div class="step-number">②</div>
+                <h3 class="step-title">Mode de consultation</h3>
+                <p class="step-content">Choisissez le mode adapté à votre situation</p>
+                
+                <div class="consultation-options">
+                    <div class="consultation-card selected">
+                        <div class="consultation-icon">🏥</div>
+                        <div class="consultation-title">Présentiel</div>
+                        <p class="consultation-desc">Recommandé pour les cas complexes</p>
+                        <span class="recommended-badge">RECOMMANDÉ</span>
+                    </div>
+                    <div class="consultation-card">
+                        <div class="consultation-icon">💻</div>
+                        <div class="consultation-title">Téléconsultation</div>
+                        <p class="consultation-desc">Adapté aux cas stables</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="journey-step">
+                <div class="step-number">③</div>
+                <h3 class="step-title">Réservation intelligente</h3>
+                <p class="step-content">Le système priorise automatiquement votre demande selon l'urgence détectée</p>
+                
+                <div style="margin-top: 20px; padding: 16px; background: var(--primary-light); border-radius: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <i class="fas fa-clock" style="color: var(--primary-color);"></i>
+                        <strong>Créneaux prioritaires disponibles</strong>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-secondary);">
+                        Consultation possible dès demain matin
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-footer">
+            <a href="{{ path('app_rendez_vous_new') }}" class="btn btn-primary">
+                <i class="fas fa-calendar-plus"></i>
+                Confirmer la réservation
+            </a>
+            <a href="{{ path('app_hopital') }}" class="btn btn-outline" style="margin-left: 12px;">
+                <i class="fas fa-search"></i>
+                Explorer les hôpitaux
+            </a>
+            
+            <div class="disclaimer">
+                <i class="fas fa-info-circle"></i>
+                Aide à la décision – ne remplace pas un professionnel de santé
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="{{ path('app_rendez_vous') }}" class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="quick-action-title">Mes rendez-vous</div>
+        </a>
+        
+        <a href="{{ path('app_hopital') }}" class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div class="quick-action-title">Trouver un hôpital</div>
+        </a>
+        
+        <a href="#" class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="quick-action-title">Téléconsultation</div>
+        </a>
+        
+        <a href="#" class="quick-action-card">
+            <div class="quick-action-icon">
+                <i class="fas fa-file-medical"></i>
+            </div>
+            <div class="quick-action-title">Mon dossier</div>
+        </a>
+    </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Animation de la barre de risque
+    document.addEventListener('DOMContentLoaded', function() {
+        const riskFill = document.querySelector('.risk-fill');
+        if (riskFill) {
+            setTimeout(() => {
+                riskFill.style.width = riskFill.style.width;
+            }, 100);
+        }
+
+        // Sélection des options de consultation
+        const consultationCards = document.querySelectorAll('.consultation-card');
+        consultationCards.forEach(card => {
+            card.addEventListener('click', function() {
+                consultationCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Upload de fichiers
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const files = this.files;
+                if (files.length > 0) {
+                    alert(`${files.length} fichier(s) sélectionné(s) pour analyse IA`);
+                    // Ici vous pouvez ajouter l'upload réel vers votre backend
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
