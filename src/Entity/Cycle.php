@@ -4,29 +4,45 @@ namespace App\Entity;
 
 use App\Repository\CycleRepository;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CycleRepository::class)]
 class Cycle
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $idCycle = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotNull(message: "La date de début est obligatoire")]
     private ?\DateTime $dateDebutM = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotNull(message: "La date de fin est obligatoire")]
     private ?\DateTime $dateFinM = null;
 
-
-
-    public function getIdCycle(): ?int
+    #[Assert\Callback]
+    public function validateDates(ExecutionContextInterface $context): void
     {
-        return $this->idCycle;
+        if ($this->dateDebutM && $this->dateFinM) {
+            if ($this->dateDebutM >= $this->dateFinM) {
+                $context->buildViolation(
+                    'La date de début doit être strictement antérieure à la date de fin'
+                )
+                ->atPath('dateDebutM')
+                ->addViolation();
+            }
+        }
     }
+
+  
+public function getIdCycle(): ?int
+{
+    return $this->idCycle;
+}
 
 
 

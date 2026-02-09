@@ -7,7 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
+
 use App\Entity\Cycle;
 
 
@@ -84,33 +86,69 @@ foreach ($cycles as $cycle) {
     #[Route('/cycle/add', name: 'cycle_add_ajax', methods: ['POST'])]
 public function addCycleAjax(
     Request $request,
-    EntityManagerInterface $em
+    EntityManagerInterface $em,
+    ValidatorInterface $validator
 ): JsonResponse {
 
     $data = json_decode($request->getContent(), true);
 
     if (!isset($data['start'], $data['end'])) {
-        return new JsonResponse(['success' => false, 'message' => 'Dates manquantes'], 400);
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Dates manquantes'
+        ], 400);
     }
 
     $start = new \DateTime($data['start']);
     $endExclusive = new \DateTime($data['end']);
 
-    // FullCalendar => end exclusif
+    // FullCalendar → end exclusif
     $end = clone $endExclusive;
     $end->modify('-1 day');
 
-    // 🔐 Vérification AVANT persist
-    if ($start > $end) {
+    /* ===========================
+       1️⃣ Validation logique dates
+       =========================== */
+    if ($start >= $end) {
         return new JsonResponse([
             'success' => false,
-            'message' => 'La date de début doit être avant la date de fin'
+            'message' =>  'La période doit durer au moins 2 jours 🌸'
         ], 400);
     }
 
+    /* ===========================
+       2️⃣ Vérification chevauchement
+       =========================== */
+    $existingCycles = $em->getRepository(Cycle::class)->findAll();
+
+    foreach ($existingCycles as $cycle) {
+        $existingStart = $cycle->getDateDebutM();
+        $existingEnd   = $cycle->getDateFinM();
+
+        if ($start <= $existingEnd && $end >= $existingStart) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Oops 😅 cette période est déjà notée!'
+            ], 409);
+        }
+    }
+
+    /* ===========================
+       3️⃣ Sauvegarde autorisée
+       =========================== */
     $cycle = new Cycle();
-    $cycle->setDateDebutM($start);
-    $cycle->setDateFinM($end);
+$cycle->setDateDebutM($start);
+$cycle->setDateFinM($end);
+
+// 🔐 Validation Symfony
+$errors = $validator->validate($cycle);
+
+if (count($errors) > 0) {
+    return new JsonResponse([
+        'success' => false,
+        'message' => $errors[0]->getMessage()
+    ], 400);
+}
 
     $em->persist($cycle);
     $em->flush();
