@@ -42,6 +42,7 @@ foreach ($cycles as $cycle) {
     $current = clone $start;
     while ($current <= $end) {
         $calendarEvents[] = [
+            'id' => $cycle->getIdCycle(),
             'title' => '🩸',                    // emoji goutte de sang
             'start' => $current->format('Y-m-d'),
             'allDay' => true,
@@ -117,6 +118,26 @@ public function addCycleAjax(
     return new JsonResponse([
         'success' => true
     ]);
+}
+#[Route('/cycle/delete', name: 'cycle_delete_ajax', methods: ['POST'])]
+public function deleteCycleAjax(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+
+    if (!isset($data['id'])) {
+        return new JsonResponse(['success' => false, 'message' => 'ID manquant'], 400);
+    }
+
+    $cycle = $em->getRepository(Cycle::class)->find($data['id']);
+
+    if (!$cycle) {
+        return new JsonResponse(['success' => false, 'message' => 'Cycle introuvable'], 404);
+    }
+
+    $em->remove($cycle);
+    $em->flush();
+
+    return new JsonResponse(['success' => true]);
 }
     
 }

@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         events: {{ calendarEvents|default('[]')|raw }},
 
+        // Ajouter une période
         select: function(info) {
             const start = info.start;
             const endExclusive = info.end;
@@ -124,16 +125,48 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Conversion en YYYY-MM-DD
             const startStr = start.toISOString().split('T')[0];
             const endStr = endExclusive.toISOString().split('T')[0];
 
             saveCycle(startStr, endStr);
+        },
+
+        // Supprimer une période
+        eventClick: function(info) {
+            if (!confirm("Voulez-vous supprimer cette période de menstruation ?")) {
+                return;
+            }
+
+            const cycleId = info.event.id;
+
+            fetch("{{ path('cycle_delete_ajax') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({ id: cycleId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    calendar.getEvents().forEach(e => {
+                        if (e.id == cycleId) e.remove();
+                    });
+                } else {
+                    alert("Impossible de supprimer la période.");
+                }
+            })
+            .catch(() => {
+                alert("Erreur lors de la suppression.");
+            });
         }
-    });
 
-    calendar.render();
+    }); // ✅ Fin de la configuration du calendrier
 
+    calendar.render(); // Render après toute la config
+
+    // Fonction pour sauvegarder une période
     function saveCycle(start, end) {
         fetch("{{ path('cycle_add_ajax') }}", {
             method: "POST",
@@ -146,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Ajouter un événement par jour de la période
                 let current = new Date(start);
                 let endDate = new Date(end);
                 while (current <= endDate) {
