@@ -3,17 +3,21 @@
 namespace App\Controller;
 
 use App\Entity\Symptome;
+use App\Form\SymptomeType;
+use App\Repository\SymptomeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 class SymptomeController extends AbstractController
 {
-    #[Route('/symptomes', name: 'symptome_index')]
-    public function index(): Response
+    #[Route('/symptome', name: 'symptome_index')]
+    public function index(ManagerRegistry $doctrine): Response
     {
         $symptomesDisponibles = [
             ['label' => 'Maux de tête', 'value' => 'maux_tete'],
@@ -30,13 +34,17 @@ class SymptomeController extends AbstractController
             'Très forte 😖'  => 5,
         ];
 
+        $symptomes = $doctrine->getRepository(Symptome::class)->findAll();
+
         return $this->render('symptome/index.html.twig', [
             'symptomesDisponibles' => $symptomesDisponibles,
-            'intensites' => $intensites
+            'intensites' => $intensites,
+            'symptomes' => $symptomes,
         ]);
     }
 
-    #[Route('/symptomes/create', name: 'symptome_create', methods: ['POST'])]
+
+    #[Route('/symptome/create', name: 'symptome_create', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -54,4 +62,40 @@ class SymptomeController extends AbstractController
 
         return new JsonResponse(['status' => 'success']);
     }
+    #[Route('/symptome/{id}/edit', name: 'symptome_edit')]
+    public function edit(Request $request, Symptome $symptome, EntityManagerInterface $em): Response
+   {
+    // Création du formulaire lié à l'entité Symptome
+    $form = $this->createForm(SymptomeType::class, $symptome);
+
+    // Traitement de la requête
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->persist($symptome);
+        $em->flush();
+
+        $this->addFlash('success', 'Symptôme modifié avec succès !');
+        return $this->redirectToRoute('symptome_index');
+    }
+
+    return $this->render('symptome/edit.html.twig', [
+        'form' => $form->createView(),
+        'symptome' => $symptome,
+    ]);
+   } 
+  #[Route('/symptome/list', name: 'symptome_list')]
+  public function list(SymptomeRepository $symptomeRepository): Response
+ {
+    $symptomes = $symptomeRepository->findAll();
+
+    return $this->render('symptome/list.html.twig', [
+        'symptomes' => $symptomes,
+    ]);
+ }
+
+
+
+
+  
 }

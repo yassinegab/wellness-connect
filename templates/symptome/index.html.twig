@@ -14,55 +14,86 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-center gap-2 rounded-md border px-3 py-2">📅 {{ "now"|date("l d F Y") }}</div>
         </div>
-<h2>Ajouter vos symptômes</h2>
+<h2 class="text-2xl font-bold text-pink-600 mb-4">Ajouter vos symptômes 🌸</h2>
 
-<div id="symptomes-list">
+<div id="symptomes-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for symptome in symptomesDisponibles %}
-    <div class="symptome-item">
-        <!-- Checkbox pour activer le symptôme -->
-        <input type="checkbox" class="symptome-checkbox" data-symptome="{{ symptome.value }}">
-        <label>{{ symptome.label }}</label>
+    <div class="symptome-item bg-pink-200 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 hover:scale-105 hover:bg-pink-500 shadow-sm flex flex-col gap-2 items-start" data-symptome="{{ symptome.value }}">
+        <!-- Label clickable -->
+        <div class="symptome-label font-medium text-pink-900">{{ symptome.label }}</div>
 
         <!-- Dropdown intensité -->
-        <select class="intensite-select" disabled>
+        <select class="intensite-select w-full py-1 px-2 rounded-lg border border-pink-300" disabled>
+            <option value="" selected>Choisir l'intensité 💖</option>
             {% for label, value in intensites %}
             <option value="{{ value }}">{{ label }}</option>
             {% endfor %}
         </select>
 
         <!-- Date picker -->
-        <input type="date" class="date-observation" disabled>
+        <input type="date" class="date-observation w-full py-1 px-2 rounded-lg border border-pink-300" disabled>
     </div>
     {% endfor %}
 </div>
 
-<button id="save-symptomes">Enregistrer</button>
+<div class="flex gap-4 mt-6">
+    <button id="save-symptomes" class="px-6 py-2 bg-pink-500 text-white font-semibold rounded-2xl hover:bg-pink-600 transition">Enregistrer</button>
+    <button id="cancel-symptomes" class="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-2xl hover:bg-gray-300 transition">Annuler</button>
+</div>
+<div>
+<a href="{{ path('symptome_list') }}"
+   class="px-6 py-2 bg-pink-400 text-white font-semibold rounded-2xl hover:bg-pink-500 transition">
+    📋 Voir mes symptômes
+</a>
+    
+    </div>
+
+
 {% endblock %}
 
 {% block javascripts %}
 <script>
-const checkboxes = document.querySelectorAll('.symptome-checkbox');
-checkboxes.forEach(cb => {
-    cb.addEventListener('change', (e) => {
-        const parent = e.target.closest('.symptome-item');
-        parent.querySelector('.intensite-select').disabled = !e.target.checked;
-        parent.querySelector('.date-observation').disabled = !e.target.checked;
+
+
+const symptomeItems = document.querySelectorAll('.symptome-item');
+
+symptomeItems.forEach(item => {
+    // Clique sur la card pour activer
+    item.addEventListener('click', (e) => {
+        // Empêche la propagation si on clique sur le select ou date
+        if(e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+
+        const isActive = item.classList.toggle('selected');
+        const intensiteSelect = item.querySelector('.intensite-select');
+        const dateInput = item.querySelector('.date-observation');
+        intensiteSelect.disabled = !isActive;
+        dateInput.disabled = !isActive;
+
+        if(isActive) {
+            item.classList.add('bg-pink-300', 'shadow-md');
+        } else {
+            item.classList.remove('bg-pink-300', 'shadow-md');
+        }
     });
 });
 
-// Envoi des données via fetch/AJAX
+// Bouton Enregistrer
 document.getElementById('save-symptomes').addEventListener('click', async () => {
     const data = [];
-    document.querySelectorAll('.symptome-item').forEach(item => {
-        const checkbox = item.querySelector('.symptome-checkbox');
-        if (checkbox.checked) {
+    symptomeItems.forEach(item => {
+        if(item.classList.contains('selected')) {
             data.push({
-                type: checkbox.dataset.symptome,
+                type: item.dataset.symptome,
                 intensite: item.querySelector('.intensite-select').value,
                 dateObservation: item.querySelector('.date-observation').value
             });
         }
     });
+
+    if(data.length === 0){
+        alert("Veuillez sélectionner au moins un symptôme.");
+        return;
+    }
 
     const response = await fetch('{{ path('symptome_create') }}', {
         method: 'POST',
@@ -76,6 +107,17 @@ document.getElementById('save-symptomes').addEventListener('click', async () => 
     } else {
         alert('Erreur lors de l\'enregistrement.');
     }
+});
+
+// Bouton Annuler
+document.getElementById('cancel-symptomes').addEventListener('click', () => {
+    symptomeItems.forEach(item => {
+        item.classList.remove('selected', 'bg-pink-300', 'shadow-md');
+        item.querySelector('.intensite-select').disabled = true;
+        item.querySelector('.date-observation').disabled = true;
+        item.querySelector('.intensite-select').value = "";
+        item.querySelector('.date-observation').value = "";
+    });
 });
 </script>
 {% endblock %}

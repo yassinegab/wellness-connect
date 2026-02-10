@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Symptômes{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-background">
+
+  {# Sidebar #}
+  {% include 'components/sidebar.html.twig' %}
+
+  <div class="flex flex-1 flex-col">
+
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+
+    <main class="flex-1 overflow-auto">
+      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+
+        {# Header #}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+          <div class="flex items-center gap-2 rounded-md border px-3 py-2">
+            📅 {{ "now"|date("l d F Y") }}
+          </div>
+        </div>
+<div class="max-w-5xl mx-auto p-6">
+
+    <h2 class="text-2xl font-bold text-pink-600 mb-6">
+        📋 symptômes enregistrés
+    </h2>
+
+    {% if symptomes is empty %}
+        <p class="text-gray-500">Aucun symptôme enregistré.</p>
+    {% else %}
+        <table class="w-full border-collapse rounded-xl overflow-hidden shadow">
+            <thead class="bg-pink-200 text-pink-900">
+                <tr>
+                    <th class="p-3 text-left">Type</th>
+                    <th class="p-3 text-left">Intensité</th>
+                    <th class="p-3 text-left">Date</th>
+                    <th class="p-3 text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+                {% for symptome in symptomes %}
+                    <tr class="border-b hover:bg-pink-50">
+                        <td class="p-3">{{ symptome.type }}</td>
+                        <td class="p-3">{{ symptome.intensite }}</td>
+                        <td class="p-3">
+                            {{ symptome.dateObservation ? symptome.dateObservation|date('Y-m-d') : '—' }}
+                        </td>
+                        <td class="p-3 text-center">
+                            <a href="{{ path('symptome_edit', {id: symptome.idSymptome}) }}"
+                               class="px-4 py-1 bg-pink-500 text-white rounded-xl hover:bg-pink-600 transition">
+                                ✏️ Modifier
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="mt-6">
+        <a href="{{ path('symptome_index') }}"
+           class="text-pink-600 hover:underline">
+            ← Retour
+        </a>
+    </div>
+
+</div>
+{% endblock %}
