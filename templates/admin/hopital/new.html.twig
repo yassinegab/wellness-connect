@@ -1,0 +1,207 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel Hôpital - Admin{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+
+    {# Admin Sidebar #}
+    {% include 'admin/components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col lg:ml-64">
+
+        {# Admin Top Nav #}
+        {% include 'admin/components/top-nav.html.twig' %}
+
+        <main class="flex-1 overflow-auto">
+            <div class="mx-auto max-w-4xl space-y-6 p-4 lg:p-8">
+
+                {# Header #}
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">
+                            <i class="fas fa-hospital text-blue-600 mr-2"></i>
+                            Nouvel Hôpital
+                        </h1>
+                        <p class="text-gray-600 mt-2">
+                            Ajouter un nouvel hôpital
+                        </p>
+                    </div>
+
+                    <a href="{{ path('admin_rendez_vous_index') }}"
+                       class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Retour
+                    </a>
+                </div>
+
+                {# Flash messages #}
+                {% for message in app.flashes('success') %}
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 animate-fadeIn">
+                        <i class="fas fa-check-circle"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 animate-fadeIn">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+
+                {# Formulaire #}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                   {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        {# Nom #}
+                        <div>
+                            {{ form_label(form.nom, 'Nom de l’hôpital', {
+                                label_attr: { class: 'block text-sm font-semibold text-gray-700 mb-2' }
+                            }) }}
+                            {{ form_widget(form.nom, {
+                                attr: {
+                                    class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500'
+                                }
+                            }) }}
+                            <div class="text-red-600 text-sm mt-1">
+                                {{ form_errors(form.nom) }}
+                            </div>
+                        </div>
+
+                        {# Téléphone #}
+                        <div>
+                            {{ form_label(form.tel, 'Téléphone', {
+                                label_attr: { class: 'block text-sm font-semibold text-gray-700 mb-2' }
+                            }) }}
+                            {{ form_widget(form.tel, {
+                                attr: {
+                                    class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500'
+                                }
+                            }) }}
+                            <div class="text-red-600 text-sm mt-1">
+                                {{ form_errors(form.tel) }}
+                            </div>
+                        </div>
+
+                        {# Adresse #}
+                        <div class="md:col-span-2">
+                            {{ form_label(form.adresse, 'Adresse', {
+                                label_attr: { class: 'block text-sm font-semibold text-gray-700 mb-2' }
+                            }) }}
+                            {{ form_widget(form.adresse, {
+                                attr: {
+                                    class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500',
+                                    rows: 3
+                                }
+                            }) }}
+                            <div class="text-red-600 text-sm mt-1">
+                                {{ form_errors(form.adresse) }}
+                            </div>
+                        </div>
+
+                        {# Capacité #}
+                        <div>
+                            {{ form_label(form.capacite, 'Capacité (lits)', {
+                                label_attr: { class: 'block text-sm font-semibold text-gray-700 mb-2' }
+                            }) }}
+                            {{ form_widget(form.capacite, {
+                                attr: {
+                                    class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500'
+                                }
+                            }) }}
+                            <div class="text-red-600 text-sm mt-1">
+                                {{ form_errors(form.capacite) }}
+                            </div>
+                        </div>
+
+                        {# Urgences #}
+                        <div>
+                            {{ form_label(form.serviceUrgenceDispo, 'Service d’urgence disponible', {
+                                label_attr: { class: 'block text-sm font-semibold text-gray-700 mb-2' }
+                            }) }}
+                            {{ form_widget(form.serviceUrgenceDispo, {
+                                attr: {
+                                    class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500'
+                                }
+                            }) }}
+                            <div class="text-red-600 text-sm mt-1">
+                                {{ form_errors(form.serviceUrgenceDispo) }}
+                            </div>
+                        </div>
+
+                        {# Latitude #}
+                        <div>
+                            {{ form_label(form.latitude, 'Latitude', {
+                                label_attr: { class: 'block text-sm font-semibold text-gray-700 mb-2' }
+                            }) }}
+                            {{ form_widget(form.latitude, {
+                                attr: {
+                                    class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500'
+                                }
+                            }) }}
+                            <div class="text-red-600 text-sm mt-1">
+                                {{ form_errors(form.latitude) }}
+                            </div>
+                        </div>
+
+                        {# Longitude #}
+                        <div>
+                            {{ form_label(form.longitude, 'Longitude', {
+                                label_attr: { class: 'block text-sm font-semibold text-gray-700 mb-2' }
+                            }) }}
+                            {{ form_widget(form.longitude, {
+                                attr: {
+                                    class: 'w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500'
+                                }
+                            }) }}
+                            <div class="text-red-600 text-sm mt-1">
+                                {{ form_errors(form.longitude) }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {# Boutons #}
+                    <div class="flex gap-4 pt-4 border-t border-gray-200">
+                        <a href="{{ path('admin_rendez_vous_index') }}"
+                           class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">
+                            <i class="fas fa-times mr-2"></i>
+                            Annuler
+                        </a>
+
+                        <button type="submit"
+                                class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-md">
+                            <i class="fas fa-save mr-2"></i>
+                            Créer l’hôpital
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+</div>
+
+<style>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+</style>
+{% endblock %}

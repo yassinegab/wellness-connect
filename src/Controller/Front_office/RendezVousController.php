@@ -4,7 +4,7 @@ namespace App\Controller\Front_office;
 
 use App\Entity\Front_office\RendezVous;
 use App\Form\RendezVousType;
-use App\Repository\Front_office\RendezVousRepository;
+use App\Repository\RendezVousRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +42,7 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
 
         $this->addFlash('success', 'Rendez-vous créé avec succès !');
 
-        return $this->redirectToRoute('app_rendez_vous_index');
+        return $this->redirectToRoute('app_service_home');
     }
 
     return $this->render('Front_office/rendez_vous/new.html.twig', [
@@ -63,7 +63,7 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
 
             $this->addFlash('success', 'Rendez-vous modifié avec succès !');
 
-            return $this->redirectToRoute('app_rendez_vous_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_service_home', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('Front_office/rendez_vous/edit.html.twig', [
@@ -90,6 +90,6 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
             $this->addFlash('success', 'Rendez-vous supprimé avec succès !');
         }
 
-        return $this->redirectToRoute('app_rendez_vous_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_service_home', [], Response::HTTP_SEE_OTHER);
     }
 }

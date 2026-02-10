@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Rendez-vous #{{ rendez_vous.id }}{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50">
+
+    {% include 'components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col lg:ml-72">
+
+        {% include 'components/top-nav.html.twig' %}
+
+        <main class="flex-1 overflow-auto">
+            <div class="mx-auto max-w-4xl space-y-6 p-4 lg:p-8">
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">
+                            <i class="fas fa-calendar-check text-blue-600 mr-2"></i>
+                            Rendez-vous #{{ rendez_vous.id }}
+                        </h1>
+                    </div>
+                    <a href="{{ path('admin_rendez_vous_index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300">
+                        <i class="fas fa-arrow-left mr-2"></i>Retour
+                    </a>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">Patient</dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {% if rendez_vous.patient %}
+                                    {{ rendez_vous.patient.nom }} {{ rendez_vous.patient.prenom }}
+                                {% else %}
+                                    Non assigné
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">Médecin</dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {% if rendez_vous.medecin %}
+                                    Dr. {{ rendez_vous.medecin.nom }}
+                                {% else %}
+                                    Non assigné
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div class="bg-purple-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">Hôpital</dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {{ rendez_vous.hopital.nom }}
+                            </dd>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">Date et heure</dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {{ rendez_vous.dateRendezVous|date('d/m/Y à H:i') }}
+                            </dd>
+                        </div>
+
+                        <div class="bg-indigo-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">Type</dt>
+                            <dd class="text-lg font-semibold text-gray-900">{{ rendez_vous.typeConsultation }}</dd>
+                        </div>
+
+                        <div class="bg-yellow-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">Statut</dt>
+                            <dd class="text-lg font-semibold text-gray-900">{{ rendez_vous.statut }}</dd>
+                        </div>
+
+                        {% if rendez_vous.notes %}
+                            <div class="md:col-span-2 bg-gray-50 rounded-lg p-4">
+                                <dt class="text-sm font-medium text-gray-500 mb-2">Notes</dt>
+                                <dd class="text-gray-900">{{ rendez_vous.notes }}</dd>
+                            </div>
+                        {% endif %}
+                    </dl>
+
+                    <div class="flex gap-4 mt-6 pt-6 border-t">
+                        <a href="{{ path('admin_rendez_vous_edit', {'id': rendez_vous.id}) }}" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-edit mr-2"></i>Modifier
+                        </a>
+                        <button onclick="confirmDelete()" class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">
+                            <i class="fas fa-trash mr-2"></i>Supprimer
+                        </button>
+                        <form id="delete-form" method="post" action="{{ path('admin_rendez_vous_delete', {'id': rendez_vous.id}) }}" style="display: none;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ rendez_vous.id) }}">
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    if (confirm('Supprimer ce rendez-vous ?')) {
+        document.getElementById('delete-form').submit();
+    }
+}
+</script>
+{% endblock %}

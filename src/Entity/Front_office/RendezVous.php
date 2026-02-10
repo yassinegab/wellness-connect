@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Entity\Front_office;
+
 use App\Repository\RendezVousRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -14,20 +15,16 @@ class RendezVous
     #[ORM\Column]
     private ?int $id = null;
 
-    // #[ORM\ManyToOne(targetEntity: User::class)]
-    // #[ORM\JoinColumn(nullable: false)]
-    // #[Assert\NotNull(message: "Le patient est obligatoire")]
-    // private ?User $patient = null;
     #[ORM\ManyToOne(targetEntity: User::class)]
-#[ORM\JoinColumn(nullable: true)]  // Changé de false à true temporairement
-// #[Assert\NotNull(message: "Le patient est obligatoire")]  // Commenté temporairement
-private ?User $patient = null;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $patient = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $medecin = null;
 
-    #[ORM\ManyToOne(targetEntity: Hopital::class)]
+    // ✅ RELATION ManyToOne : Un rendez-vous appartient à un hôpital
+    #[ORM\ManyToOne(targetEntity: Hopital::class, inversedBy: 'rendezVous')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "L'hôpital est obligatoire")]
     private ?Hopital $hopital = null;
@@ -133,7 +130,7 @@ private ?User $patient = null;
         return $this->typeConsultation;
     }
 
-    public function setTypeConsultation(string $typeConsultation): static
+    public function setTypeConsultation(?string $typeConsultation): static
     {
         $this->typeConsultation = $typeConsultation;
         return $this;
@@ -144,7 +141,7 @@ private ?User $patient = null;
         return $this->statut;
     }
 
-    public function setStatut(string $statut): static
+    public function setStatut(?string $statut): static
     {
         $this->statut = $statut;
         return $this;
@@ -166,12 +163,11 @@ private ?User $patient = null;
         return $this->dateRendezVous;
     }
 
-  public function setDateRendezVous(?\DateTimeInterface $dateRendezVous): static
-{
-    $this->dateRendezVous = $dateRendezVous;
-    return $this;
-}
-
+    public function setDateRendezVous(?\DateTimeInterface $dateRendezVous): static
+    {
+        $this->dateRendezVous = $dateRendezVous;
+        return $this;
+    }
 
     public function getNotes(): ?string
     {
@@ -189,14 +185,9 @@ private ?User $patient = null;
         return $this->createdAt;
     }
 
- 
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
     {
-        // Même chose pour updatedAt
-        $this->updatedAt = $updatedAt instanceof \DateTime
-            ? \DateTimeImmutable::createFromMutable($updatedAt)
-            : $updatedAt;
-
+        $this->createdAt = $createdAt;
         return $this;
     }
 
@@ -205,9 +196,17 @@ private ?User $patient = null;
         return $this->updatedAt;
     }
 
-    // Ajoutez cette méthode à la fin de votre classe RendezVous
-public function __toString(): string
-{
-    return sprintf('Rendez-vous #%d (%s)', $this->id ?? 0, $this->dateRendezVous?->format('d/m/Y H:i'));
-}
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt instanceof \DateTime
+            ? \DateTimeImmutable::createFromMutable($updatedAt)
+            : $updatedAt;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('Rendez-vous #%d (%s)', $this->id ?? 0, $this->dateRendezVous?->format('d/m/Y H:i') ?? 'Non défini');
+    }
 }

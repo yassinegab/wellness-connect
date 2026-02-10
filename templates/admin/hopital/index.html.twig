@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Hôpitaux{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50">
+
+    {% include 'admin/components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col lg:ml-64">
+
+        {% include 'admin/components/top-nav.html.twig' %}
+
+        <main class="flex-1 overflow-auto p-6">
+
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-hospital text-red-600 mr-2"></i>
+                    Liste des hôpitaux
+                </h1>
+
+                <a href="{{ path('admin_hopital_new') }}"
+                   class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    <i class="fas fa-plus mr-2"></i>Ajouter
+                </a>
+            </div>
+
+            <div class="bg-white rounded-xl shadow border">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-4">Nom</th>
+                            <th class="p-4">Téléphone</th>
+                            <th class="p-4">Urgence</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hopital in hopitaux %}
+                            <tr class="border-t hover:bg-gray-50">
+                                <td class="p-4 font-semibold">{{ hopital.nom }}</td>
+                                <td class="p-4">{{ hopital.tel }}</td>
+                                <td class="p-4">
+                                    {% if hopital.serviceUrgenceDispo %}
+                                        <span class="text-green-600 font-bold">Oui</span>
+                                    {% else %}
+                                        <span class="text-red-600 font-bold">Non</span>
+                                    {% endif %}
+                                </td>
+                                <td class="p-4 text-right space-x-2">
+                                    <a href="{{ path('admin_hopital_show', {'id': hopital.id}) }}"
+                                       class="text-blue-600 hover:underline">Voir</a>
+                                    <a href="{{ path('admin_hopital_edit', {'id': hopital.id}) }}"
+                                       class="text-green-600 hover:underline">Éditer</a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="p-6 text-center text-gray-500">
+                                    Aucun hôpital trouvé
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+</div>
+{% endblock %}

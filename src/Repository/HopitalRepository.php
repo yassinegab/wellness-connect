@@ -3,52 +3,104 @@
 namespace App\Repository;
 
 use App\Entity\Front_office\Hopital;
-
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Hopital>
- */
 class HopitalRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Hopital::class);
     }
-public function search(string $term)
-{
-    return $this->createQueryBuilder('h')
-        ->where('h.nom LIKE :term')
-        ->orWhere('h.adresse LIKE :term')
-        ->setParameter('term', '%'.$term.'%')
-        ->getQuery()
-        ->getResult();
-}
 
+    /**
+     * Recherche simple
+     */
+    public function search(string $term): array
+    {
+        return $this->createQueryBuilder('h')
+            ->where('h.nom LIKE :term')
+            ->orWhere('h.adresse LIKE :term')
+            ->orWhere('h.tel LIKE :term')
+            ->setParameter('term', '%' . $term . '%')
+            ->orderBy('h.nom', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    /**
-    //     * @return Hopital[] Returns an array of Hopital objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('h')
-    //            ->andWhere('h.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('h.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Recherche avec pagination et tri
+     */
+    public function searchPaginated(string $term, int $page = 1, int $limit = 10, string $sort = 'nom'): array
+    {
+        $qb = $this->createQueryBuilder('h')
+            ->where('h.nom LIKE :term')
+            ->orWhere('h.adresse LIKE :term')
+            ->orWhere('h.tel LIKE :term')
+            ->setParameter('term', '%' . $term . '%');
 
-    //    public function findOneBySomeField($value): ?Hopital
-    //    {
-    //        return $this->createQueryBuilder('h')
-    //            ->andWhere('h.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        // Tri
+        switch ($sort) {
+            case 'capacite':
+                $qb->orderBy('h.capacite', 'DESC');
+                break;
+            case 'urgence':
+                $qb->orderBy('h.serviceUrgenceDispo', 'DESC')
+                   ->addOrderBy('h.nom', 'ASC');
+                break;
+            default:
+                $qb->orderBy('h.nom', 'ASC');
+        }
+
+        // Compter le total
+        $total = count($qb->getQuery()->getResult());
+
+        // Pagination
+        $offset = ($page - 1) * $limit;
+        $data = $qb->setFirstResult($offset)
+                   ->setMaxResults($limit)
+                   ->getQuery()
+                   ->getResult();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+        ];
+    }
+
+    /**
+     * Listing avec pagination et tri
+     */
+    public function findPaginated(int $page = 1, int $limit = 10, string $sort = 'nom'): array
+    {
+        $qb = $this->createQueryBuilder('h');
+
+        // Tri
+        switch ($sort) {
+            case 'capacite':
+                $qb->orderBy('h.capacite', 'DESC');
+                break;
+            case 'urgence':
+                $qb->orderBy('h.serviceUrgenceDispo', 'DESC')
+                   ->addOrderBy('h.nom', 'ASC');
+                break;
+            default:
+                $qb->orderBy('h.nom', 'ASC');
+        }
+
+        // Compter le total
+        $total = count($qb->getQuery()->getResult());
+
+        // Pagination
+        $offset = ($page - 1) * $limit;
+        $data = $qb->setFirstResult($offset)
+                   ->setMaxResults($limit)
+                   ->getQuery()
+                   ->getResult();
+
+        return [
+            'data' => $data,
+            'total' => $total,
+        ];
+    }
 }
