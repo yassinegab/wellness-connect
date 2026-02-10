@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Controller\Front_office;
+use App\Entity\Front_office\Hopital;
 
-use App\Entity\Hopital;
 use App\Repository\HopitalRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;

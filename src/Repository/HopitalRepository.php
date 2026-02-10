@@ -2,7 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Hopital;
+use App\Entity\Front_office\Hopital;
+
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,6 +16,16 @@ class HopitalRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Hopital::class);
     }
+public function search(string $term)
+{
+    return $this->createQueryBuilder('h')
+        ->where('h.nom LIKE :term')
+        ->orWhere('h.adresse LIKE :term')
+        ->setParameter('term', '%'.$term.'%')
+        ->getQuery()
+        ->getResult();
+}
+
 
     //    /**
     //     * @return Hopital[] Returns an array of Hopital objects

@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\RendezVous;
+use App\Entity\Front_office\RendezVous;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,6 +15,17 @@ class RendezVousRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, RendezVous::class);
     }
+public function search(string $term)
+{
+    return $this->createQueryBuilder('r')
+        ->join('r.patient', 'p')
+        ->join('r.medecin', 'm')
+        ->where('p.nom LIKE :term')
+        ->orWhere('m.nom LIKE :term')
+        ->setParameter('term', '%'.$term.'%')
+        ->getQuery()
+        ->getResult();
+}
 
 //    /**
 //     * @return RendezVous[] Returns an array of RendezVous objects

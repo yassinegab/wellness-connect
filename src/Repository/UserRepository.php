@@ -2,36 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\User;
+use App\Entity\Front_office\User;
+use App\Enum\UserRole; // <-- IMPORTANT: cet import doit exister
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 
-class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
+class UserRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, User::class);
+        parent::__construct($registry, User::class); // <-- User::class doit pointer vers la bonne entité
     }
 
-    public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
-    {
-        if (!$user instanceof User) {
-            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
-        }
-
-        $user->setPassword($newHashedPassword);
-        $this->getEntityManager()->persist($user);
-        $this->getEntityManager()->flush();
-    }
+    // ... autres méthodes
 
     public function findMedecins(): array
     {
         return $this->createQueryBuilder('u')
-            ->where('u.roles LIKE :role')
-            ->setParameter('role', '%"ROLE_MEDECIN"%')
+            ->where('u.role = :role') // <-- "role" au singulier, pas "roles"
+            ->setParameter('role', UserRole::MEDECIN) // <-- Utilisation de l'Enum
             ->getQuery()
             ->getResult();
     }
@@ -39,9 +28,29 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findPatients(): array
     {
         return $this->createQueryBuilder('u')
-            ->where('u.roles LIKE :role')
-            ->setParameter('role', '%"ROLE_PATIENT"%')
+            ->where('u.role = :role')
+            ->setParameter('role', UserRole::PATIENT)
             ->getQuery()
             ->getResult();
+    }
+
+    public function countMedecins(): int
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.role = :role')
+            ->setParameter('role', UserRole::MEDECIN)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countPatients(): int
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.role = :role')
+            ->setParameter('role', UserRole::PATIENT)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

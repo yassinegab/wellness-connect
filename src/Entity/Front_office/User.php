@@ -2,6 +2,7 @@
 
 namespace App\Entity\Front_office;
 
+use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -12,173 +13,173 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /* ===================== */
+    /*        ID             */
+    /* ===================== */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
-    #[Assert\NotBlank(message: "L'email est obligatoire")]
-    #[Assert\Email(message: "L'email '{{ value }}' n'est pas valide")]
-    private ?string $email = null;
-
-    #[ORM\Column]
-    private array $roles = [];
-
-    #[ORM\Column]
-    private ?string $password = null;
-
-    #[ORM\Column(length: 255)]
+    /* ===================== */
+    /*        NOM            */
+    /* ===================== */
+    #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: "Le nom est obligatoire")]
-    #[Assert\Length(
-        min: 2,
-        max: 255,
-        minMessage: "Le nom doit contenir au moins {{ limit }} caractères",
-        maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères"
-    )]
+    #[Assert\Length(min: 2, max: 100)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 255)]
+    /* ===================== */
+    /*       PRENOM          */
+    /* ===================== */
+    #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: "Le prénom est obligatoire")]
-    #[Assert\Length(
-        min: 2,
-        max: 255,
-        minMessage: "Le prénom doit contenir au moins {{ limit }} caractères",
-        maxMessage: "Le prénom ne peut pas dépasser {{ limit }} caractères"
-    )]
+    #[Assert\Length(min: 2, max: 100)]
     private ?string $prenom = null;
 
-    #[ORM\Column(length: 20, nullable: true)]
+    /* ===================== */
+    /*        EMAIL          */
+    /* ===================== */
+    #[ORM\Column(length: 180, unique: true)]
+    #[Assert\NotBlank(message: "L'email est obligatoire")]
+    #[Assert\Email(message: "Email invalide")]
+    private ?string $email = null;
+
+    /* ===================== */
+    /*      PASSWORD         */
+    /* ===================== */
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "Le mot de passe est obligatoire")]
+    #[Assert\Length(
+        min: 8,
+        minMessage: "Le mot de passe doit contenir au moins 8 caractères"
+    )]
+    private ?string $password = null;
+
+    /* ===================== */
+    /*      TELEPHONE        */
+    /* ===================== */
+    #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: "Le téléphone est obligatoire")]
     #[Assert\Regex(
-        pattern: "/^[0-9+\s-]*$/",
-        message: "Le numéro de téléphone n'est pas valide"
+        pattern: "/^[0-9+\s-]{8,20}$/",
+        message: "Numéro de téléphone invalide"
     )]
     private ?string $telephone = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    /* ===================== */
+    /*        ROLE           */
+    /* ===================== */
+    #[ORM\Column(enumType: UserRole::class)]
+    #[Assert\NotNull(message: "Le rôle est obligatoire")]
+    private ?UserRole $role = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-    }
+    /* ===================== */
+    /*         AGE           */
+    /* ===================== */
+    #[ORM\Column]
+    #[Assert\NotBlank]
+    #[Assert\Range(
+        min: 1,
+        max: 120,
+        notInRangeMessage: "L'âge doit être entre {{ min }} et {{ max }}"
+    )]
+    private ?int $age = null;
+
+    /* ===================== */
+    /*         SEXE          */
+    /* ===================== */
+    #[ORM\Column(length: 10)]
+    #[Assert\Choice(
+        choices: ['Homme', 'Femme'],
+        message: "Le sexe doit être Homme ou Femme"
+    )]
+    private ?string $sexe = null;
+
+    /* ===================== */
+    /*        POIDS          */
+    /* ===================== */
+    #[ORM\Column]
+    #[Assert\Positive(message: "Le poids doit être positif")]
+    private ?float $poids = null;
+
+    /* ===================== */
+    /*        TAILLE         */
+    /* ===================== */
+    #[ORM\Column]
+    #[Assert\Positive(message: "La taille doit être positive")]
+    private ?float $taille = null;
+
+    /* ===================== */
+    /*      HANDICAP         */
+    /* ===================== */
+    #[ORM\Column]
+    private bool $handicap = false;
+
+    /* ===================== */
+    /*  INTERFACES SECURITY  */
+    /* ===================== */
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getUserIdentifier(): string
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-        return $this;
-    }
-
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
-
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-        return array_unique($roles);
+        return [$this->role?->value ?? 'ROLE_USER'];
     }
 
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
-        return $this;
-    }
+    public function eraseCredentials(): void {}
 
-    public function getPassword(): string
-    {
-        return $this->password;
-    }
+    /* ===================== */
+    /*    GETTERS / SETTERS  */
+    /* ===================== */
 
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-        return $this;
-    }
+    public function getEmail(): ?string { return $this->email; }
+    public function setEmail(string $email): self { $this->email = $email; return $this; }
 
-    public function eraseCredentials(): void
-    {
-    }
+    public function getPassword(): string { return $this->password; }
+    public function setPassword(string $password): self { $this->password = $password; return $this; }
 
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
+    public function getNom(): ?string { return $this->nom; }
+    public function setNom(string $nom): self { $this->nom = $nom; return $this; }
 
-    public function setNom(string $nom): static
-    {
-        $this->nom = $nom;
-        return $this;
-    }
+    public function getPrenom(): ?string { return $this->prenom; }
+    public function setPrenom(string $prenom): self { $this->prenom = $prenom; return $this; }
 
-    public function getPrenom(): ?string
-    {
-        return $this->prenom;
-    }
+    public function getTelephone(): ?string { return $this->telephone; }
+    public function setTelephone(string $telephone): self { $this->telephone = $telephone; return $this; }
 
-    public function setPrenom(string $prenom): static
-    {
-        $this->prenom = $prenom;
-        return $this;
-    }
+    public function getRole(): ?UserRole { return $this->role; }
+    public function setRole(UserRole $role): self { $this->role = $role; return $this; }
 
-    public function getTelephone(): ?string
-    {
-        return $this->telephone;
-    }
+    public function getAge(): ?int { return $this->age; }
+    public function setAge(int $age): self { $this->age = $age; return $this; }
 
-    public function setTelephone(?string $telephone): static
-    {
-        $this->telephone = $telephone;
-        return $this;
-    }
+    public function getSexe(): ?string { return $this->sexe; }
+    public function setSexe(string $sexe): self { $this->sexe = $sexe; return $this; }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
+    public function getPoids(): ?float { return $this->poids; }
+    public function setPoids(float $poids): self { $this->poids = $poids; return $this; }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
+    public function getTaille(): ?float { return $this->taille; }
+    public function setTaille(float $taille): self { $this->taille = $taille; return $this; }
+
+    public function hasHandicap(): bool { return $this->handicap; }
+    public function setHandicap(bool $handicap): self { $this->handicap = $handicap; return $this; }
+
+    /* ===================== */
+    /*    UTILS              */
+    /* ===================== */
 
     public function getFullName(): string
     {
         return $this->prenom . ' ' . $this->nom;
-    }
-
-    public function isPacient(): bool
-    {
-        return in_array('ROLE_PATIENT', $this->roles);
-    }
-
-    public function isMedecin(): bool
-    {
-        return in_array('ROLE_MEDECIN', $this->roles);
-    }
-
-    public function getRoleLabel(): string
-    {
-        if ($this->isMedecin()) {
-            return 'Médecin';
-        }
-        if ($this->isPacient()) {
-            return 'Patient';
-        }
-        return 'Utilisateur';
     }
 }

@@ -166,11 +166,12 @@ private ?User $patient = null;
         return $this->dateRendezVous;
     }
 
-    public function setDateRendezVous(?\DateTimeInterface $dateRendezVous): static
-    {
-        $this->dateRendezVous = $dateRendezVous;
-        return $this;
-    }
+  public function setDateRendezVous(?\DateTimeInterface $dateRendezVous): static
+{
+    $this->dateRendezVous = $dateRendezVous;
+    return $this;
+}
+
 
     public function getNotes(): ?string
     {
@@ -188,9 +189,14 @@ private ?User $patient = null;
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+ 
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
-        $this->createdAt = $createdAt;
+        // Même chose pour updatedAt
+        $this->updatedAt = $updatedAt instanceof \DateTime
+            ? \DateTimeImmutable::createFromMutable($updatedAt)
+            : $updatedAt;
+
         return $this;
     }
 
@@ -199,11 +205,6 @@ private ?User $patient = null;
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
-    }
     // Ajoutez cette méthode à la fin de votre classe RendezVous
 public function __toString(): string
 {

@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
 {
-    #[Route('/dashboard', name: 'frontoffice_dashboard')]
+    #[Route('/', name: 'frontoffice_dashboard')]
     public function index(
         RendezVousRepository $rendezVousRepository,
         HopitalRepository $hopitalRepository

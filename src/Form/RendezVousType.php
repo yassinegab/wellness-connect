@@ -2,9 +2,9 @@
 
 namespace App\Form;
 
-use App\Entity\RendezVous;
-use App\Entity\Hopital;
-use App\Entity\User;
+use App\Entity\Front_office\RendezVous;
+use App\Entity\Front_office\User;
+use App\Entity\Front_office\Hopital;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -20,26 +20,36 @@ class RendezVousType extends AbstractType
         $builder
             ->add('patient', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => function(User $user) {
-                    return $user->getFullName() . ' (' . $user->getEmail() . ')';
-                },
+                'choice_label' => fn(User $user) => $user->getNom().' '.$user->getPrenom(),
                 'label' => 'Patient',
                 'placeholder' => 'Sélectionnez un patient',
-                'attr' => ['class' => 'form-select'],
-                'query_builder' => function($repository) {
-                    return $repository->createQueryBuilder('u')
-                        ->where('u.roles LIKE :role')
-                        ->setParameter('role', '%ROLE_PATIENT%')
-                        ->orderBy('u.nom', 'ASC');
-                },
+                'required' => false,
             ])
+
+            ->add('medecin', EntityType::class, [
+                'class' => User::class,
+                'choice_label' => fn(User $user) => 'Dr. '.$user->getNom().' '.$user->getPrenom(),
+                'label' => 'Médecin',
+                'placeholder' => 'Sélectionnez un médecin',
+                'required' => false,
+            ])
+
             ->add('hopital', EntityType::class, [
                 'class' => Hopital::class,
                 'choice_label' => 'nom',
                 'label' => 'Hôpital',
                 'placeholder' => 'Sélectionnez un hôpital',
-                'attr' => ['class' => 'form-select']
+                'required' => false,
             ])
+
+     
+            ->add('dateRendezVous', DateTimeType::class, [
+                'label' => 'Date et heure du rendez-vous',
+                'widget' => 'single_text',
+                'input' => 'datetime', // 🔥 FIX PRINCIPAL
+                'required' => false,
+            ])
+
             ->add('typeConsultation', ChoiceType::class, [
                 'label' => 'Type de consultation',
                 'choices' => [
@@ -47,24 +57,30 @@ class RendezVousType extends AbstractType
                     'Téléconsultation' => 'Téléconsultation',
                     'Urgence' => 'Urgence',
                 ],
-                'placeholder' => 'Choisissez le type',
-                'attr' => ['class' => 'form-select']
+                'placeholder' => 'Choisissez un type',
+                'required' => false,
             ])
-            ->add('dateRendezVous', DateTimeType::class, [
-                'label' => 'Date et heure du rendez-vous',
-                'widget' => 'single_text',
-                'attr' => ['class' => 'form-control']
+
+            ->add('statut', ChoiceType::class, [
+                'label' => 'Statut',
+                'choices' => [
+                    'En attente' => 'En attente',
+                    'Confirmé' => 'Confirmé',
+                    'Terminé' => 'Terminé',
+                    'Annulé' => 'Annulé',
+                ],
+                'data' => 'En attente',
+                'required' => false,
             ])
+
             ->add('notes', TextareaType::class, [
-                'label' => 'Notes / Symptômes',
+                'label' => 'Notes',
                 'required' => false,
                 'attr' => [
-                    'class' => 'form-control',
-                    'rows' => 5,
-                    'placeholder' => 'Décrivez vos symptômes ou ajoutez des notes...'
-                ]
-            ])
-        ;
+                    'rows' => 4,
+                    'placeholder' => 'Notes supplémentaires...',
+                ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
