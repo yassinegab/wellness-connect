@@ -18,21 +18,26 @@
 
 <div id="symptomes-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for symptome in symptomesDisponibles %}
-    <div class="symptome-item bg-pink-200 rounded-2xl p-4 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 hover:scale-105 hover:bg-pink-500 shadow-sm flex flex-col gap-2 items-start" data-symptome="{{ symptome.value }}">
-        <!-- Label clickable -->
-        <div class="symptome-label font-medium text-pink-900">{{ symptome.label }}</div>
+   <div class="symptome-item chroma-card"
+     data-symptome="{{ symptome.value }}">
 
-        <!-- Dropdown intensité -->
-        <select class="intensite-select w-full py-1 px-2 rounded-lg border border-pink-300" disabled>
-            <option value="" selected>Choisir l'intensité 💖</option>
+    <div class="chroma-bg"></div>
+
+    <div class="chroma-content">
+        <div class="symptome-label font-medium">
+            {{ symptome.label }}
+        </div>
+
+        <select class="intensite-select" disabled>
+            <option value="">Choisir l'intensité 💖</option>
             {% for label, value in intensites %}
-            <option value="{{ value }}">{{ label }}</option>
+                <option value="{{ value }}">{{ label }}</option>
             {% endfor %}
         </select>
 
-        <!-- Date picker -->
-        <input type="date" class="date-observation w-full py-1 px-2 rounded-lg border border-pink-300" disabled>
+        <input type="date" class="date-observation" disabled>
     </div>
+</div>
     {% endfor %}
 </div>
 
@@ -120,4 +125,74 @@ document.getElementById('cancel-symptomes').addEventListener('click', () => {
     });
 });
 </script>
+{% endblock %}
+{% block stylesheets %}
+<style>
+/* === CHROMA CARD === */
+.chroma-card {
+    position: relative;
+    border-radius: 1.5rem;
+    padding: 1.2rem;
+    background: #fff1f2;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease;
+    --mx: 50%;
+    --my: 50%;
+}
+
+/* gradient vivant */
+.chroma-bg {
+    position: absolute;
+    inset: -2px;
+    background: radial-gradient(
+        300px at var(--mx) var(--my),
+        rgba(236,72,153,0.45),
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+/* contenu au dessus */
+.chroma-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+/* hover */
+.chroma-card:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 20px 45px rgba(236,72,153,.35);
+}
+
+.chroma-card:hover .chroma-bg {
+    opacity: 1;
+}
+
+/* selected */
+.chroma-card.selected {
+    background: linear-gradient(135deg,#fce7f3,#fbcfe8);
+    box-shadow: 0 25px 55px rgba(236,72,153,.45);
+}
+
+/* inputs */
+.chroma-card select,
+.chroma-card input {
+    border-radius: 999px;
+    border: 2px solid #fbcfe8;
+    padding: .4rem .8rem;
+    transition: all .25s ease;
+}
+
+.chroma-card select:focus,
+.chroma-card input:focus {
+    outline: none;
+    border-color: #ec4899;
+    box-shadow: 0 0 0 4px rgba(236,72,153,.25);
+}
+</style>
 {% endblock %}

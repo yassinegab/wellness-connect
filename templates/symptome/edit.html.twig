@@ -24,15 +24,162 @@
           </div>
         </div>
 <div class="max-w-5xl mx-auto p-6">
-<h2>Modifier le symptôme : {{ symptome.type }}</h2>
+<div class="max-w-3xl mx-auto p-6">
 
-{{ form_start(form) }}
-    {{ form_row(form.type) }}
-    {{ form_row(form.intensite) }}
-    {{ form_row(form.dateObservation) }}
+    <div class="edit-card">
 
-    <button class="btn btn-pink">Modifier</button>
-{{ form_end(form) }}
+        <h2 class="edit-title">
+            ✏️ Modifier le symptôme
+           
+        </h2>
 
-<a href="{{ path('symptome_index') }}">← Retour à la liste</a>
+        {{ form_start(form, {'attr': {'class': 'symptom-form'}}) }}
+
+            <div class="form-group">
+                {{ form_row(form.type) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_row(form.intensite) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_row(form.dateObservation) }}
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-pink" type="submit">
+                    💾 Enregistrer
+                </button>
+
+                <a href="{{ path('symptome_index') }}" class="btn-outline">
+                    ← Retour
+                </a>
+            </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
+</div>
+
+
 {% endblock %}
+
+{% block stylesheets %}
+<style>
+/* CARD */
+.edit-card {
+    background: linear-gradient(135deg, #fff1f2, #fce7f3);
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(236, 72, 153, 0.25);
+    animation: popIn 0.4s ease;
+}
+
+/* TITLE */
+.edit-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #be185d;
+    margin-bottom: 2rem;
+}
+
+.edit-title span {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #9d174d;
+    margin-top: 0.3rem;
+}
+
+/* FORM */
+.symptom-form label {
+    font-weight: 600;
+    color: #9d174d;
+    margin-bottom: 0.3rem;
+    display: block;
+}
+
+.symptom-form input,
+.symptom-form select {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    border: 2px solid #fbcfe8;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.symptom-form input:focus,
+.symptom-form select:focus {
+    border-color: #ec4899;
+    box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
+    transform: scale(1.02);
+}
+
+/* FORM GROUP */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* ACTIONS */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+/* BUTTONS */
+.btn-pink {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    color: white;
+    padding: 0.8rem 1.8rem;
+    border-radius: 999px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-pink:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 12px 30px rgba(236, 72, 153, 0.4);
+}
+
+.btn-outline {
+    padding: 0.8rem 1.6rem;
+    border-radius: 999px;
+    border: 2px solid #ec4899;
+    color: #ec4899;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.btn-outline:hover {
+    background: #ec4899;
+    color: white;
+}
+
+/* ANIMATION */
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
