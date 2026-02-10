@@ -10,9 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Dompdf\Dompdf;
-use Dompdf\Options; // ✅ make sure this line exists
-
 
 #[Route('/user/well/being/data')]
 final class UserWellBeingDataController extends AbstractController
@@ -105,29 +102,5 @@ final class UserWellBeingDataController extends AbstractController
             'stats' => $stats,
         ]);
     }
-    #[Route('/user-well-being-data/pdf', name: 'app_user_well_being_data_pdf')]
-    public function generatePdf(UserWellBeingDataRepository $repository): Response
-    {
-        // 1. Fetch all data
-        $datas = $repository->findAll();
-
-        // 2. Configure Dompdf
-        $options = new Options();
-        $options->set('defaultFont', 'Helvetica');
-        $dompdf = new Dompdf($options);
-
-        // 3. Render HTML using Twig
-        $html = $this->renderView('user_well_being_data/pdf.html.twig', [
-            'datas' => $datas,
-        ]);
-
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        // 4. Stream PDF to browser
-        return new Response($dompdf->stream('user_well_being_data.pdf', [
-            'Attachment' => true, // false = open in browser, true = download
-        ]));
-    }
+    
 }
