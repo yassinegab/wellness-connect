@@ -10,328 +10,219 @@
   font-family: 'Inter', sans-serif;
 }
 
-/* 🌸 Header */
-.fc-toolbar-title {
-  color: #be185d;
-  font-weight: 600;
-}
+.fc-toolbar-title { color: #be185d; font-weight: 600; }
 
 .fc-button {
   background-color: #f9a8d4 !important;
   border: none !important;
   color: white !important;
 }
+.fc-button:hover { background-color: #f472b6 !important; }
 
-.fc-button:hover {
-  background-color: #f472b6 !important;
-}
+.fc-daygrid-day-number { color: #9d174d; font-weight: 500; }
+.fc-day-today { background-color: #fce7f3 !important; }
 
-/* 🌸 Jours */
-.fc-daygrid-day-number {
-  color: #9d174d;
-  font-weight: 500;
-}
+/* 🩸 Événement menstruation */
+.fc-event { background: transparent !important; border: none !important; font-size: 1.3rem; }
+.menstruation-event { background-color: transparent !important; border: none !important; border-radius: 6px; }
+.fc-event-title { display: none; }
 
-/* 🌸 Jour actuel */
-.fc-day-today {
-  background-color: #fce7f3 !important;
-}
-
-/* 🩸 Icône menstruation */
-.fc-event {
-  background: transparent !important;
-  border: none !important;
-  font-size: 1.3rem;
-}
-/* 🩸 Période menstruelle - motif sang */
-.menstruation-event {
-  background-color: transparent !important;
-  border: none !important;
-
-
-  border-radius: 6px;
-}
-
-/* Supprimer le texte (au cas où) */
-.fc-event-title {
-  display: none;
-}
-
+/* Toasts */
 .toast {
-  padding: 14px 18px;
-  border-radius: 14px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  padding: 14px 18px; border-radius: 14px; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
   box-shadow: 0 10px 25px rgba(0,0,0,.15);
   animation: slideIn .4s ease, fadeOut .4s ease 3.6s forwards;
 }
+.toast-success { background: linear-gradient(135deg, #ec4899, #f472b6); color: white; }
+.toast-error   { background: linear-gradient(135deg, #f43f5e, #fb7185); color: white; }
 
-.toast-success {
-  background: linear-gradient(135deg, #ec4899, #f472b6);
-  color: white;
-}
-
-.toast-error {
-  background: linear-gradient(135deg, #f43f5e, #fb7185);
-  color: white;
-}
-
-@keyframes slideIn {
-  from { transform: translateX(120%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes fadeOut {
-  to { opacity: 0; transform: translateX(120%); }
-}
-
-
+@keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(120%); } }
 </style>
-
 {% endblock %}
-
 
 {% block body %}
 <div class="flex min-h-screen bg-background">
-
-  {# Sidebar #}
   {% include 'components/sidebar.html.twig' %}
-
   <div class="flex flex-1 flex-col">
-
-    {# Top Navigation #}
     {% include 'components/top-nav.html.twig' %}
-
     <main class="flex-1 overflow-auto">
       <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
 
-        {# Header #}
+        <!-- Header -->
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-foreground">
-              Bonjour, {{ user.prenom }} !
-            </h1>
-            <p class="text-muted-foreground">
-              Voici un aperçu de votre santé aujourd’hui
-            </p>
+            <h1 class="text-2xl font-bold text-foreground">Bonjour, {{ user.prenom }} !</h1>
+            <p class="text-muted-foreground">Voici un aperçu de votre santé aujourd’hui</p>
           </div>
+          <div class="flex items-center gap-2 rounded-md border px-3 py-2">📅 {{ "now"|date("l d F Y") }}</div>
+        </div>
 
-          <div class="flex items-center gap-2 rounded-md border px-3 py-2">
-            📅 {{ "now"|date("l d F Y") }}
+        <!-- Erreur calendrier -->
+        <div id="calendar-error"
+             class="hidden rounded-md border border-pink-300 bg-pink-100 p-3 text-pink-800 mb-4"></div>
+
+        <!-- Calendrier -->
+        <div id="calendar"></div>
+
+        <!-- Modal confirmation -->
+        <div id="confirm-modal" class="fixed top-0 left-0 w-screen h-screen bg-pink-500/90 hidden flex items-center justify-center z-50">
+          <div class="bg-gradient-to-br from-pink-400 to-pink-500 rounded-2xl shadow-2xl w-full max-w-md p-6 text-center border-2 border-pink-600">
+            <h2 class="text-2xl font-bold text-white mb-3">Confirmation</h2>
+            <p id="confirm-message" class="text-white mb-6"></p>
+            <div class="flex justify-center gap-4">
+              <button id="confirm-cancel" class="px-4 py-2 rounded-xl bg-pink-300 text-pink-900 font-semibold hover:bg-pink-400 transition">Annuler</button>
+              <button id="confirm-ok" class="px-5 py-2 rounded-xl bg-pink-600 text-white font-semibold hover:bg-pink-700 transition">OK</button>
+            </div>
           </div>
         </div>
-<div id="calendar-error"
-     class="hidden rounded-md border border-pink-300 bg-pink-100 p-3 text-pink-800 mb-4">
-</div>
 
-<div id="calendar"></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-container" class="fixed top-6 right-6 space-y-3 z-50"></div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     const calendarEl = document.getElementById('calendar');
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'fr',
-        selectable: true,
-        selectMirror: true,
-        unselectAuto: true,
-        height: 650,
-
-        events: {{ calendarEvents|default('[]')|raw }},
-
-        // Ajouter une période
-        select: async function(info) {
-    const confirmed = await showConfirm(
-        "Ajouter cette période de menstruation ? 🌸"
-    );
-
-    if (!confirmed) {
-        calendar.unselect();
-        return;
+    // Utilitaires
+    function showToast(type, message) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<span class="text-xl">${type==='success'?'🌸':'⚠️'}</span><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
     }
 
-    const startStr = info.start.toISOString().split('T')[0];
-    const endStr = info.end.toISOString().split('T')[0];
+    function showConfirm(message) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirm-modal');
+            const msg = document.getElementById('confirm-message');
+            const ok = document.getElementById('confirm-ok');
+            const cancel = document.getElementById('confirm-cancel');
+            msg.textContent = message;
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            ok.onclick = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); resolve(true); };
+            cancel.onclick = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); resolve(false); };
+        });
+    }
 
-    saveCycle(startStr, endStr);
-},
-
-        // Supprimer une période
-        eventClick: async function(info) {
-    const confirmed = await showConfirm(
-        "Voulez-vous supprimer cette période de menstruation ? 🩸"
-    );
-
-    if (!confirmed) return;
-
-    const cycleId = info.event.id;
-
-    fetch("{{ path('cycle_delete_ajax') }}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify({ id: cycleId })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            info.event.remove();
-            showToast('success', 'Période supprimée 💗');
-        } else {
-            showToast('error', 'Impossible de supprimer la période');
-        }
-    });
-}
-
-    }); // ✅ Fin de la configuration du calendrier
-
-    calendar.render(); // Render après toute la config
- function showCalendarError(message) {
+    function showCalendarError(message) {
         const errorDiv = document.getElementById('calendar-error');
-        errorDiv.textContent = message;
-        errorDiv.classList.remove('hidden');
-
-        setTimeout(() => {
-            errorDiv.classList.add('hidden');
-        }, 4000);
+        errorDiv.textContent = message; errorDiv.classList.remove('hidden');
+        setTimeout(() => errorDiv.classList.add('hidden'), 4000);
     }
-    // Fonction pour sauvegarder une période
+
     function saveCycle(start, end) {
         fetch("{{ path('cycle_add_ajax') }}", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Requested-With": "XMLHttpRequest"
-            },
+            headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
             body: JSON.stringify({ start, end })
-        })
-        .then(response => response.json())
-        .then(data => {
-    if (data.success) {
-        let current = new Date(start);
-        let endDate = new Date(end);
-        showToast(
-        'success',
-        'Cycle ajouté avec succès ✨ Prends soin de toi 💕'
-         );
-
-        while (current <= endDate) {
-            calendar.addEvent({
-                title: '🩸',
-                start: current.toISOString().split('T')[0],
-                allDay: true,
-                classNames: ['menstruation-event']
-            });
-            current.setDate(current.getDate() + 1);
-        }
-    } else {
-        showCalendarError(data.message);
-        showToast(
-      'error',
-      data.message || 'Oops 😅 cette période existe déjà !'
-    );
-    }
-    calendar.unselect();
-})
-        
-        .catch(() => {
-            alert("Erreur lors de l'enregistrement du cycle.");
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                let current = new Date(start);
+                let endDate = new Date(end);
+                while(current <= endDate){
+                    calendar.addEvent({
+                        title:'🩸', start: current.toISOString().split('T')[0],
+                        allDay:true, classNames:['menstruation-event']
+                    });
+                    current.setDate(current.getDate()+1);
+                }
+                showToast('success','Cycle ajouté avec succès ✨');
+            } else {
+                showCalendarError(data.message);
+                showToast('error', data.message || 'Oops 😅 cette période existe déjà !');
+            }
             calendar.unselect();
-        });
-    }  
+        }).catch(()=>{showCalendarError("Erreur lors de l'enregistrement du cycle."); calendar.unselect();});
+    }
 
-});
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView:'dayGridMonth', locale:'fr', selectable:true, selectMirror:true, unselectAuto:true,
+        height:650, editable:true, eventResizableFromStart:true, eventDurationEditable:true,
+        events: {{ calendarEvents|default('[]')|raw }},
 
-function showToast(type, message) {
-    const container = document.getElementById('toast-container');
+        select: async function(info){
+            const confirmed = await showConfirm("Ajouter cette période de menstruation ? 🌸");
+            if(!confirmed){ calendar.unselect(); return; }
+            const startStr = info.start.toISOString().split('T')[0];
+            const endStr   = info.end.toISOString().split('T')[0];
+            saveCycle(startStr,endStr);
+        },
 
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+        eventDidMount: function(info){
+            const btnContainer = document.createElement('div');
+            btnContainer.style.display='none'; btnContainer.style.position='absolute';
+            btnContainer.style.top='2px'; btnContainer.style.right='2px'; btnContainer.style.zIndex=10;
+            btnContainer.style.gap='2px';
 
-    const icon = type === 'success' ? '🌸' : '⚠️';
+            const delBtn = document.createElement('button'); delBtn.innerHTML='❌';
+            delBtn.className='hover-btn'; delBtn.style.padding='2px 4px'; delBtn.style.borderRadius='4px';
+            delBtn.style.fontSize='0.8rem'; delBtn.style.cursor='pointer';
 
-    toast.innerHTML = `
-        <span class="text-xl">${icon}</span>
-        <span>${message}</span>
-    `;
+            const editBtn = document.createElement('button'); editBtn.innerHTML='✏️';
+            editBtn.className='hover-btn'; editBtn.style.padding='2px 4px'; editBtn.style.borderRadius='4px';
+            editBtn.style.fontSize='0.8rem'; editBtn.style.cursor='pointer';
 
-    container.appendChild(toast);
+            btnContainer.appendChild(editBtn); btnContainer.appendChild(delBtn);
+            info.el.style.position='relative'; info.el.appendChild(btnContainer);
 
-    setTimeout(() => toast.remove(), 4000);
-}
-   function showConfirm(message) {
-    return new Promise((resolve) => {
-        const modal = document.getElementById('confirm-modal');
-        const msg = document.getElementById('confirm-message');
-        const ok = document.getElementById('confirm-ok');
-        const cancel = document.getElementById('confirm-cancel');
+            info.el.addEventListener('mouseenter',()=>{btnContainer.style.display='flex';});
+            info.el.addEventListener('mouseleave',()=>{btnContainer.style.display='none';});
 
-        msg.textContent = message;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+            delBtn.addEventListener('click', async (e)=>{
+                e.stopPropagation();
+                const confirmed = await showConfirm("Voulez-vous vraiment supprimer cette période ? 🩸");
+                if(!confirmed) return;
+                fetch("{{ path('cycle_delete_ajax') }}",{method:'POST',
+                    headers:{"Content-Type":"application/json","X-Requested-With":"XMLHttpRequest"},
+                    body:JSON.stringify({id:info.event.id})
+                }).then(res=>res.json()).then(data=>{
+                    if(data.success){ info.event.remove(); showToast('success','Période supprimée 💗'); }
+                    else{ showToast('error', data.message || 'Impossible de supprimer la période'); }
+                });
+            });
 
-        ok.onclick = () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resolve(true);
-        };
+            editBtn.addEventListener('click', (e)=>{e.stopPropagation(); showToast('success','Glisse la période pour modifier la date de début ou fin ✨'); });
+        },
 
-        cancel.onclick = () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resolve(false);
-        };
+        eventDrop: function(info){
+            const cycleId = info.event.id;
+            const newStart = info.event.start.toISOString().split('T')[0];
+            const newEnd = info.event.end.toISOString().split('T')[0];
+            fetch("{{ path('cycle_update_ajax') }}",{
+                method:"POST",
+                headers:{"Content-Type":"application/json","X-Requested-With":"XMLHttpRequest"},
+                body:JSON.stringify({id:cycleId,start:newStart,end:newEnd})
+            }).then(res=>res.json()).then(data=>{
+                if(data.success){showToast('success','Cycle mis à jour 💕');} 
+                else{showToast('error',data.message||'Erreur lors de la mise à jour'); info.revert();}
+            });
+        },
+
+        eventResize: function(info){
+            const cycleId = info.event.id;
+            const newStart = info.event.start.toISOString().split('T')[0];
+            const newEnd = info.event.end.toISOString().split('T')[0];
+            fetch("{{ path('cycle_update_ajax') }}",{
+                method:"POST",
+                headers:{"Content-Type":"application/json","X-Requested-With":"XMLHttpRequest"},
+                body:JSON.stringify({id:cycleId,start:newStart,end:newEnd})
+            }).then(res=>res.json()).then(data=>{
+                if(data.success){showToast('success','Cycle mis à jour 💕');} 
+                else{showToast('error',data.message||'Erreur lors de la mise à jour'); info.revert();}
+            });
+        }
+
     });
-}
+
+    calendar.render();
+});
 </script>
-
-     
-
-      </div>
-   <!-- 🌸 Modal Confirmation Centré avec overlay foncé et boutons colorés -->
-<div id="confirm-modal"
-     class="fixed top-0 left-0 w-screen h-screen bg-pink-500/90 hidden flex items-center justify-center z-50">
-
-  <div class="bg-gradient-to-br from-pink-400 to-pink-500 rounded-2xl shadow-2xl w-full max-w-md p-6 text-center border-2 border-pink-600">
-    
-    <!-- Titre -->
-    <h2 id="confirm-title" class="text-2xl font-bold text-white mb-3">
-      Confirmation
-    </h2>
-
-    <!-- Message -->
-    <p id="confirm-message" class="text-white mb-6">
-      <!-- Le texte dynamique sera injecté ici -->
-    </p>
-
-    <!-- Boutons -->
-    <div class="flex justify-center gap-4">
-      <button id="confirm-cancel"
-              class="px-4 py-2 rounded-xl bg-pink-300 text-pink-900 font-semibold hover:bg-pink-400 transition">
-        Annuler
-      </button>
-
-      <button id="confirm-ok"
-              class="px-5 py-2 rounded-xl bg-pink-600 text-white font-semibold hover:bg-pink-700 transition">
-        OK
-      </button>
-    </div>
-
-  </div>
-</div>
-
-    </main>
-
-  
-  <div id="toast-container" class="fixed top-6 right-6 space-y-3 z-50"></div>
-  
-
-</div>
-
 {% endblock %}

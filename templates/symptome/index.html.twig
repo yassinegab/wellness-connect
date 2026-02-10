@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter Symptomes{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-background">
+  {% include 'components/sidebar.html.twig' %}
+  <div class="flex flex-1 flex-col">
+    {% include 'components/top-nav.html.twig' %}
+    <main class="flex-1 overflow-auto">
+      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+
+        <!-- Header -->
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-2 rounded-md border px-3 py-2">📅 {{ "now"|date("l d F Y") }}</div>
+        </div>
+<h2>Ajouter vos symptômes</h2>
+
+<div id="symptomes-list">
+    {% for symptome in symptomesDisponibles %}
+    <div class="symptome-item">
+        <!-- Checkbox pour activer le symptôme -->
+        <input type="checkbox" class="symptome-checkbox" data-symptome="{{ symptome.value }}">
+        <label>{{ symptome.label }}</label>
+
+        <!-- Dropdown intensité -->
+        <select class="intensite-select" disabled>
+            {% for label, value in intensites %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Date picker -->
+        <input type="date" class="date-observation" disabled>
+    </div>
+    {% endfor %}
+</div>
+
+<button id="save-symptomes">Enregistrer</button>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const checkboxes = document.querySelectorAll('.symptome-checkbox');
+checkboxes.forEach(cb => {
+    cb.addEventListener('change', (e) => {
+        const parent = e.target.closest('.symptome-item');
+        parent.querySelector('.intensite-select').disabled = !e.target.checked;
+        parent.querySelector('.date-observation').disabled = !e.target.checked;
+    });
+});
+
+// Envoi des données via fetch/AJAX
+document.getElementById('save-symptomes').addEventListener('click', async () => {
+    const data = [];
+    document.querySelectorAll('.symptome-item').forEach(item => {
+        const checkbox = item.querySelector('.symptome-checkbox');
+        if (checkbox.checked) {
+            data.push({
+                type: checkbox.dataset.symptome,
+                intensite: item.querySelector('.intensite-select').value,
+                dateObservation: item.querySelector('.date-observation').value
+            });
+        }
+    });
+
+    const response = await fetch('{{ path('symptome_create') }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        alert('Symptômes enregistrés ! 🌸');
+        location.reload();
+    } else {
+        alert('Erreur lors de l\'enregistrement.');
+    }
+});
+</script>
+{% endblock %}

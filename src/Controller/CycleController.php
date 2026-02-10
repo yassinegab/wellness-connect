@@ -177,6 +177,27 @@ public function deleteCycleAjax(Request $request, EntityManagerInterface $em): J
 
     return new JsonResponse(['success' => true]);
 }
+
+#[Route('/cycle/update', name: 'cycle_update_ajax', methods: ['POST'])]
+public function updateCycleAjax(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+
+    if (!isset($data['id'], $data['start'], $data['end'])) {
+        return new JsonResponse(['success' => false, 'message' => 'Données manquantes'], 400);
+    }
+
+    $cycle = $em->getRepository(Cycle::class)->find($data['id']);
+    if (!$cycle) {
+        return new JsonResponse(['success' => false, 'message' => 'Cycle introuvable'], 404);
+    }
+
+    $cycle->setDateDebutM(new \DateTime($data['start']));
+    $cycle->setDateFinM(new \DateTime($data['end']));
+    $em->flush();
+
+    return new JsonResponse(['success' => true]);
+}
     
 }
 
