@@ -1,0 +1,83 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}User Well-Being Data{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">User Well-Being Data Details</h1>
+        <div class="flex gap-2">
+            <a href="{{ path('app_user_well_being_data_index') }}" 
+               class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-gray-800 text-sm font-medium hover:bg-gray-300 transition">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <a href="{{ path('app_user_well_being_data_edit', {'id': user_well_being_datum.id}) }}" 
+               class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white text-sm font-medium hover:bg-blue-700 transition">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+        </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+                <p class="text-xs text-gray-500">ID</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.id }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Work Environment</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.workEnvironment }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Sleep Problems</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.sleepProblems }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Headaches</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.headaches }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Restlessness</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.restlessness }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Heartbeat Palpitations</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.heartbeatPalpitations }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Low Academic Confidence</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.lowAcademicConfidence }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Class Attendance</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.classAttendance }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Anxiety / Tension</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.anxietyTension }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Irritability</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.irritability }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Subject Confidence</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.subjectConfidence }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Created At</p>
+                <p class="font-medium text-gray-900">{{ user_well_being_datum.createdAt ? user_well_being_datum.createdAt|date('Y-m-d H:i:s') : '' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Form -->
+    <div>
+        {{ include('user_well_being_data/_delete_form.html.twig') }}
+    </div>
+
+</div>
+{% endblock %}

@@ -2,12 +2,8 @@
 
 namespace App\Controller\Admin;
 
-use App\Repository\UserRepository;
-use App\Repository\RendezVousRepository;
-use App\Repository\HopitalRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/admin')]
@@ -17,30 +13,26 @@ class AdminDashboardController extends AbstractController
      * Redirect /admin to /admin/dashboard
      */
     #[Route('', name: 'admin_index')]
-    public function adminIndex(): RedirectResponse
+    public function adminIndex(): Response
     {
         return $this->redirectToRoute('admin_dashboard');
     }
 
     #[Route('/dashboard', name: 'admin_dashboard')]
-    public function index(
-        UserRepository $userRepository,
-        RendezVousRepository $rendezVousRepository,
-        HopitalRepository $hopitalRepository
-    ): Response
+    public function index(): Response
     {
-        // Statistiques simples
-        $totalUsers = $userRepository->count([]);
-        $totalAppointments = $rendezVousRepository->count([]);
-        $totalHospitals = $hopitalRepository->count([]);
+        // ---- PLACEHOLDER DATA ----
+        $totalUsers = 10;          // fake number of users
+        $totalAppointments = 5;    // fake number of appointments
+        $totalHospitals = 3;       // fake number of hospitals
 
-        // Données admin
+        // Dummy admin info
         $admin = [
-            'prenom' => $this->getUser() ? $this->getUser()->getPrenom() : 'Admin',
-            'nom' => $this->getUser() ? $this->getUser()->getNom() : '',
+            'prenom' => 'Admin',
+            'nom' => 'Placeholder',
         ];
 
-        // Actions rapides admin
+        // Quick action buttons (unchanged)
         $quickActions = [
             ['emoji' => '👥', 'label' => 'Utilisateurs'],
             ['emoji' => '📅', 'label' => 'Rendez-vous'],

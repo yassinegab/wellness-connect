@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>User Well-Being Data PDF</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 5px; text-align: center; }
+        th { background-color: #f0f0f0; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>User Well-Being Data</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Work Environment</th>
+                <th>Sleep Problems</th>
+                <th>Headaches</th>
+                <th>Restlessness</th>
+                <th>Heartbeat Palpitations</th>
+                <th>Low Academic Confidence</th>
+                <th>Class Attendance</th>
+                <th>Anxiety Tension</th>
+                <th>Irritability</th>
+                <th>Subject Confidence</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in datas %}
+                <tr>
+                    <td>{{ data.id }}</td>
+                    <td>{{ data.workEnvironment }}</td>
+                    <td>{{ data.sleepProblems }}</td>
+                    <td>{{ data.headaches }}</td>
+                    <td>{{ data.restlessness }}</td>
+                    <td>{{ data.heartbeatPalpitations }}</td>
+                    <td>{{ data.lowAcademicConfidence }}</td>
+                    <td>{{ data.classAttendance }}</td>
+                    <td>{{ data.anxietyTension }}</td>
+                    <td>{{ data.irritability }}</td>
+                    <td>{{ data.subjectConfidence }}</td>
+                    <td>{{ data.createdAt ? data.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
