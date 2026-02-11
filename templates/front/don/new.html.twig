@@ -1,0 +1,122 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% block title %}Déclarer un don{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/css/don-buttons.css">
+
+<h1 class="text-2xl font-bold mb-4">🩸 Déclarer un don</h1>
+
+{# FLASH MESSAGES #}
+{% for message in app.flashes('success') %}
+    <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">
+        {{ message }}
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
+        {{ message }}
+    </div>
+{% endfor %}
+
+{# ================= FORMULAIRE ================= #}
+<form method="post" class="bg-white p-6 rounded-xl shadow mb-6 space-y-4">
+
+    <select name="type_don" required class="w-full border p-2 rounded">
+        <option value="">Type de don</option>
+        <option value="sang">Sang</option>
+        <option value="organe">Organe</option>
+    </select>
+
+    <input type="text"
+           name="type_sanguin"
+           placeholder="Groupe sanguin (si don de sang)"
+           class="w-full border p-2 rounded">
+
+    <input type="text"
+           name="type_organe"
+           placeholder="Organe (si don d’organe)"
+           class="w-full border p-2 rounded">
+
+    <input type="text"
+           name="region"
+           required
+           placeholder="Région"
+           class="w-full border p-2 rounded">
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" name="urgence" value="1">
+        <span class="urgence-label">Urgence</span>
+    </label>
+
+    <button type="submit" class="btn btn-declarer">
+        🩸 Déclarer
+    </button>
+</form>
+
+{# ================= FILTRES ================= #}
+<div class="flex flex-wrap gap-4 mb-4 items-center">
+
+    <a href="{{ path('don_new', { sort: 'date_desc', date: date }) }}"
+       class="btn btn-filter {{ sort == 'date_desc' ? 'active' }}">
+        Plus récents
+    </a>
+
+    <a href="{{ path('don_new', { sort: 'date_asc', date: date }) }}"
+       class="btn btn-filter {{ sort == 'date_asc' ? 'active' }}">
+        Plus anciens
+    </a>
+
+    <form method="get" class="flex gap-2 items-center">
+        <input type="date"
+               name="date"
+               value="{{ date }}"
+               class="border px-2 py-1 rounded">
+
+        <input type="hidden" name="sort" value="{{ sort }}">
+
+        <button class="btn btn-search">
+            Rechercher
+        </button>
+
+        {% if date %}
+            <a href="{{ path('don_new') }}" class="text-red-600 font-bold">
+                ✖
+            </a>
+        {% endif %}
+    </form>
+</div>
+
+{# ================= LISTE DES DONS ================= #}
+<h2 class="text-xl font-semibold mb-3">📋 Dons déclarés</h2>
+
+{% for don in dons %}
+    <div class="don-card bg-white p-4 rounded shadow flex justify-between items-center mb-2">
+
+        <div>
+            <strong>{{ don.getTypeDon()|upper }}</strong>
+            —
+            {{ don.region }}
+            —
+            {{ don.dateDon|date('d/m/Y') }}
+
+            {% if don.urgence %}
+                <span class="urgence-label ml-2">URGENT</span>
+            {% endif %}
+        </div>
+
+        <form method="post"
+              action="{{ path('don_delete', { id: don.id }) }}"
+              onsubmit="return confirm('Supprimer ce don ?');">
+            <button class="btn btn-delete">
+                Supprimer
+            </button>
+        </form>
+    </div>
+{% else %}
+    <p class="text-gray-500">Aucun don trouvé.</p>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,107 @@
+/* ================================
+   DON MODULE – NAVIGATION MENU
+================================ */
+
+.don-menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+}
+
+/* CARD */
+.don-card {
+    background: linear-gradient(180deg, #ffffff, #fafafa);
+    padding: 2.2rem 1.8rem;
+    border-radius: 18px;
+    text-align: center;
+    text-decoration: none;
+    color: #000000;
+    border: 1px solid #f1f1f1;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.6);
+
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Glow effect */
+.don-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top, rgba(239,68,68,0.15), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+/* Hover */
+.don-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow:
+        0 20px 45px rgba(0,0,0,0.15);
+    border-color: #fecaca;
+}
+
+.don-card:hover::before {
+    opacity: 1;
+}
+
+/* ICON */
+.don-card .icon {
+    font-size: 3.2rem;
+    margin-bottom: 1rem;
+    transition: transform 0.35s ease;
+}
+
+.don-card:hover .icon {
+    transform: scale(1.15) rotate(-4deg);
+}
+
+/* TITLE */
+.don-card h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.3px;
+}
+
+/* TEXT */
+.don-card p {
+    font-size: 0.95rem;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* TYPE COLORS */
+.don-card.donneur {
+    --accent: #2563eb;
+}
+
+.don-card.don {
+    --accent: #dc2626;
+}
+
+.don-card.demande {
+    --accent: #7c3aed;
+}
+
+.don-card:hover {
+    box-shadow:
+        0 20px 45px rgba(0,0,0,0.12),
+        0 0 0 2px var(--accent, #dc2626);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .don-card {
+        padding: 1.8rem 1.4rem;
+    }
+
+    .don-card .icon {
+        font-size: 2.6rem;
+    }
+}

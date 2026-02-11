@@ -1,0 +1,94 @@
+{% extends 'layout/dashboard.html.twig' %}
+{% block title %}Demande de don{% endblock %}
+
+{% block content %}
+
+<style>
+.demande-card {
+    animation: slideUp .5s ease;
+    transition: transform .3s, opacity .3s;
+}
+.demande-card:hover {
+    transform: scale(1.02);
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.btn-delete:hover {
+    animation: shake .3s;
+}
+@keyframes shake {
+    0% { transform: rotate(0); }
+    25% { transform: rotate(2deg); }
+    50% { transform: rotate(-2deg); }
+}
+</style>
+
+<h1 class="text-2xl font-bold mb-6">🩸 Demande de don</h1>
+
+{% for m in app.flashes('success') %}
+<div class="bg-green-100 p-3 mb-4 rounded">{{ m }}</div>
+{% endfor %}
+
+{% for m in app.flashes('error') %}
+<div class="bg-red-100 p-3 mb-4 rounded">{{ m }}</div>
+{% endfor %}
+
+<!-- FORM -->
+<div class="bg-white p-6 rounded shadow mb-8 max-w-xl">
+<form method="post">
+    <select name="type_demande" required class="w-full border p-2 mb-3">
+        <option value="">Type</option>
+        <option value="sang">Sang</option>
+        <option value="organe">Organe</option>
+    </select>
+
+    <input name="type_sanguin" placeholder="Groupe sanguin"
+           class="w-full border p-2 mb-3">
+
+    <input name="type_organe" placeholder="Organe"
+           class="w-full border p-2 mb-3">
+
+    <input name="region" required placeholder="Région"
+           class="w-full border p-2 mb-3">
+
+    <label><input type="checkbox" name="urgence" value="1"> Urgence</label>
+
+    <button class="bg-red-600 text-white px-4 py-2 rounded mt-3">
+        Envoyer
+    </button>
+</form>
+</div>
+
+<!-- LISTE -->
+<h2 class="text-xl font-semibold mb-3">📋 Demandes</h2>
+
+{% for d in demandes %}
+<div class="demande-card bg-white p-4 mb-3 rounded shadow flex justify-between items-center">
+
+    <div>
+        <strong>{{ d.typeDemande|upper }}</strong>
+        — {{ d.region }}
+        — {{ d.dateDemande|date('d/m/Y') }}
+        {% if d.urgence %}<span class="text-red-600 font-bold">URGENT</span>{% endif %}
+    </div>
+
+    <div class="flex gap-3">
+        <!-- EDIT -->
+        <form method="post" action="{{ path('demande_edit', {id:d.id}) }}">
+            <input name="region" value="{{ d.region }}" class="border px-2 py-1">
+            <button class="text-blue-600">✔</button>
+        </form>
+
+        <!-- DELETE -->
+        <form method="post" action="{{ path('demande_delete', {id:d.id}) }}">
+            <button class="text-red-600 btn-delete">🗑</button>
+        </form>
+    </div>
+</div>
+{% else %}
+<p>Aucune demande enregistrée.</p>
+{% endfor %}
+
+{% endblock %}

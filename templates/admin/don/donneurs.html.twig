@@ -1,0 +1,88 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Donneurs{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50">
+
+    {% include 'admin/components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col lg:ml-64 p-8">
+
+        <h1 class="text-2xl font-bold text-purple-700 mb-6">
+            👤 Gestion des Donneurs
+        </h1>
+
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+
+            <table class="w-full text-sm">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="p-3 text-left">Nom</th>
+                        <th class="p-3 text-left">Groupe</th>
+                        <th class="p-3 text-left">Téléphone</th>
+                        <th class="p-3 text-left">Disponible</th>
+                        <th class="p-3 text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for donneur in donneurs %}
+                    <tr class="border-t hover:bg-gray-50 transition">
+
+                        <td class="p-3">
+                            {{ donneur.nom }} {{ donneur.prenom }}
+                        </td>
+
+                        <td class="p-3 font-semibold text-red-600">
+                            {{ donneur.groupesanguin }}
+                        </td>
+
+                        <td class="p-3">
+                            {{ donneur.telephone }}
+                        </td>
+
+                        <td class="p-3">
+                            {% if donneur.disponible %}
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                                    Disponible
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs">
+                                    Indisponible
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="p-3 text-center space-x-2">
+
+                            <a href="{{ path('admin_donneur_toggle', {id: donneur.id}) }}"
+                               class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                                🔄 Toggle
+                            </a>
+
+                            <a href="{{ path('admin_donneur_delete', {id: donneur.id}) }}"
+                               onclick="return confirm('Supprimer ce donneur ?')"
+                               class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                                🗑 Supprimer
+                            </a>
+
+                        </td>
+
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-gray-500">
+                            Aucun donneur enregistré.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

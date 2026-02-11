@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Rendez-vous{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* Réutiliser les styles de new.html.twig */
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--border-color);
+    }
+    
+    .form-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+    
+    .form-control, .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .btn {
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    }
+    
+    .btn-secondary {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>✏️ Modifier le Rendez-vous</h1>
+        <p>Modifiez les informations de votre rendez-vous</p>
+    </div>
+
+    {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.hopital) }}
+            {{ form_widget(form.hopital) }}
+            {{ form_errors(form.hopital) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.typeConsultation) }}
+            {{ form_widget(form.typeConsultation) }}
+            {{ form_errors(form.typeConsultation) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.dateRendezVous) }}
+            {{ form_widget(form.dateRendezVous) }}
+            {{ form_errors(form.dateRendezVous) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.notes) }}
+            {{ form_widget(form.notes) }}
+            {{ form_errors(form.notes) }}
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ path('app_rendez_vous_index') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Annuler
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Enregistrer
+            </button>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New AnalyseAI{% endblock %}
+
+{% block body %}
+    <h1>Create new AnalyseAI</h1>
+
+    {{ include('analyse_ai/_form.html.twig') }}
+
+    <a href="{{ path('app_analyse_a_i_index') }}">back to list</a>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'layout/dashboard.html.twig' %}
+{% set turbo = false %}
+
+{% block title %}Aide – Carte médicale{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">🗺️ Médecins & Pharmacies proches</h1>
+
+<div class="bg-white rounded-xl shadow p-4">
+    <div id="map" class="w-full h-[500px] rounded"></div>
+</div>
+
+{# Leaflet CSS #}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+{# Leaflet JS #}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Position utilisateur (exemple Tunis)
+    const userLat = 36.8065;
+    const userLng = 10.1815;
+
+    const map = L.map('map').setView([userLat, userLng], 14);
+
+    // OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Marqueur utilisateur
+    L.marker([userLat, userLng])
+        .addTo(map)
+        .bindPopup("📍 Vous êtes ici")
+        .openPopup();
+
+    // Médecins (exemples)
+    const doctors = [
+        { name: "Dr. Ahmed", lat: 36.809, lng: 10.176 },
+        { name: "Dr. Salma", lat: 36.803, lng: 10.185 }
+    ];
+
+    doctors.forEach(d => {
+        L.marker([d.lat, d.lng])
+            .addTo(map)
+            .bindPopup("👨‍⚕️ " + d.name);
+    });
+
+    // Pharmacies (exemples)
+    const pharmacies = [
+        { name: "Pharmacie Centrale", lat: 36.807, lng: 10.190 },
+        { name: "Pharmacie El Manar", lat: 36.800, lng: 10.178 }
+    ];
+
+    pharmacies.forEach(p => {
+        L.marker([p.lat, p.lng])
+            .addTo(map)
+            .bindPopup("💊 " + p.name);
+    });
+</script>
+
+{% endblock %}

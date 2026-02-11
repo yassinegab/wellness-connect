@@ -1,0 +1,3 @@
+twig:
+    debug: false
+    strict_variables: false

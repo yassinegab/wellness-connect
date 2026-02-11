@@ -1,0 +1,9 @@
+<h2>Résultats du matching</h2>
+
+{% for m in matches %}
+    <div>
+        Don #{{ m.don.id }} — Score : {{ m.score }}
+    </div>
+{% else %}
+    <p>Aucun don compatible</p>
+{% endfor %}

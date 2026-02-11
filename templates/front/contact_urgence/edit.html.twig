@@ -1,0 +1,27 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% block title %}Modifier contact{% endblock %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">✏️ Modifier le contact</h1>
+
+<div class="bg-white p-6 rounded-xl shadow-sm">
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+
+        <div class="mt-4 flex gap-3">
+            <button class="px-4 py-2 bg-blue-600 text-white rounded">
+                Enregistrer
+            </button>
+
+            <a href="{{ path('contact_urgence_index') }}"
+               class="px-4 py-2 bg-gray-300 rounded">
+                Annuler
+            </a>
+        </div>
+    {{ form_end(form) }}
+</div>
+<script src="/js/contact-validation.js"></script>
+
+{% endblock %}

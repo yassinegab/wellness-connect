@@ -1,0 +1,144 @@
+/* =========================
+   GLOBAL BUTTON BASE
+========================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .55rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .25s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    border: none;
+}
+
+/* ripple effect */
+.btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,.15);
+    opacity: 0;
+    transition: opacity .25s;
+}
+.btn:active::after {
+    opacity: 1;
+}
+
+/* =========================
+   DECLARER DON (PRIMARY)
+========================= */
+.btn-declarer {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    color: white;
+    box-shadow: 0 10px 20px rgba(220,38,38,.35);
+}
+
+.btn-declarer:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 15px 30px rgba(220,38,38,.5);
+}
+
+.btn-declarer:active {
+    transform: scale(.95);
+}
+
+/* =========================
+   FILTRE BUTTONS
+========================= */
+.btn-filter {
+    background: #f1f5f9;
+    color: #0f172a;
+    border: 1px solid #cbd5f5;
+}
+
+.btn-filter:hover {
+    background: #2563eb;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-filter.active {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 5px 15px rgba(37,99,235,.4);
+}
+
+/* =========================
+   SEARCH BUTTON
+========================= */
+.btn-search {
+    background: #020617;
+    color: white;
+}
+
+.btn-search:hover {
+    background: #1e293b;
+    transform: scale(1.05);
+}
+
+/* =========================
+   DELETE BUTTON
+========================= */
+.btn-delete {
+    background: transparent;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    color: white;
+    background: #dc2626;
+    animation: shake .35s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    50% { transform: translateX(2px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+}
+
+/* =========================
+   URGENCE PULSE
+========================= */
+.urgence-label {
+    color: #dc2626;
+    font-weight: 700;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: .6; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* =========================
+   DON CARD ANIMATION
+========================= */
+.don-card {
+    animation: fadeUp .5s ease both;
+    transition: transform .25s, box-shadow .25s;
+}
+
+.don-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 25px rgba(0,0,0,.12);
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

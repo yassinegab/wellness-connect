@@ -1,0 +1,40 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% block title %}Don{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/css/don-menu.css">
+
+
+<h1 class="text-2xl font-bold mb-2">🩸 Don</h1>
+<p class="text-gray-600 mb-6">
+    Centre de gestion des dons, donneurs et demandes
+</p>
+
+<div class="don-menu">
+
+    <a href="{{ path('donneur_inscription') }}"
+       class="don-card donneur">
+        <div class="icon">🙋‍♂️</div>
+        <h3>Devenir donneur</h3>
+        <p>Inscription et informations personnelles</p>
+    </a>
+
+    <a href="{{ path('don_new') }}"
+       class="don-card don">
+        <div class="icon">🩸</div>
+        <h3>Nouveau don</h3>
+        <p>Déclarer un don de sang ou d’organe</p>
+    </a>
+
+    <a href="{{ path('demande_don') }}"
+       class="don-card demande">
+        <div class="icon">📄</div>
+        <h3>Demande de don</h3>
+        <p>Créer une demande urgente ou planifiée</p>
+    </a>
+
+</div>
+
+{% endblock %}

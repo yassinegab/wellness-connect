@@ -1,0 +1,43 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des demandes{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50">
+
+    {% include 'admin/components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col lg:ml-64">
+
+        {% include 'admin/components/top-nav.html.twig' %}
+
+        <main class="flex-1 p-6 space-y-6">
+
+            <h1 class="text-2xl font-bold text-purple-700">
+                📥 Gestion des demandes
+            </h1>
+
+            {% for demande in demandes %}
+                <div class="bg-white p-4 rounded shadow flex justify-between mb-3">
+                    <div>
+                        <strong>{{ demande.typeDemande }}</strong>
+                        — {{ demande.region }}
+                        — {{ demande.dateDemande|date('d/m/Y H:i') }}
+                    </div>
+                <form method="post"
+      action="{{ path('admin_demande_delete', {id: demande.id}) }}"
+      onsubmit="return confirm('Supprimer cette demande ?');">
+    <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition">
+        Supprimer
+    </button>
+</form>
+
+                </div>
+            {% else %}
+                <p>Aucune demande trouvée.</p>
+            {% endfor %}
+
+        </main>
+    </div>
+</div>
+{% endblock %}

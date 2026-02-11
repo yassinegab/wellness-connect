@@ -1,0 +1,56 @@
+<aside class="w-72 flex flex-col border-r border-border bg-sidebar">
+
+  {# Header #}
+  <div class="flex h-16 items-center border-b border-border px-6">
+    <div class="flex items-center gap-3">
+      <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+        ❤️
+      </div>
+      <span class="text-lg font-semibold text-sidebar-foreground">
+        Santé & Bien-être
+      </span>
+    </div>
+  </div>
+
+  {# Navigation #}
+  <nav class="flex-1 space-y-1 p-4">
+    {% set menuItems = [
+      {'route': 'frontoffice_dashboard', 'key': 'dashboard', 'label': 'Tableau de bord', 'icon': '🏠'},
+      {'route': 'app_analyse_a_i_index', 'key': 'mental', 'label': 'Suivi du bien-être mental', 'icon': '🧠'},
+      {'route': 'frontoffice_hopitaux', 'key': 'hopitaux', 'label': 'Services sociaux et hôpitaux', 'icon': '🏥'},
+      {'route': 'app_rendez_vous', 'key': 'rendezvous', 'label': 'Rendez-vous', 'icon': '📅'},
+      {'route': 'don', 'key': 'don', 'label': 'Don', 'icon': '💖'},
+      {'route': 'aide', 'key': 'aide', 'label': 'Aide', 'icon': '🆘'}
+    ] %}
+
+    {% for item in menuItems %}
+      {% set isActive = (activeModule is defined and activeModule == item.key) %}
+
+      <a href="{{ path(item.route) }}"
+         class="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors
+         {% if item.key == 'don' %}
+            bg-pink-100 text-pink-700 hover:bg-pink-200
+         {% elseif item.key == 'aide' %}
+            bg-blue-100 text-blue-700 hover:bg-blue-200
+         {% elseif isActive %}
+            bg-sidebar-accent text-sidebar-primary
+         {% else %}
+            text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground
+         {% endif %}
+         ">
+        <span class="text-lg">{{ item.icon }}</span>
+        {{ item.label }}
+      </a>
+    {% endfor %}
+  </nav>
+
+  {# Footer #}
+  <div class="border-t border-border p-4">
+    <div class="rounded-lg bg-muted p-4">
+      <p class="text-xs text-muted-foreground">Dernière synchronisation</p>
+      <p class="mt-1 text-sm font-medium text-sidebar-foreground">
+        Aujourd'hui, {{ "now"|date("H:i") }}
+      </p>
+    </div>
+  </div>
+</aside>

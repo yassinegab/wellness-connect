@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord - SmartHealth AI{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+    
+    {# Sidebar #}
+    {% include 'components/sidebar.html.twig' %}
+    
+    <div class="flex flex-1 flex-col lg:ml-72">
+        
+        {# Top Navigation #}
+        {% include 'components/top-nav.html.twig' %}
+        
+        <main class="flex-1 overflow-auto">
+            <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+                
+                {# Header #}
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-fadeIn">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            Bonjour, {{ user.prenom }} ! 👋
+                        </h1>
+                        <p class="text-gray-600 mt-1">
+                            Voici un aperçu de votre santé aujourd'hui
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-sm">
+                        <i class="fas fa-calendar-alt text-blue-600"></i>
+                        <span class="text-sm font-medium text-gray-700">
+                            {{ "now"|date("d/m/Y") }}
+                        </span>
+                    </div>
+                </div>
+                
+                {# Stat Cards #}
+                <div class="animate-fadeIn" style="animation-delay: 0.1s;">
+                    {% include 'components/stat-cards.html.twig' %}
+                </div>
+                
+                {# Health Widgets Grid #}
+                <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-3 animate-fadeIn" style="animation-delay: 0.2s;">
+                    {% include 'components/widgets/health-summary.html.twig' %}
+                    {% include 'components/widgets/mental.html.twig' %}
+                    {% include 'components/widgets/activity.html.twig' %}
+                </div>
+                
+                <div class="grid gap-6 lg:grid-cols-2 animate-fadeIn" style="animation-delay: 0.3s;">
+                    {% include 'components/widgets/nutrition.html.twig' %}
+                    {% include 'components/widgets/cycle.html.twig' %}
+                </div>
+                
+                {# Quick Actions #}
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm animate-fadeIn hover-lift" style="animation-delay: 0.4s;">
+                    <div class="mb-4 flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            <i class="fas fa-bolt text-blue-600 mr-2"></i>
+                            Actions rapides
+                        </h2>
+                    </div>
+                    
+                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        {% for action in quickActions %}
+                            <button class="group flex items-center gap-3 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-4 text-left hover:from-blue-50 hover:to-blue-100 hover:border-blue-300 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                                <span class="text-2xl group-hover:scale-110 transition-transform duration-300">{{ action.emoji }}</span>
+                                <span class="text-sm font-medium text-gray-900 group-hover:text-blue-700">
+                                    {{ action.label }}
+                                </span>
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+        
+        {# Footer #}
+        <footer class="border-t border-gray-200 bg-white">
+            <div class="max-w-7xl mx-auto px-4 lg:px-8 py-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2 text-orange-600">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="text-sm font-medium">SmartHealth AI est un système d'aide à la décision. Ne remplace pas un professionnel de santé.</span>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        © {{ "now"|date("Y") }} SmartHealth AI. Tous droits réservés.
+                    </div>
+                </div>
+            </div>
+        </footer>
+        
+    </div>
+</div>
+
+{% block javascripts %}
+<script>
+    // Add smooth scroll behavior
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fadeIn');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all widgets
+        document.querySelectorAll('.grid > div').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

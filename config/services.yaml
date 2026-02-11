@@ -1,0 +1,21 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Load all services automatically
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Explicit service
+    App\Service\SmsService:
+        arguments:
+            $apiKey: '%env(VONAGE_API_KEY)%'
+            $apiSecret: '%env(VONAGE_API_SECRET)%'
+            $brand: '%env(VONAGE_BRAND)%'

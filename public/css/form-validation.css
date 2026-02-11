@@ -1,0 +1,33 @@
+/* INPUTS */
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  background-color: #fff;
+  font-size: 15px;
+  color: #111827;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Placeholder */
+.input::placeholder {
+  color: #9ca3af;
+}
+
+/* Focus */
+.input:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* Select fix */
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 40px;
+}

@@ -1,0 +1,51 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% block title %}Inscription Donneur{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/css/form-validation.css">
+<link rel="stylesheet" href="/css/don-button.css">
+
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow p-6">
+
+    <h1 class="text-2xl font-bold mb-2">🩸 Devenir donneur</h1>
+    <p class="text-gray-600 mb-6">
+        Inscrivez-vous comme donneur de sang et aidez à sauver des vies.
+    </p>
+
+    {% for message in app.flashes('success') %}
+        <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <form method="post" class="space-y-4">
+
+        <input name="nom" placeholder="Nom" class="input">
+        <input name="prenom" placeholder="Prénom" class="input">
+        <input name="age" type="number" min="18" placeholder="Âge" class="input">
+        <input name="telephone" placeholder="Téléphone" class="input">
+
+        <select name="groupe_sanguin" class="input">
+            <option value="">Groupe sanguin</option>
+            <option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option>
+            <option>O+</option><option>O-</option>
+        </select>
+
+        <button type="submit" class="don-btn">
+            Confirmer l’inscription
+        </button>
+
+    </form>
+</div>
+
+{% endblock %}

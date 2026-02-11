@@ -1,0 +1,144 @@
+{% extends 'layout/dashboard.html.twig' %}
+
+{% block title %}Urgences{% endblock %}
+
+{% block content %}
+<div x-data="{ open: false, urgence: {} }">
+
+    <h1 class="text-2xl font-bold mb-6">🚨 Urgences</h1>
+
+    {# Flash message #}
+    {% for message in app.flashes('success') %}
+        <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {# Bouton déclencher urgence #}
+    <form method="post" action="{{ path('urgence_send') }}" id="urgenceForm">
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+
+        <button
+            type="submit"
+            class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-lg"
+         >
+        🚨 Déclencher une urgence
+        </button>
+</form>
+
+<p id="geoStatus" class="text-sm text-gray-500 mt-2"></p>
+
+
+    {# Tableau des urgences #}
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-3 text-left">Date</th>
+                    <th class="p-3 text-left">Statut</th>
+                    <th class="p-3 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for u in urgences %}
+                <tr class="border-t hover:bg-gray-50">
+                    <td class="p-3">
+                        {{ u.dateUrgence|date('d/m/Y H:i') }}
+                    </td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded text-xs font-medium
+                            {% if u.statut == 'EN_ATTENTE' %}
+                                bg-yellow-100 text-yellow-800
+                            {% else %}
+                                bg-green-100 text-green-800
+                            {% endif %}
+                        ">
+                            {{ u.statut }}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right">
+                        <button
+                            class="text-blue-600 hover:underline"
+                            @click="
+                                open = true;
+                                urgence = {
+                                    id: {{ u.id }},
+                                    date: '{{ u.dateUrgence|date('d/m/Y H:i') }}',
+                                    message: '{{ u.message|e('js') }}',
+                                    lat: '{{ u.latitude }}',
+                                    lng: '{{ u.longitude }}',
+                                    statut: '{{ u.statut }}'
+                                }
+                            "
+                        >
+                            Voir détails
+                        </button>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="p-4 text-center text-gray-500">
+                        Aucune urgence enregistrée
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# MODAL (POP-UP) #}
+    <div
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    >
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-lg">
+
+            <h2 class="text-xl font-bold mb-4">🚨 Détails de l’urgence</h2>
+
+            <div class="space-y-2 text-sm">
+                <p><strong>Date :</strong> <span x-text="urgence.date"></span></p>
+                <p><strong>Message :</strong> <span x-text="urgence.message"></span></p>
+                <p><strong>Latitude :</strong> <span x-text="urgence.lat"></span></p>
+                <p><strong>Longitude :</strong> <span x-text="urgence.lng"></span></p>
+                <p>
+                    <strong>Statut :</strong>
+                    <span
+                        class="px-2 py-1 rounded text-xs font-medium"
+                        :class="urgence.statut === 'EN_ATTENTE'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-green-100 text-green-800'"
+                        x-text="urgence.statut"
+                    ></span>
+                </p>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                {# DELETE BUTTON #}
+                <form
+                    method="post"
+                    :action="`/aide/urgence/delete/${urgence.id}`"
+                >
+                    <button
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
+                    >
+                        Supprimer
+                    </button>
+                </form>
+
+                <button
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+                    @click="open = false"
+                >
+                    Fermer
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<script src="/js/geolocation.js"></script>
+
+{% endblock %}
