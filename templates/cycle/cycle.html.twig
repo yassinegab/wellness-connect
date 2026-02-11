@@ -2,6 +2,55 @@
 
 {% block stylesheets %}
 <style>
+.pill-buttons .pill {
+    position: relative;
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    background-color: #fff;
+    color: #ec4899; /* rose */
+    font-weight: 600;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.pill-buttons .pill .hover-circle {
+    position: absolute;
+    bottom: -50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: #ec4899; /* rose */
+    border-radius: 50%;
+    transform: translateX(-50%) scale(0);
+    transition: all 0.3s ease;
+    z-index: 0;
+}
+
+.pill-buttons .pill .label-stack {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+}
+
+.pill-buttons .pill .pill-label-hover {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    color: white;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.pill-buttons .pill:hover .hover-circle {
+    transform: translateX(-50%) scale(3);
+}
+
+.pill-buttons .pill:hover .pill-label-hover {
+    top: 0;
+    opacity: 1;
+}
 /* 🌸 Thème général rose */
 .fc {
   --fc-border-color: #fbcfe8;
@@ -48,7 +97,6 @@
   <div class="flex flex-1 flex-col">
     {% include 'components/top-nav.html.twig' %}
 
-
     <main class="flex-1 overflow-auto">
       <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
 
@@ -59,11 +107,35 @@
             <p class="text-muted-foreground">Voici un aperçu de votre santé reproductive aujourd’hui</p>
             
             
-        
+        <div class="pill-buttons flex flex-col sm:flex-row gap-4 mb-6">
+
+    <a href="{{ path('symptome_index') }}" class="pill">
+        <span class="hover-circle" aria-hidden="true"></span>
+        <span class="label-stack">
+            <span class="pill-label">Ajouter un symptôme ?</span>
+            <span class="pill-label-hover" aria-hidden="true">Ajouter un symptôme ?</span>
+        </span>
+    </a>
+
+    <a href="{{ path('calendar_cycles_history') }}" class="pill">
+        <span class="hover-circle" aria-hidden="true"></span>
+        <span class="label-stack">
+            <span class="pill-label">Historique des cycles</span>
+            <span class="pill-label-hover" aria-hidden="true">Historique de vos cycles</span>
+        </span>
+    </a>
+
+    <a href="{{ path('cycle_stats') }}" class="pill">
+        <span class="hover-circle" aria-hidden="true"></span>
+        <span class="label-stack">
+            <span class="pill-label">Stats des cycles</span>
+            <span class="pill-label-hover" aria-hidden="true">Statistiques de vos cycles</span>
+        </span>
+    </a>
+
+</div>
           </div>
-          <a href="{{ path('symptome_index') }}" class="btn-outline">
-                    Ajouter un symptôme?
-                </a>
+          
           <div class="flex items-center gap-2 rounded-md border px-3 py-2">📅 {{ "now"|date("l d F Y") }}</div>
         </div>
 

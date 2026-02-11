@@ -238,9 +238,45 @@ public function history(CycleRepository $cycleRepository): Response
     $cycles = $cycleRepository->findBy([], ['dateDebutM' => 'ASC']);
 
     return $this->render('cycle/history.html.twig', [
-        'cycles' => $cycles, // ✅ variable envoyée au template
+        'cycles' => $cycles, 
     ]);
 
+}
+#[Route('/cycle/stats', name: 'cycle_stats')]
+public function stats(CycleRepository $cycleRepository): Response
+{
+    $cycles = $cycleRepository->findBy([], ['dateDebutM' => 'ASC']);
+
+    // Calculer la durée de chaque cycle et la moyenne
+    $cycleDurations = [];
+    $totalDays = 0;
+
+    foreach ($cycles as $cycle) {
+        $days = $cycle->getDateDebutM()->diff($cycle->getDateFinM())->days + 1;
+        $cycleDurations[] = [
+            'start' => $cycle->getDateDebutM()->format('Y-m-d'),
+            'end' => $cycle->getDateFinM()->format('Y-m-d'),
+            'duration' => $days
+        ];
+        $totalDays += $days;
+    }
+
+    $averageCycle = count($cycles) > 0 ? round($totalDays / count($cycles), 1) : 0;
+
+    // Générer les labels et data pour le graphique Chart.js
+    $labels = [];
+    $data = [];
+    foreach ($cycleDurations as $c) {
+        // label = mois du début du cycle
+        $labels[] = $c['start']; 
+        $data[] = $c['duration'];
+    }
+
+    return $this->render('cycle/stats.html.twig', [
+        'averageCycle' => $averageCycle,
+        'chartLabels' => json_encode($labels),
+        'chartData' => json_encode($data)
+    ]);
 }
     
 }
