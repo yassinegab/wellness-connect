@@ -1,0 +1,59 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}events{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+    
+    {# Admin Sidebar #}
+    {% include 'admin/components/sidebar.html.twig' %}
+    
+    <div class="flex flex-1 flex-col lg:ml-64">
+        
+        {# Admin Top Navigation #}
+        {% include 'admin/components/top-nav.html.twig' %}
+
+
+<h2 class="text-2xl font-semibold mb-6">Événements</h2>
+
+<a href="{{ path('admin_events_new') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg mb-4 inline-block">
+    Ajouter un événement
+</a>
+ <a href="{{ path('admin_dashboard') }}" class="px-4 py-2 bg-gray-600 text-white rounded-lg mb-4 inline-block">
+                       Retour au Dashboard
+</a>
+
+<table class="w-full border-collapse bg-white rounded-xl shadow">
+    <thead class="bg-blue-50">
+        <tr>
+            <th class="px-6 py-3 text-left text-blue-700 font-semibold">Titre</th>
+            <th class="px-6 py-3 text-left text-blue-700 font-semibold">Date</th>
+            <th class="px-6 py-3 text-left text-blue-700 font-semibold">Type</th>
+            <th class="px-6 py-3 text-left text-blue-700 font-semibold">Description</th>
+            <th class="px-6 py-3 text-left text-blue-700 font-semibold">Actions</th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+        {% for event in events %}
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4">{{ event.title }}</td>
+                <td class="px-6 py-4">{{ event.date|date('d/m/Y') }}</td>
+                <td class="px-6 py-4">{{ event.type }}</td>
+                <td class="px-6 py-4">{{ event.description }}</td>
+                <td class="px-6 py-4 space-x-2">
+                    <a href="{{ path('admin_events_edit', {id: event.id}) }}" class="text-blue-600">Modifier</a>
+                    <a href="{{ path('admin_events_delete', {id: event.id}) }}" class="text-red-600"
+                       onclick="return confirm('Voulez-vous vraiment supprimer cet événement ?')">Supprimer</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5" class="px-6 py-6 text-center text-gray-500">
+                    Aucun événement trouvé
+                </td>
+            </tr>
+        {% endfor %}
+        
+    </tbody>
+</table>
+{% endblock %}

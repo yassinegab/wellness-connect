@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="flex min-h-screen bg-background">
+
+  {# Sidebar #}
+  {% include 'components/sidebar.html.twig' %}
+
+  <div class="flex flex-1 flex-col">
+
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+
+    <main class="flex-1 overflow-auto">
+      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+
+    
+
+
+
+<div class="p-6 max-w-3xl mx-auto">
+<a href="{{ path('cycle') }}" class="btn-outline">
+                    ← Retour
+                </a>
+    <h2 class="text-2xl font-semibold mb-6">Statistiques de vos cycles</h2>
+
+    <div class="bg-white p-6 rounded-2xl shadow-md">
+        <p class="text-lg mb-4">Durée moyenne du cycle : <strong>{{ averageCycle|number_format(1) }} jours</strong></p>
+
+        {# Ici, on pourra ajouter un graphique avec Chart.js ou Recharts #}
+        <canvas id="cycleChart" width="400" height="200"></canvas>
+    </div>
+   
+</div>
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('cycleChart').getContext('2d');
+    const cycleChart = new Chart(ctx, {
+        type: 'line', // ou 'bar'
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], // à générer dynamiquement selon les cycles
+            datasets: [{
+                label: 'Durée du cycle (jours)',
+                data: [28, 30, 27, 29, 28], // remplacer par les valeurs réelles
+                backgroundColor: 'rgba(236, 72, 153, 0.2)',
+                borderColor: 'rgba(236, 72, 153, 1)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+    
+</script>
+
+{% endblock %}
+{% endblock %}

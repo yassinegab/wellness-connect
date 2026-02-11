@@ -1,0 +1,76 @@
+<aside class="fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-200 bg-white transition-transform lg:translate-x-0"
+       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+       x-cloak>
+    
+    {# Logo / Header #}
+    <div class="flex h-16 items-center justify-between border-b border-gray-200 px-6">
+        <div class="flex items-center gap-3">
+            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
+                <i class="fas fa-heartbeat text-white"></i>
+            </div>
+            <div>
+                <span class="text-lg font-bold text-gray-900">SOSI</span>
+                <span class="block text-xs text-gray-500">Admin Panel</span>
+            </div>
+        </div>
+        <button @click="sidebarOpen = false" class="lg:hidden">
+            <i class="fas fa-times text-gray-600"></i>
+        </button>
+    </div>
+    
+    {# Navigation #}
+    <nav class="flex-1 space-y-1 p-4 overflow-y-auto max-h-[calc(100vh-8rem)]">
+        {% set adminMenuItems = [
+            {'id': 'dashboard', 'label': 'Dashboard', 'icon': 'fa-chart-line', 'route': 'admin_dashboard'},
+            {'separator': true},
+            {'id': 'users', 'label': 'Gestion Utilisateurs', 'icon': 'fa-users', 'route': '#', 'description': 'Comptes et profils'},
+            {'id': 'services', 'label': 'Gestion Services Médicaux', 'icon': 'fa-hospital', 'route': '#', 'description': 'RDV et consultations'},
+            {'id': 'cycle', 'label': 'Gestion Cycle Menstruel', 'icon': 'fa-venus', 'route': '#', 'description': 'Suivi féminin'},
+            {'id': 'wellbeing', 'label': 'Gestion Bien-être', 'icon': 'fa-spa', 'route': '#', 'description': 'Santé mentale et habitudes'},
+            {'id': 'assistance', 'label': 'Gestion Aide/Don', 'icon': 'fa-hand-holding-heart', 'route': '#', 'description': 'Handicap et dons'},
+            {'separator': true},
+            {'id': 'analytics', 'label': 'Analytiques', 'icon': 'fa-chart-pie', 'route': '#'},
+            {'id': 'settings', 'label': 'Paramètres', 'icon': 'fa-cog', 'route': '#'}
+        ] %}
+        
+        {% for item in adminMenuItems %}
+            {% if item.separator is defined %}
+                <div class="my-2 border-t border-gray-200"></div>
+            {% else %}
+                {% set isActive = (app.request.get('_route') == item.route) %}
+                <a href="{{ item.route }}" 
+                   class="group flex w-full flex-col rounded-lg px-3 py-2.5 text-sm font-medium transition-all
+                   {{ isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
+                    <div class="flex items-center gap-3">
+                        <i class="fas {{ item.icon }} {{ isActive ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700' }}"></i>
+                        <span class="flex-1">{{ item.label }}</span>
+                    </div>
+                    {% if item.description is defined %}
+                        <span class="ml-8 text-xs {{ isActive ? 'text-blue-600' : 'text-gray-500' }}">{{ item.description }}</span>
+                    {% endif %}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </nav>
+    
+    {# Footer #}
+    <div class="border-t border-gray-200 p-4">
+        <div class="rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-700">Système actif</p>
+                    <p class="mt-1 text-sm font-bold text-gray-900">{{ "now"|date("H:i") }}</p>
+                </div>
+                <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+{# Overlay for mobile #}
+<div x-show="sidebarOpen" 
+     @click="sidebarOpen = false"
+     class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+     x-transition
+     x-cloak>
+</div>

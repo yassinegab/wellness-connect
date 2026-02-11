@@ -15,7 +15,45 @@ class CycleRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Cycle::class);
     }
+// src/Repository/CycleRepository.php
 
+public function getAverageCycleLength(): ?float
+{
+    $qb = $this->createQueryBuilder('c')
+        ->select('AVG(DATE_DIFF(c.dateFinM, c.dateDebutM)) as avgCycle');
+
+    return $qb->getQuery()->getSingleScalarResult();
+}
+// src/Repository/CycleRepository.php
+// src/Repository/CycleRepository.php
+
+public function findAllCyclesWithCycleLength()
+{
+    $cycles = $this->createQueryBuilder('c')
+        ->orderBy('c.dateDebutM', 'ASC')
+        ->getQuery()
+        ->getResult();
+
+    $result = [];
+    $count = count($cycles);
+
+    for ($i = 0; $i < $count; $i++) {
+        $current = $cycles[$i];
+        $next = $i < $count - 1 ? $cycles[$i + 1] : null;
+
+        $cycleLength = null;
+        if ($next) {
+            $cycleLength = $current->getDateDebutM()->diff($next->getDateDebutM())->days;
+        }
+
+        $result[] = [
+            'cycle' => $current,
+            'cycleLength' => $cycleLength // null pour le dernier cycle
+        ];
+    }
+
+    return $result;
+}
 //    /**
 //     * @return Cycle[] Returns an array of Cycle objects
 //     */

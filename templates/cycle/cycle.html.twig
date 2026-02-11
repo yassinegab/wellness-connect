@@ -47,6 +47,8 @@
   {% include 'components/sidebar.html.twig' %}
   <div class="flex flex-1 flex-col">
     {% include 'components/top-nav.html.twig' %}
+
+
     <main class="flex-1 overflow-auto">
       <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
 
@@ -54,8 +56,14 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 class="text-2xl font-bold text-foreground">Bonjour, {{ user.prenom }} !</h1>
-            <p class="text-muted-foreground">Voici un aperçu de votre santé aujourd’hui</p>
+            <p class="text-muted-foreground">Voici un aperçu de votre santé reproductive aujourd’hui</p>
+            
+            
+        
           </div>
+          <a href="{{ path('symptome_index') }}" class="btn-outline">
+                    Ajouter un symptôme?
+                </a>
           <div class="flex items-center gap-2 rounded-md border px-3 py-2">📅 {{ "now"|date("l d F Y") }}</div>
         </div>
 
@@ -65,6 +73,10 @@
 
         <!-- Calendrier -->
         <div id="calendar"></div>
+        <div class="mt-6">
+
+   
+</div>
 
         <!-- Modal confirmation -->
         <div id="confirm-modal" class="fixed top-0 left-0 w-screen h-screen bg-pink-500/90 hidden flex items-center justify-center z-50">

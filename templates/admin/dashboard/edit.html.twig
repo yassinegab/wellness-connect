@@ -1,0 +1,41 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Modifier Événement - SmartHealth AI{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+    
+    {% include 'admin/components/sidebar.html.twig' %}
+    
+    <div class="flex flex-1 flex-col lg:ml-64">
+        {% include 'admin/components/top-nav.html.twig' %}
+
+        <div class="p-6 max-w-2xl mx-auto">
+            <h2 class="text-2xl font-semibold mb-6">Modifier l'événement</h2>
+
+            {{ form_start(form, {'attr': {'class': 'space-y-6 bg-white p-6 rounded-2xl shadow-md'}}) }}
+                
+                {% for child in form %}
+                    <div class="flex flex-col">
+                        {{ form_label(child, null, {'label_attr': {'class': 'mb-2 font-medium text-gray-700'}}) }}
+                        {{ form_widget(child, {'attr': {
+                            'class': 'border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-pink-400 focus:outline-none'
+                        }}) }}
+                        {{ form_errors(child, {'attr': {'class': 'text-red-500 mt-1 text-sm'}}) }}
+                    </div>
+                {% endfor %}
+
+                <div class="flex space-x-4 mt-4">
+                    <button type="submit" class="flex-1 px-4 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow hover:bg-pink-600 transition-colors">
+                        Modifier
+                    </button>
+                    <a href="{{ path('admin_events_index') }}" class="flex-1 px-4 py-3 bg-gray-300 text-gray-700 font-semibold rounded-lg shadow hover:bg-gray-400 transition-colors text-center">
+                        Annuler
+                    </a>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\CycleRepository;
 
 use App\Entity\Cycle;
 
@@ -198,10 +199,52 @@ public function updateCycleAjax(Request $request, EntityManagerInterface $em): J
 
     return new JsonResponse(['success' => true]);
 }
+
+#[Route('/cycle/search', name: 'cycle_search')]
+public function searchByYear(Request $request, CycleRepository $cycleRepository): Response
+{
+    $year = $request->query->get('year');
+
+    if (!$year) {
+        return $this->json(['error' => 'Year parameter missing'], 400);
+    }
+
+    // Récupère les cycles dont la dateDebut est dans l'année demandée
+    $cycles = $cycleRepository->createQueryBuilder('c')
+        ->where('YEAR(c.dateDebut) = :year')
+        ->setParameter('year', $year)
+        ->orderBy('c.dateDebut', 'ASC')
+        ->getQuery()
+        ->getResult();
+
+    // Préparer un tableau simple pour le JSON
+    $data = [];
+    foreach ($cycles as $cycle) {
+        $data[] = [
+            'id' => $cycle->getIdCycle(),
+            'dateDebut' => $cycle->getDateDebutM()->format('Y-m-d'),
+            'dateFin' => $cycle->getDateFinM()->format('Y-m-d'),
+            'duration' => $cycle->getDateDebutM()->diff($cycle->getDateFinM())->days
+        ];
+    }
+
+    return $this->json($data);
+}
+// src/Controller/CycleController.php
+#[Route('/cycle/history', name: 'calendar_cycles_history')]
+public function history(CycleRepository $cycleRepository): Response
+{
+    // Récupère tous les cycles triés par date
+    $cycles = $cycleRepository->findBy([], ['dateDebutM' => 'ASC']);
+
+    return $this->render('cycle/history.html.twig', [
+        'cycles' => $cycles, // ✅ variable envoyée au template
+    ]);
+
+}
     
 }
 
 
     
        
-

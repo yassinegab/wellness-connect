@@ -1,0 +1,214 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Dashboard Administrateur - SmartHealth AI{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+    
+    {# Admin Sidebar #}
+    {% include 'admin/components/sidebar.html.twig' %}
+    
+    <div class="flex flex-1 flex-col lg:ml-64">
+        
+        {# Admin Top Navigation #}
+        {% include 'admin/components/top-nav.html.twig' %}
+        
+       
+          {# ===== MAIN CONTENT ===== #}
+        <main class="flex-1 p-6">
+            
+            <div class="max-w-6xl mx-auto">
+                
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                    Utilisatrices
+                </h2>
+
+                <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+                    
+                    <table class="w-full border-collapse">
+                        <thead class="bg-blue-50">
+                            <tr>
+                                <th class="text-left px-6 py-3 text-sm font-semibold text-blue-700">
+                                    Nom
+                                </th>
+                                <th class="text-left px-6 py-3 text-sm font-semibold text-blue-700">
+                                    Prénom
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-200">
+                            {% for user in utilisatrices %}
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 text-gray-800">
+                                        {{ user.nom }}
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-800">
+                                        {{ user.prenom }}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="px-6 py-6 text-center text-gray-500">
+                                        Aucune utilisatrice trouvée
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+  <!-- Total utilisateurs -->
+  <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+    <p class="text-sm text-gray-500">Total utilisateurs</p>
+    <p class="mt-2 text-3xl font-bold text-blue-600">
+      {{ totalUsers }}
+    </p>
+  </div>
+
+  <!-- Total femmes -->
+  <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+    <p class="text-sm text-gray-500">Femmes inscrites</p>
+    <p class="mt-2 text-3xl font-bold text-pink-600">
+      {{ totalFemmes }}
+    </p>
+  </div>
+
+  <!-- Suivi de cycle -->
+  <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+    <p class="text-sm text-gray-500">Femmes suivant le cycle</p>
+    <p class="mt-2 text-3xl font-bold text-green-600">
+      {{ femmesAvecCycle }}
+    </p>
+  </div>
+
+  <!-- Pourcentage -->
+  <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+    <p class="text-sm text-gray-500">Taux de suivi</p>
+    <p class="mt-2 text-3xl font-bold text-purple-600">
+      {{ pourcentageSuivi }}%
+    </p>
+
+    <div class="mt-4 w-full bg-gray-200 rounded-full h-2">
+      <div
+        class="bg-purple-500 h-2 rounded-full"
+        style="width: {{ pourcentageSuivi }}%">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+                </div>
+            </div>
+ 
+        </main>
+
+        
+
+
+
+</div>
+       
+        
+    </div>
+   
+
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ===== Container ===== */
+.scroll-list-container {
+  position: relative;
+  width: 100%;
+  max-height: 400px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* ===== Scroll List ===== */
+.scroll-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+/* ===== Scrollbar ===== */
+.scroll-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-list::-webkit-scrollbar-thumb {
+  background: #93c5fd;
+  border-radius: 10px;
+}
+
+.scroll-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== Item ===== */
+.item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.item:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+/* Selected */
+.item.selected {
+  background: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+}
+
+/* Text */
+.item-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Selected text */
+.item.selected .item-text {
+  color: #ffffff;
+}
+
+/* ===== Gradients ===== */
+.top-gradient,
+.bottom-gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40px;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.top-gradient {
+  top: 0;
+  background: linear-gradient(to bottom, #ffffff, transparent);
+}
+
+.bottom-gradient {
+  bottom: 0;
+  background: linear-gradient(to top, #ffffff, transparent);
+}
+</style>
+{% endblock %}
