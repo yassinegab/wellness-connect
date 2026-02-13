@@ -14,43 +14,106 @@ class RendezVousRepository extends ServiceEntityRepository
     }
 
     /**
-     * Recherche simple
+     * Recherche paginée filtrée par patient connecté
      */
-    public function search(string $term): array
-    {
-        return $this->createQueryBuilder('r')
+    public function searchPaginatedByPatient(
+        int $patientId,
+        string $search,
+        int $page,
+        int $itemsPerPage,
+        string $sort = 'date'
+    ): array {
+        $qb = $this->createQueryBuilder('r')
             ->leftJoin('r.patient', 'p')
             ->leftJoin('r.medecin', 'm')
-            ->leftJoin('r.hopital', 'h')
-            ->where('p.nom LIKE :term')
-            ->orWhere('p.prenom LIKE :term')
-            ->orWhere('m.nom LIKE :term')
-            ->orWhere('m.prenom LIKE :term')
-            ->orWhere('h.nom LIKE :term')
-            ->orWhere('r.statut LIKE :term')
-            ->orWhere('r.typeConsultation LIKE :term')
-            ->setParameter('term', '%' . $term . '%')
-            ->orderBy('r.dateRendezVous', 'DESC')
+            ->where('r.patient = :patientId')
+            ->setParameter('patientId', $patientId);
+
+        // Recherche
+        if (!empty($search)) {
+            $qb->andWhere('
+                p.nom LIKE :search OR 
+                p.prenom LIKE :search OR 
+                m.nom LIKE :search OR 
+                m.prenom LIKE :search OR
+                r.statut LIKE :search
+            ')
+            ->setParameter('search', '%' . $search . '%');
+        }
+
+        // Tri
+        switch ($sort) {
+            case 'patient':
+                $qb->orderBy('p.nom', 'ASC');
+                break;
+            case 'statut':
+                $qb->orderBy('r.statut', 'ASC');
+                break;
+            default: // date
+                $qb->orderBy('r.dateRendezVous', 'DESC');
+        }
+
+        // Total
+        $total = (clone $qb)
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Pagination
+        $data = $qb
+            ->setFirstResult(($page - 1) * $itemsPerPage)
+            ->setMaxResults($itemsPerPage)
             ->getQuery()
             ->getResult();
+
+        return [
+            'data' => $data,
+            'total' => $total
+        ];
     }
 
     /**
-     * Recherche avec pagination et tri
+     * Liste paginée filtrée par patient connecté (sans recherche)
      */
-    public function searchPaginated(string $term, int $page = 1, int $limit = 10, string $sort = 'date'): array
-    {
+    public function findPaginatedByPatient(
+        int $patientId,
+        int $page,
+        int $itemsPerPage,
+        string $sort = 'date'
+    ): array {
+        return $this->searchPaginatedByPatient(
+            $patientId,
+            '',  // Pas de recherche
+            $page,
+            $itemsPerPage,
+            $sort
+        );
+    }
+
+    /**
+     * Recherche paginée (TOUS les rendez-vous - pour admin)
+     */
+    public function searchPaginated(
+        string $search,
+        int $page,
+        int $itemsPerPage,
+        string $sort = 'date'
+    ): array {
         $qb = $this->createQueryBuilder('r')
             ->leftJoin('r.patient', 'p')
-            ->leftJoin('r.medecin', 'm')
-            ->leftJoin('r.hopital', 'h')
-            ->where('p.nom LIKE :term')
-            ->orWhere('p.prenom LIKE :term')
-            ->orWhere('m.nom LIKE :term')
-            ->orWhere('m.prenom LIKE :term')
-            ->orWhere('h.nom LIKE :term')
-            ->orWhere('r.statut LIKE :term')
-            ->setParameter('term', '%' . $term . '%');
+            ->leftJoin('r.medecin', 'm');
+
+        // Recherche
+        if (!empty($search)) {
+            $qb->where('
+                p.nom LIKE :search OR 
+                p.prenom LIKE :search OR 
+                m.nom LIKE :search OR 
+                m.prenom LIKE :search OR
+                r.statut LIKE :search
+            ')
+            ->setParameter('search', '%' . $search . '%');
+        }
 
         // Tri
         switch ($sort) {
@@ -58,65 +121,44 @@ class RendezVousRepository extends ServiceEntityRepository
                 $qb->orderBy('p.nom', 'ASC');
                 break;
             case 'statut':
-                $qb->orderBy('r.statut', 'ASC')
-                   ->addOrderBy('r.dateRendezVous', 'DESC');
+                $qb->orderBy('r.statut', 'ASC');
                 break;
-            default:
+            default: // date
                 $qb->orderBy('r.dateRendezVous', 'DESC');
         }
 
-        // Compter le total
-        $total = count($qb->getQuery()->getResult());
+        // Total
+        $total = (clone $qb)
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
 
         // Pagination
-        $offset = ($page - 1) * $limit;
-        $data = $qb->setFirstResult($offset)
-                   ->setMaxResults($limit)
-                   ->getQuery()
-                   ->getResult();
+        $data = $qb
+            ->setFirstResult(($page - 1) * $itemsPerPage)
+            ->setMaxResults($itemsPerPage)
+            ->getQuery()
+            ->getResult();
 
         return [
             'data' => $data,
-            'total' => $total,
+            'total' => $total
         ];
     }
 
     /**
-     * Listing avec pagination et tri
+     * Liste paginée (TOUS les rendez-vous - pour admin)
      */
-    public function findPaginated(int $page = 1, int $limit = 10, string $sort = 'date'): array
-    {
-        $qb = $this->createQueryBuilder('r')
-            ->leftJoin('r.patient', 'p')
-            ->leftJoin('r.medecin', 'm')
-            ->leftJoin('r.hopital', 'h');
-
-        // Tri
-        switch ($sort) {
-            case 'patient':
-                $qb->orderBy('p.nom', 'ASC');
-                break;
-            case 'statut':
-                $qb->orderBy('r.statut', 'ASC')
-                   ->addOrderBy('r.dateRendezVous', 'DESC');
-                break;
-            default:
-                $qb->orderBy('r.dateRendezVous', 'DESC');
-        }
-
-        // Compter le total
-        $total = count($qb->getQuery()->getResult());
-
-        // Pagination
-        $offset = ($page - 1) * $limit;
-        $data = $qb->setFirstResult($offset)
-                   ->setMaxResults($limit)
-                   ->getQuery()
-                   ->getResult();
-
-        return [
-            'data' => $data,
-            'total' => $total,
-        ];
+    public function findPaginated(
+        int $page,
+        int $itemsPerPage,
+        string $sort = 'date'
+    ): array {
+        return $this->searchPaginated(
+            '',  // Pas de recherche
+            $page,
+            $itemsPerPage,
+            $sort
+        );
     }
 }

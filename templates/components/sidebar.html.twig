@@ -1,17 +1,20 @@
-<aside class="w-72 flex flex-col border-r border-border bg-sidebar">
+{# ✅ AJOUT: fixed, inset-y-0, left-0, z-50 pour fixer la sidebar à gauche #}
+<aside class="fixed inset-y-0 left-0 z-50 w-72 flex flex-col border-r border-gray-200 bg-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+  
   {# Logo / Header #}
-  <div class="flex h-16 items-center justify-between border-b border-border px-6">
+  <div class="flex h-16 items-center justify-between border-b border-gray-200 px-6">
     <div class="flex items-center gap-3">
-      <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-        ❤️
+      <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
+        <span class="text-white">❤️</span>
       </div>
-      <span class="text-lg font-semibold text-sidebar-foreground">
+      <span class="text-lg font-semibold text-gray-900">
         Santé & Bien-être
       </span>
     </div>
   </div>
+  
   {# Navigation #}
-  <nav class="flex-1 space-y-1 p-4">
+  <nav class="flex-1 space-y-1 p-4 overflow-y-auto">
     {% set menuItems = [
       {'id': 'nutrition', 'label': 'Alimentation et nutrition', 'icon': '🥗', 'href': '#'},
       {'id': 'mental', 'label': 'Suivi du bien-être mental', 'icon': '🧠', 'href': '#'},
@@ -20,20 +23,24 @@
       {'id': 'cycle', 'label': 'Suivi du cycle menstruel', 'icon': '🌸', 'href': '#'},
       {'id': 'settings', 'label': 'Paramètres', 'icon': '⚙️', 'href': '#'}
     ] %}
+    
     {% for item in menuItems %}
       {% set isActive = (activeModule is defined and activeModule == item.id) %}
-      <a href="{{ item.href }}" class="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors
-        {{ isActive ? 'bg-sidebar-accent text-sidebar-primary' : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground' }}">
+      <a href="{{ item.href }}" 
+         class="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors
+         {{ isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
         <span class="text-lg">{{ item.icon }}</span>
         {{ item.label }}
       </a>
     {% endfor %}
   </nav>
+  
   {# Footer #}
-  <div class="border-t border-border p-4">
-    <div class="rounded-lg bg-muted p-4">
-      <p class="text-xs text-muted-foreground">Dernière synchronisation</p>
-      <p class="mt-1 text-sm font-medium text-sidebar-foreground">Aujourd'hui, 14:32</p>
+  <div class="border-t border-gray-200 p-4">
+    <div class="rounded-lg bg-gray-50 p-4">
+      <p class="text-xs text-gray-500">Dernière synchronisation</p>
+      <p class="mt-1 text-sm font-medium text-gray-900">Aujourd'hui, {{ "now"|date("H:i") }}</p>
     </div>
   </div>
+  
 </aside>

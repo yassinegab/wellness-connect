@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Front_office\User;
-use App\Enum\UserRole; // <-- IMPORTANT: cet import doit exister
+use App\Enum\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -11,46 +11,46 @@ class UserRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, User::class); // <-- User::class doit pointer vers la bonne entité
+        parent::__construct($registry, User::class);
     }
-
-    // ... autres méthodes
-
-    public function findMedecins(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->where('u.role = :role') // <-- "role" au singulier, pas "roles"
-            ->setParameter('role', UserRole::MEDECIN) // <-- Utilisation de l'Enum
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findPatients(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->where('u.role = :role')
-            ->setParameter('role', UserRole::PATIENT)
-            ->getQuery()
-            ->getResult();
-    }
-
+    
+    /**
+     * Compte le nombre de médecins
+     */
     public function countMedecins(): int
     {
-        return $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->where('u.role = :role')
-            ->setParameter('role', UserRole::MEDECIN)
-            ->getQuery()
-            ->getSingleScalarResult();
+        return $this->count(['userRole' => UserRole::MEDECIN]);
     }
-
+    
+    /**
+     * Compte le nombre de patients
+     */
     public function countPatients(): int
     {
-        return $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->where('u.role = :role')
-            ->setParameter('role', UserRole::PATIENT)
-            ->getQuery()
-            ->getSingleScalarResult();
+        return $this->count(['userRole' => UserRole::PATIENT]);
+    }
+    
+    /**
+     * Compte le nombre d'administrateurs
+     */
+    public function countAdmins(): int
+    {
+        return $this->count(['userRole' => UserRole::ADMIN]);
+    }
+    
+    /**
+     * Trouve tous les médecins
+     */
+    public function findAllMedecins(): array
+    {
+        return $this->findBy(['userRole' => UserRole::MEDECIN]);
+    }
+    
+    /**
+     * Trouve tous les patients
+     */
+    public function findAllPatients(): array
+    {
+        return $this->findBy(['userRole' => UserRole::PATIENT]);
     }
 }

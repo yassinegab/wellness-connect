@@ -1,86 +1,58 @@
-<header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
-  
-  <div class="flex items-center gap-4">
-    {# Mobile Menu Toggle #}
-    <button 
-      type="button"
-      class="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground lg:hidden"
-      @click="sidebarOpen = !sidebarOpen"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
-      <span class="sr-only">Ouvrir le menu</span>
-    </button>
-
-    <div class="relative hidden md:block">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input
-        type="search"
-        placeholder="Rechercher..."
-        class="flex h-9 w-64 rounded-md border border-input bg-transparent px-9 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-      />
-    </div>
-  </div>
-
-  <div class="flex items-center gap-3">
+<header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6">
     
-    <div class="relative" x-data="{ open: false }" @click.away="open = false">
-      <button 
-        @click="open = !open"
-        class="relative inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-        <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive"></span>
-        <span class="sr-only">Notifications</span>
-      </button>
-
-      <div 
-        x-show="open" 
-        x-transition 
-        class="absolute right-0 mt-2 w-80 origin-top-right rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md z-50"
-      >
-        <div class="px-2 py-1.5 text-sm font-semibold">Notifications</div>
-        <div class="h-px bg-muted -mx-1 my-1"></div>
+    <div class="flex items-center gap-4">
+        {# Mobile Menu Toggle #}
+        <button type="button"
+                class="inline-flex items-center justify-center rounded-md p-2 text-gray-600 hover:bg-gray-100 lg:hidden">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
         
-        {% set notifications = [
-          {'title': "Rappel d'hydratation", 'desc': "N'oubliez pas de boire de l'eau !", 'time': 'Il y a 30 min'},
-          {'title': "Objectif atteint !", 'desc': "Vous avez atteint 10 000 pas.", 'time': 'Il y a 2h'}
-        ] %}
-
-        {% for n in notifications %}
-          <div class="flex flex-col gap-1 rounded-sm px-2 py-1.5 text-sm hover:bg-accent cursor-pointer transition-colors">
-            <p class="font-medium">{{ n.title }}</p>
-            <p class="text-xs text-muted-foreground">{{ n.desc }} {{ n.time }}</p>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="relative" x-data="{ open: false }" @click.away="open = false">
-      <button 
-        @click="open = !open"
-        class="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-accent transition-colors"
-      >
-        <div class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-full">
-          <img class="aspect-square h-full w-full" src="/placeholder-user.jpg" alt="Marie Dupont">
-          {# Fallback logic if image fails #}
-          <div class="flex h-full w-full items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">MD</div>
+        {# Search Bar #}
+        <div class="relative hidden md:block">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="search"
+                   placeholder="Rechercher..."
+                   class="h-10 w-80 rounded-lg border border-gray-200 bg-gray-50 px-10 py-2 text-sm">
         </div>
-        <span class="hidden text-sm font-medium md:block">Marie Dupont</span>
-      </button>
-
-      <div 
-        x-show="open" 
-        x-transition 
-        class="absolute right-0 mt-2 w-48 origin-top-right rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md z-50"
-      >
-        <div class="px-2 py-1.5 text-sm font-semibold">Mon compte</div>
-        <div class="h-px bg-muted -mx-1 my-1"></div>
-        <a href="#" class="block rounded-sm px-2 py-1.5 text-sm hover:bg-accent">Profil</a>
-        <a href="#" class="block rounded-sm px-2 py-1.5 text-sm hover:bg-accent">Paramètres</a>
-        <div class="h-px bg-muted -mx-1 my-1"></div>
-        <a href="#" class="block rounded-sm px-2 py-1.5 text-sm text-destructive hover:bg-accent">Déconnexion</a>
-      </div>
     </div>
-
-  </div>
+    
+    <div class="flex items-center gap-3">
+        
+        {# Notifications #}
+        <button class="relative h-10 w-10 rounded-lg hover:bg-gray-100">
+            <i class="fas fa-bell text-gray-600 text-lg"></i>
+            <span class="absolute right-1 top-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span>
+        </button>
+        
+        {# User Profile #}
+        <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100">
+            <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                {# ✅ Initiales de l'utilisateur connecté #}
+                {% if app.user %}
+                    {{ app.user.prenom[:1]|upper }}{{ app.user.nom[:1]|upper }}
+                {% else %}
+                    ?
+                {% endif %}
+            </div>
+            <div class="hidden md:block text-left">
+                {# ✅ Nom complet de l'utilisateur connecté #}
+                <p class="text-sm font-medium text-gray-900">
+                    {% if app.user %}
+                        {{ app.user.prenom }} {{ app.user.nom }}
+                    {% else %}
+                        Invité
+                    {% endif %}
+                </p>
+                <p class="text-xs text-gray-500">
+                    {% if app.user %}
+                        {{ app.user.email }}
+                    {% else %}
+                        Non connecté
+                    {% endif %}
+                </p>
+            </div>
+            <i class="fas fa-chevron-down text-gray-400 text-xs hidden md:block"></i>
+        </div>
+        
+    </div>
 </header>

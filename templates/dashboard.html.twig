@@ -1,71 +1,159 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="flex min-h-screen bg-background">
-
-  {# Sidebar #}
-  {% include 'components/sidebar.html.twig' %}
-
-  <div class="flex flex-1 flex-col">
-
-    {# Top Navigation #}
-    {% include 'components/top-nav.html.twig' %}
-
-    <main class="flex-1 overflow-auto">
-      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
-
-        {# Header #}
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-foreground">
-              Bonjour, {{ user.prenom }} !
-            </h1>
-            <p class="text-muted-foreground">
-              Voici un aperçu de votre santé aujourd’hui
-            </p>
-          </div>
-
-          <div class="flex items-center gap-2 rounded-md border px-3 py-2">
-            📅 {{ "now"|date("l d F Y") }}
-          </div>
-        </div>
-
-        {# Stat Cards #}
-        {% include 'components/stat-cards.html.twig' %}
-
-        {# Widgets #}
-        <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          {% include 'components/widgets/health-summary.html.twig' %}
-          {% include 'components/widgets/mental.html.twig' %}
-          {% include 'components/widgets/activity.html.twig' %}
-        </div>
-
-        <div class="grid gap-6 lg:grid-cols-2">
-          {% include 'components/widgets/nutrition.html.twig' %}
-          {% include 'components/widgets/cycle.html.twig' %}
-        </div>
-
-        {# Quick Actions #}
-        <div class="rounded-xl border border-border bg-card p-4">
-          <div class="mb-4 flex items-center justify-between">
-            <h2 class="font-semibold text-card-foreground">Actions rapides</h2>
-          </div>
-
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {% for action in quickActions %}
-              <button class="flex items-center gap-3 rounded-lg border border-border bg-background p-3 text-left hover:bg-muted">
-                <span class="text-xl">{{ action.emoji }}</span>
-                <span class="text-sm font-medium text-card-foreground">
-                  {{ action.label }}
-                </span>
-              </button>
-            {% endfor %}
-          </div>
-        </div>
-
-      </div>
-    </main>
-
-  </div>
+<div class="min-h-screen bg-gray-50">
+   
+   {# Sidebar fixe #}
+   {% include 'components/sidebar.html.twig' %}
+   
+   {# ✅ CORRECTION: lg:ml-72 pour compenser la largeur w-72 de la sidebar #}
+   <div class="lg:ml-72">
+      
+      {# Top Navigation #}
+      {% include 'components/top-nav.html.twig' %}
+      
+      <main class="p-4 lg:p-6">
+         <div class="max-w-7xl mx-auto space-y-6">
+            
+            {# Header #}
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+               <div>
+                  <h1 class="text-2xl font-bold text-gray-900">
+                     Bonjour, Yassine ! 👋
+                  </h1>
+                  <p class="text-gray-600">
+                     Voici un aperçu de votre santé aujourd'hui
+                  </p>
+               </div>
+               
+               <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-sm">
+                  <i class="fas fa-calendar text-blue-600"></i>
+                  <span class="text-sm font-medium text-gray-700">{{ "now"|date("d/m/Y") }}</span>
+               </div>
+            </div>
+            
+            {# Stat Cards #}
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+               
+               {# Calories #}
+               <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <div class="flex items-start justify-between mb-3">
+                     <span class="text-sm text-gray-600">Calories consommées</span>
+                     <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <span class="text-lg">🔥</span>
+                     </div>
+                  </div>
+                  <p class="text-3xl font-bold text-gray-900">1,842 <span class="text-base text-gray-500 font-normal">kcal</span></p>
+                  <p class="text-xs text-gray-500 mt-1">/ 2,000</p>
+                  <div class="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
+                     <div class="h-full bg-orange-500 rounded-full" style="width: 92%"></div>
+                  </div>
+               </div>
+               
+               {# Stress #}
+               <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <div class="flex items-start justify-between mb-3">
+                     <span class="text-sm text-gray-600">Niveau de stress</span>
+                     <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <span class="text-lg">🧠</span>
+                     </div>
+                  </div>
+                  <p class="text-3xl font-bold text-gray-900">Faible</p>
+                  <p class="text-xs text-gray-500 mt-1">Score: 28/100</p>
+                  <div class="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
+                     <div class="h-full bg-blue-400 rounded-full" style="width: 28%"></div>
+                  </div>
+               </div>
+               
+               {# Activité #}
+               <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <div class="flex items-start justify-between mb-3">
+                     <span class="text-sm text-gray-600">Activité physique</span>
+                     <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span class="text-lg">🏃</span>
+                     </div>
+                  </div>
+                  <p class="text-3xl font-bold text-gray-900">8,456 <span class="text-base text-gray-500 font-normal">pas</span></p>
+                  <p class="text-xs text-gray-500 mt-1">/ 10,000</p>
+                  <div class="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
+                     <div class="h-full bg-green-500 rounded-full" style="width: 84%"></div>
+                  </div>
+               </div>
+               
+               {# Humeur #}
+               <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <div class="flex items-start justify-between mb-3">
+                     <span class="text-sm text-gray-600">Humeur du jour</span>
+                     <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <span class="text-lg">😊</span>
+                     </div>
+                  </div>
+                  <p class="text-3xl font-bold text-gray-900">Joyeuse</p>
+                  <p class="text-xs text-gray-500 mt-1">Énergie: Haute</p>
+               </div>
+               
+               {# Cycle menstruel #}
+               <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <div class="flex items-start justify-between mb-3">
+                     <span class="text-sm text-gray-600">Cycle menstruel</span>
+                     <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <span class="text-lg">🌸</span>
+                     </div>
+                  </div>
+                  <p class="text-3xl font-bold text-gray-900">Phase folliculaire</p>
+                  <p class="text-xs text-gray-500 mt-1">Jour 8 sur 28</p>
+                  <div class="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
+                     <div class="h-full bg-pink-500 rounded-full" style="width: 28%"></div>
+                  </div>
+               </div>
+               
+            </div>
+            
+            {# Quick Actions #}
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+               <div class="mb-5 flex items-center gap-2">
+                  <span class="text-xl">⚡</span>
+                  <h2 class="text-lg font-semibold text-gray-900">Actions rapides</h2>
+               </div>
+               
+               <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  
+                  <button class="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-left hover:bg-gray-100 hover:border-gray-300 transition-all">
+                     <span class="text-2xl">💊</span>
+                     <span class="text-sm font-medium text-gray-900">Médicaments</span>
+                  </button>
+                  
+                  <button class="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-left hover:bg-gray-100 hover:border-gray-300 transition-all">
+                     <span class="text-2xl">🧘</span>
+                     <span class="text-sm font-medium text-gray-900">Méditation</span>
+                  </button>
+                  
+                  <button class="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-left hover:bg-gray-100 hover:border-gray-300 transition-all">
+                     <span class="text-2xl">🏃</span>
+                     <span class="text-sm font-medium text-gray-900">Exercice</span>
+                  </button>
+                  
+                  <button class="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-left hover:bg-gray-100 hover:border-gray-300 transition-all">
+                     <span class="text-2xl">🥗</span>
+                     <span class="text-sm font-medium text-gray-900">Nutrition</span>
+                  </button>
+                  
+               </div>
+            </div>
+            
+            {# Warning Footer #}
+            <div class="rounded-lg bg-orange-50 border border-orange-200 p-4">
+               <div class="flex items-start gap-3">
+                  <i class="fas fa-exclamation-triangle text-orange-600 text-lg flex-shrink-0 mt-0.5"></i>
+                  <p class="text-sm text-orange-800">
+                     <strong>SmartHealth AI</strong> est un système d'aide à la décision. Ne remplace pas un professionnel de santé.
+                  </p>
+               </div>
+            </div>
+            
+         </div>
+      </main>
+      
+   </div>
 </div>
 {% endblock %}

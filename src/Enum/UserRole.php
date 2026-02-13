@@ -2,10 +2,8 @@
 
 namespace App\Enum;
 
-// src/Enum/UserRole.php
-enum UserRole: string
-{
-    case PATIENT = 'patient';
-    case MEDECIN = 'medecin';
-    case ADMIN = 'admin';
+enum UserRole: string {
+    case PATIENT = 'ROLE_PATIENT';
+    case MEDECIN = 'ROLE_MEDECIN';
+    case ADMIN = 'ROLE_ADMIN';
 }

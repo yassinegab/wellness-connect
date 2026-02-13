@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription - Sante et Bien-etre</title>
+
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-container wide">
+
+    <!-- Logo -->
+    <div class="auth-logo">
+      <div class="logo-icon">&#9769;</div>
+      <h1>Sante et Bien-etre</h1>
+      <p>Créez votre compte pour accéder à la plateforme</p>
+    </div>
+
+    <div class="auth-card">
+      <h2>Inscription</h2>
+      <p class="subtitle">Remplissez le formulaire ci-dessous pour créer votre compte</p>
+
+      <!-- Affichage des messages flash -->
+      {% for flash_error in app.flashes('error') %}
+        <div style="color:red; text-align:center;">{{ flash_error }}</div>
+      {% endfor %}
+      {% for flash_success in app.flashes('success') %}
+        <div style="color:green; text-align:center;">{{ flash_success }}</div>
+      {% endfor %}
+
+      <!-- Indicateur de progression -->
+      <div class="steps-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+
+      <form method="post" action="{{ path('app_register') }}" id="register-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
+
+        <!-- ETAPE 1 : Informations personnelles -->
+        <div class="form-step" id="step-1">
+          <h3>Informations personnelles</h3>
+
+          <div class="form-row">
+            <input type="text" name="nom" placeholder="Nom" required>
+            <input type="text" name="prenom" placeholder="Prénom" required>
+          </div>
+
+          <input type="email" name="email" placeholder="Email" required>
+
+          <div class="form-row">
+            <input type="password" name="plainPassword" placeholder="Mot de passe" required>
+            <input type="password" name="confirm_password" placeholder="Confirmer le mot de passe" required>
+          </div>
+
+          <input type="tel" name="telephone" placeholder="+216 XX XXX XXX">
+
+          <select name="role" required>
+            <option value="">-- Choisir un rôle --</option>
+            <option value="ROLE_PATIENT">Patient</option>
+            <option value="ROLE_MEDECIN">Médecin</option>
+            <option value="ROLE_ADMIN">Administrateur</option>
+          </select>
+
+          <div style="text-align:right;">
+            <button type="button" class="btn btn-primary" onclick="showStep(2)">Suivant →</button>
+          </div>
+        </div>
+
+        <!-- ETAPE 2 : Informations physiques -->
+        <div class="form-step hidden" id="step-2">
+          <h3>Informations physiques</h3>
+
+          <div class="form-row">
+            <input type="number" name="age" placeholder="Âge">
+            <select name="sexe">
+              <option value="">Sexe</option>
+              <option value="Homme">Homme</option>
+              <option value="Femme">Femme</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <input type="number" name="poids" placeholder="Poids (kg)">
+            <input type="number" name="taille" placeholder="Taille (cm)">
+          </div>
+          <label style="display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" name="is_handicapped">
+             Je suis en situation de handicap
+</label>
+
+          <div style="display:flex; justify-content:space-between;">
+            <button type="button" class="btn btn-secondary" onclick="showStep(1)">← Retour</button>
+            <button type="button" class="btn btn-primary" onclick="showStep(3)">Suivant →</button>
+          </div>
+        </div>
+
+        <!-- ETAPE 3 : Confirmation -->
+        <div class="form-step hidden" id="step-3">
+          <h3>Confirmation</h3>
+
+          <label>
+            <input type="checkbox" required>
+            J’accepte les conditions d’utilisation
+          </label>
+
+          <div style="display:flex; justify-content:space-between;">
+            <button type="button" class="btn btn-secondary" onclick="showStep(2)">← Retour</button>
+            <button type="submit" class="btn btn-primary btn-lg">Créer mon compte</button>
+          </div>
+        </div>
+
+      </form>
+
+      <p style="text-align:center; margin-top:1rem;">
+        Déjà inscrit ? <a href="{{ path('app_login') }}"><strong>Se connecter</strong></a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function showStep(step) {
+  document.querySelectorAll('.form-step').forEach(s => s.classList.add('hidden'));
+  document.getElementById('step-' + step).classList.remove('hidden');
+
+  // Mise à jour indicateur de progression
+  document.querySelectorAll('.step-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === step - 1);
+  });
+}
+</script>
+</body>
+</html>
