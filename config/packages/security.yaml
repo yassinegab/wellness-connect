@@ -20,14 +20,19 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
-                default_target_path: frontoffice_dashboard  # ✅ Redirection après login
+                default_target_path: frontoffice_dashboard
                 enable_csrf: true
                 
             logout:
                 path: app_logout
-                target: app_login  # ✅ Redirection après logout
+                target: app_login
 
     access_control:
+        # ✅ Pages publiques (AUCUNE connexion requise)
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/, roles: ROLE_USER }  # ✅ Toutes les pages nécessitent une connexion
+        
+        # ✅ Pages admin protégées
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        
+        # ✅ PAS de règle générique "^/" qui bloquerait tout !

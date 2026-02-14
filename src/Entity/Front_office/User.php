@@ -25,11 +25,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
-  #[ORM\Column(type: 'json', nullable: true)]
-private array $roles = [];
+   #[ORM\Column(type: 'json')]
+    private array $roles = []; // ✅ INITIALISATION OBLIGATOIRE
 
-
-    #[ORM\Column(enumType: UserRole::class)]
+    #[ORM\Column(type: 'string', length: 20, enumType: UserRole::class)]
     private UserRole $userRole;
 
     #[ORM\Column]

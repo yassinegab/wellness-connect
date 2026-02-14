@@ -178,8 +178,8 @@
       <p class="subtitle">Votre plateforme de gestion de sante</p>
     </div>
 
-    <!-- Messages flash d'erreur -->
-    {% if error %}
+    <!-- ✅ CORRECTION: Vérifier que error est défini -->
+    {% if error is defined and error %}
       <div class="error-message">
         {{ error.messageKey|trans(error.messageData, 'security') }}
       </div>
@@ -209,7 +209,7 @@
             type="email"
             id="email"
             name="_username"
-            value="{{ last_username }}"
+            value="{{ last_username|default('') }}"
             placeholder="exemple@email.com"
             required
             autofocus
