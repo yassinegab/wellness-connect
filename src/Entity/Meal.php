@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MealRepository;
+use App\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -91,6 +92,21 @@ class Meal
     public function getCreateAt(): ?\DateTimeImmutable
     {
         return $this->createAt;
+    }
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+        return $this;
     }
 
     public function setCreateAt(\DateTimeImmutable $createAt): static

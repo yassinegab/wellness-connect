@@ -75,6 +75,10 @@ class UserWellBeingData
     #[ORM\OneToMany(targetEntity: StressPrediction::class, mappedBy: 'userWellBeingData', cascade: ['persist', 'remove'])]
     private Collection $stressPredictions;
 
+    #[ORM\ManyToOne(inversedBy: 'userWellBeingData')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -127,6 +131,18 @@ class UserWellBeingData
     }
 
     // ---- Getters & Setters for scores ----
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
     public function getWorkEnvironment(): ?int
     {
         return $this->workEnvironment;

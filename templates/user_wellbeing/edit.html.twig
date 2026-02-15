@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Well-Being Data{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false, aiResult: false }">
+
+    {# Sidebar #}
+    {% include 'components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col">
+
+        {# Top Navigation #}
+        {% include 'components/top-nav.html.twig' %}
+
+        {# Page Content #}
+        <main class="flex-1 overflow-auto">
+            <div class="mx-auto max-w-3xl space-y-6 p-6 lg:p-8 bg-white shadow rounded mt-8 animate-fadeIn">
+
+                <h1 class="text-2xl font-bold">✏️ Edit Your Well-Being Data</h1>
+
+                {{ form_start(form) }}
+
+                <div class="space-y-4">
+
+                    {# Fields styled like index and hide createdAt #}
+                    {% for field in form %}
+                        {% if field.vars.name != 'createdAt' %}
+                            <div>
+                                {{ form_label(field, null, {
+                                    'label_attr': {
+                                        'class': 'block text-sm font-medium mb-1'
+                                    }
+                                }) }}
+
+                                {{ form_widget(field, {
+                                    'attr': {
+                                        'class': 'w-full rounded-md border border-input px-3 py-2 focus:ring-1 focus:ring-primary'
+                                    }
+                                }) }}
+
+                                <p class="text-sm text-red-500 mt-1">
+                                    {{ form_errors(field) }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    {# Buttons #}
+                    <div class="flex flex-col gap-3 pt-4">
+
+                        {# Update button #}
+                        <button type="submit"
+                                class="bg-primary text-white py-2 rounded-md hover:bg-primary-dark transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-pen"></i>
+                            Update Data
+                        </button>
+
+                        {# Analyze with AI button (same behavior as index) #}
+                        <button type="button"
+                                @click="aiResult = true"
+                                class="bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-robot"></i>
+                            Analyze with AI
+                        </button>
+
+                        {# Back button #}
+                        <a href="{{ path('user_wellbeing_index') }}"
+                           class="text-center bg-gray-200 py-2 rounded-md hover:bg-gray-300 transition">
+                            ← Back to My Data
+                        </a>
+
+                    </div>
+
+                    {# AI Result (temporary text like index) #}
+                    <div x-show="aiResult"
+                         x-transition
+                         class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md text-blue-800">
+                        🤖 AI Analysis Result:<br>
+                        Your well-being indicators look stable. Keep maintaining healthy habits and regular rest.
+                    </div>
+
+                </div>
+
+                {{ form_end(form) }}
+
+            </div>
+        </main>
+
+    </div>
+</div>
+{% endblock %}

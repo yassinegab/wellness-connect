@@ -22,7 +22,6 @@ class UserWellBeingDataType extends AbstractType
             ->add('anxietyTension')
             ->add('irritability')
             ->add('subjectConfidence')
-            ->add('createdAt')
         ;
     }
 

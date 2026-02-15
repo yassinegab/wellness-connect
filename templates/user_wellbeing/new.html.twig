@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Well-Being Data{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50"
+     x-data="{ sidebarOpen: false, showResult: false }">
+
+    {# Sidebar #}
+    {% include 'components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col">
+
+        {# Top Navigation #}
+        {% include 'components/top-nav.html.twig' %}
+
+        {# Page Content #}
+        <main class="flex-1 overflow-auto">
+            <div class="mx-auto max-w-3xl space-y-6 p-6 lg:p-8 bg-white shadow rounded mt-8 animate-fadeIn">
+
+                <h1 class="text-2xl font-bold">🧠 Submit Your Well-Being Data</h1>
+
+                {# Form start with novalidate to disable HTML5 validation #}
+                {{ form_start(form, {
+                    'attr': {'novalidate': 'novalidate'}
+                }) }}
+
+                <div class="space-y-4">
+
+                    {# Fields (exclude createdAt and CSRF token) #}
+                    {% for field in form %}
+                        {% if field.vars.name != 'createdAt' and field.vars.name != '_token' %}
+                            <div>
+                                {{ form_label(field, null, {
+                                    'label_attr': {'class': 'block text-sm font-medium mb-1'}
+                                }) }}
+
+                                {{ form_widget(field, {
+                                    'attr': {
+                                        'class': 'w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500',
+                                        'min': null,
+                                        'max': null,
+                                        'required': null
+                                    }
+                                }) }}
+
+                                <p class="text-sm text-red-500 mt-1">
+                                    {{ form_errors(field) }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    {# Buttons row #}
+                    <div class="flex gap-3 pt-2">
+
+                        {# Analyze button (does NOT submit) #}
+                        <button type="button"
+                                @click="showResult = true"
+                                class="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-robot"></i>
+                            Analyze with AI
+                        </button>
+
+                        {# Submit button (real save) #}
+                        <button type="submit"
+                                class="flex-1 bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-save"></i>
+                            Save Data
+                        </button>
+
+                    </div>
+
+                </div>
+
+                {{ form_end(form) }}
+
+                {# Fake AI Result #}
+                <div x-show="showResult"
+                     x-transition
+                     class="mt-6 p-4 rounded-lg bg-indigo-50 border border-indigo-200">
+
+                    <h3 class="font-semibold text-indigo-800 mb-1">
+                        AI Analysis Result
+                    </h3>
+
+                    <p class="text-indigo-700 text-sm">
+                        Your stress level appears to be <strong>moderate</strong>.
+                        Recommendation: Take short breaks, practice deep breathing,
+                        and ensure good sleep quality.
+                    </p>
+                </div>
+
+                {# Back Button #}
+                <div class="mt-6">
+                    <a href="{{ path('user_wellbeing_index') }}"
+                       class="inline-block bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 text-sm">
+                        ← Back to My Data
+                    </a>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+</div>
+{% endblock %}

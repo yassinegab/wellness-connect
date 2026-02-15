@@ -35,9 +35,7 @@ class MealType extends AbstractType
             ])
             ->add('description', TextareaType::class, [
                 'required' => false,    // disable HTML5 required
-            ])
-            ->add('aiAnalysis', TextareaType::class, [
-                'required' => false,
+                'attr' => ['rows' => 5],
             ])
            
         ;

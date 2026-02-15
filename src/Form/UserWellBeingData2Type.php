@@ -23,6 +23,11 @@ class UserWellBeingData2Type extends AbstractType
             ->add('irritability')
             ->add('subjectConfidence')
             ->add('createdAt')
+            ->add('user', \Symfony\Bridge\Doctrine\Form\Type\EntityType::class, [
+                'class' => \App\Entity\User::class,
+                'choice_label' => 'email',
+                'placeholder' => 'Select a User',
+            ])
         ;
     }
 

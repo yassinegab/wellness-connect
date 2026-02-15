@@ -16,28 +16,14 @@ class StressPredictionRepository extends ServiceEntityRepository
         parent::__construct($registry, StressPrediction::class);
     }
 
-    //    /**
-    //     * @return StressPrediction[] Returns an array of StressPrediction objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?StressPrediction
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findAllForUser($user): array
+    {
+        return $this->createQueryBuilder('s')
+            ->join('s.userWellBeingData', 'u')
+            ->andWhere('u.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('s.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

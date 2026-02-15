@@ -44,7 +44,7 @@ final class MealController extends AbstractController
         ]);
     }
     #[Route('/new', name: 'app_meal_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, \App\Service\QwenService $qwenService): Response
     {
         $meal = new Meal();
         $form = $this->createForm(MealType::class, $meal);
@@ -56,13 +56,27 @@ final class MealController extends AbstractController
 
             if ($imageFile) {
                 $newFilename = uniqid() . '.' . $imageFile->guessExtension();
+                $targetDir = $this->getParameter('meal_images_directory');
 
-                $imageFile->move(
-                    $this->getParameter('meal_images_directory'),
-                    $newFilename
-                );
+                try {
+                    $imageFile->move(
+                        $targetDir,
+                        $newFilename
+                    );
+                    $meal->setImageName($newFilename);
 
-                $meal->setImageName($newFilename);
+                    // --- AI Analysis ---
+                    $fullPath = $targetDir . '/' . $newFilename;
+                    $analysis = $qwenService->analyzeMeal($fullPath, $meal->getDescription());
+                    $meal->setAiAnalysis($analysis);
+
+                } catch (FileException $e) {
+                    // ... handle exception if something happens during file upload
+                    $this->addFlash('error', 'Failed to upload image: ' . $e->getMessage());
+                }
+            } else {
+                 $this->addFlash('warning', 'Please upload an image for AI analysis.');
+                 // Optionally prevent saving if image is mandatory for analysis
             }
 
             $entityManager->persist($meal);

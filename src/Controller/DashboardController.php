@@ -13,7 +13,8 @@ class DashboardController extends AbstractController
     #[Route('/dashboard', name: 'frontoffice_dashboard')]
     public function index(
         RendezVousRepository $rendezVousRepository,
-        HopitalRepository $hopitalRepository
+        HopitalRepository $hopitalRepository,
+        \Doctrine\ORM\EntityManagerInterface $em
     ): Response
     {
         // Statistiques du dashboard
@@ -43,12 +44,38 @@ class DashboardController extends AbstractController
             ['emoji' => '🥗', 'label' => 'Nutrition'],
         ];
 
+        // Stress Statistics for Admin
+        $allPredictions = $em->getRepository(\App\Entity\StressPrediction::class)->findBy([], ['createdAt' => 'ASC']);
+        
+        $stats = [
+            'Low' => 0,
+            'Moderate' => 0,
+            'High' => 0
+        ];
+        
+        $scatterData = [];
+        foreach ($allPredictions as $p) {
+            $label = $p->getPredictedStressType();
+            if (isset($stats[$label])) {
+                $stats[$label]++;
+            }
+            
+            $scatterData[] = [
+                'x' => $p->getCreatedAt()->format('Y-m-d H:i'),
+                'y' => $p->getConfidenceScore(),
+                'user' => $p->getUserWellBeingData()->getUser() ? $p->getUserWellBeingData()->getUser()->getNom() : 'Anon',
+                'category' => $label
+            ];
+        }
+
         return $this->render('dashboard/index.html.twig', [
             'user' => $user,
             'quickActions' => $quickActions,
             'upcomingAppointments' => $upcomingAppointments,
             'completedConsultations' => $completedConsultations,
             'availableHospitals' => $availableHospitals,
+            'stressStats' => $stats,
+            'scatterData' => $scatterData,
         ]);
     }
 }

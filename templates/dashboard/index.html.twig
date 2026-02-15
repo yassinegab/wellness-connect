@@ -51,6 +51,31 @@
                     {% include 'components/widgets/nutrition.html.twig' %}
                     {% include 'components/widgets/cycle.html.twig' %}
                 </div>
+
+                {# Global Stress Insights (Admin Only) #}
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-gray-900">Global Well-Being Insights</h2>
+                    </div>
+
+                    <div class="grid gap-6 lg:grid-cols-3">
+                        {# Distribution Chart #}
+                        <div class="lg:col-span-1 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                            <h3 class="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Stress Distribution</h3>
+                            <div class="h-[300px] relative">
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                        </div>
+
+                        {# Scatter Plot #}
+                        <div class="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                            <h3 class="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Historical Stress Scores</h3>
+                            <div class="h-[300px] relative">
+                                <canvas id="scatterChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 {# Quick Actions #}
                 <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm animate-fadeIn hover-lift" style="animation-delay: 0.4s;">
@@ -95,6 +120,89 @@
 </div>
 
 {% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Distribution Chart
+        const distCtx = document.getElementById('distributionChart').getContext('2d');
+        new Chart(distCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Low', 'Moderate', 'High'],
+                datasets: [{
+                    data: [{{ stressStats.Low }}, {{ stressStats.Moderate }}, {{ stressStats.High }}],
+                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // 2. Scatter Chart
+        const scatterCtx = document.getElementById('scatterChart').getContext('2d');
+        const scatterData = {{ scatterData|json_encode|raw }};
+        
+        const colors = {
+            'Low': '#10B981',
+            'Moderate': '#F59E0B',
+            'High': '#EF4444'
+        };
+
+        new Chart(scatterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Stress Scores',
+                    data: scatterData.map(d => ({
+                        x: new Date(d.x),
+                        y: d.y,
+                        user: d.user,
+                        category: d.category
+                    })),
+                    backgroundColor: scatterData.map(d => colors[d.category])
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const d = context.raw;
+                                return `${d.user}: ${d.y}% (${d.category})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: { day: 'MMM d' }
+                        },
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: {
+                        min: 0,
+                        max: 100,
+                        title: { display: true, text: 'Stress Score (%)' }
+                    }
+                }
+            }
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script>
     // Add smooth scroll behavior
     document.addEventListener('DOMContentLoaded', function() {

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -58,9 +60,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    /**
+     * @var Collection<int, UserWellBeingData>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserWellBeingData::class)]
+    private Collection $userWellBeingData;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->userWellBeingData = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -180,5 +189,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return 'Patient';
         }
         return 'Utilisateur';
+    }
+
+    /**
+     * @return Collection<int, UserWellBeingData>
+     */
+    public function getUserWellBeingData(): Collection
+    {
+        return $this->userWellBeingData;
+    }
+
+    public function addUserWellBeingData(UserWellBeingData $data): static
+    {
+        if (!$this->userWellBeingData->contains($data)) {
+            $this->userWellBeingData->add($data);
+            $data->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserWellBeingData(UserWellBeingData $data): static
+    {
+        if ($this->userWellBeingData->removeElement($data)) {
+            // set the owning side to null (unless already changed)
+            if ($data->getUser() === $this) {
+                $data->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
