@@ -107,16 +107,28 @@
             </div>
         </div>
         
-        {# Admin Profile #}
+        {# Admin Profile - ✅ RÉCUPÉRATION DE L'ADMIN CONNECTÉ #}
         <div class="relative" x-data="{ open: false }" @click.away="open = false">
             <button 
                 @click="open = !open"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                {# ✅ Initiales de l'admin connecté #}
                 <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-                    AD
+                    {% if app.user %}
+                        {{ app.user.prenom[:1]|upper }}{{ app.user.nom[:1]|upper }}
+                    {% else %}
+                        AD
+                    {% endif %}
                 </div>
+                {# ✅ Nom et rôle de l'admin #}
                 <div class="hidden md:block text-left">
-                    <p class="text-sm font-medium text-gray-900">Admin</p>
+                    <p class="text-sm font-medium text-gray-900">
+                        {% if app.user %}
+                            {{ app.user.prenom }} {{ app.user.nom }}
+                        {% else %}
+                            Admin
+                        {% endif %}
+                    </p>
                     <p class="text-xs text-gray-500">Administrateur</p>
                 </div>
                 <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
@@ -126,9 +138,22 @@
                 x-show="open" 
                 x-transition 
                 class="absolute right-0 mt-2 w-56 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg z-50">
+                {# ✅ Informations complètes de l'admin #}
                 <div class="p-3 border-b border-gray-200">
-                    <p class="text-sm font-medium text-gray-900">Administrateur</p>
-                    <p class="text-xs text-gray-500">admin@smarthealth.ai</p>
+                    <p class="text-sm font-medium text-gray-900">
+                        {% if app.user %}
+                            {{ app.user.prenom }} {{ app.user.nom }}
+                        {% else %}
+                            Administrateur
+                        {% endif %}
+                    </p>
+                    <p class="text-xs text-gray-500">
+                        {% if app.user %}
+                            {{ app.user.email }}
+                        {% else %}
+                            admin@smarthealth.ai
+                        {% endif %}
+                    </p>
                 </div>
                 
                 <div class="p-2">
@@ -147,7 +172,8 @@
                 </div>
                 
                 <div class="p-2 border-t border-gray-200">
-                    <a href="#" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50">
+                    {# ✅ Lien de déconnexion fonctionnel #}
+                    <a href="{{ path('app_logout') }}" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50">
                         <i class="fas fa-sign-out-alt"></i>
                         Déconnexion
                     </a>

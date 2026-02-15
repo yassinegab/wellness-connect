@@ -10,24 +10,24 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     // Dashboard Admin
-    #[Route('/dashboard/admin', name: 'admin_dashboard')]
-    public function admin(): Response
-    {
-        // Vérifie que l'utilisateur est bien admin
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+    // #[Route('/dashboard/admin', name: 'admin_dashboard')]
+    // public function admin(): Response
+    // {
+    //     // Vérifie que l'utilisateur est bien admin
+    //     $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        // Affiche le fichier Twig correspondant
-        return $this->render('dashboard/admin.html.twig');
-    }
+    //     // Affiche le fichier Twig correspondant
+    //     return $this->render('dashboard/admin.html.twig');
+    // }
 
     // Dashboard Médecin
-    #[Route('/dashboard/medecin', name: 'medecin_dashboard')]
-    public function medecin(): Response
-    {
-        $this->denyAccessUnlessGranted('ROLE_MEDECIN');
-
-        return $this->render('dashboard/medecin.html.twig');
-    }
+#[Route('/dashboard/medecin', name: 'medecin_dashboard')]
+public function medecin(): Response
+{
+    return $this->render('Front_office/medecin/index.html.twig', [
+        'user' => $this->getUser(),
+    ]);
+}
 
     // Dashboard Patient
     #[Route('/dashboard/patient', name: 'patient_dashboard')]
