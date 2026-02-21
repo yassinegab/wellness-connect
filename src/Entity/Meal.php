@@ -47,6 +47,15 @@ class Meal
     #[ORM\Column]
     private ?\DateTimeImmutable $createAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $calories = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $sugar = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $protein = null;
+
     public function __construct()
     {
         $this->createAt = new \DateTimeImmutable(); // automatically set now
@@ -112,6 +121,39 @@ class Meal
     public function setCreateAt(\DateTimeImmutable $createAt): static
     {
         $this->createAt = $createAt;
+        return $this;
+    }
+
+    public function getCalories(): ?float
+    {
+        return $this->calories;
+    }
+
+    public function setCalories(?float $calories): static
+    {
+        $this->calories = $calories;
+        return $this;
+    }
+
+    public function getSugar(): ?float
+    {
+        return $this->sugar;
+    }
+
+    public function setSugar(?float $sugar): static
+    {
+        $this->sugar = $sugar;
+        return $this;
+    }
+
+    public function getProtein(): ?float
+    {
+        return $this->protein;
+    }
+
+    public function setProtein(?float $protein): static
+    {
+        $this->protein = $protein;
         return $this;
     }
 }

@@ -11,10 +11,14 @@ class StressPredictionService
     private QwenService $qwenService;
     private EntityManagerInterface $entityManager;
 
-    public function __construct(QwenService $qwenService, EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        QwenService $qwenService, 
+        EntityManagerInterface $entityManager,
+        \App\Repository\UserWellBeingDataRepository $wellBeingRepository
+    ) {
         $this->qwenService = $qwenService;
         $this->entityManager = $entityManager;
+        $this->wellBeingRepository = $wellBeingRepository;
     }
 
     public function predict(UserWellBeingData $data): StressPrediction
@@ -106,5 +110,77 @@ class StressPredictionService
 
         $recommendation = $this->qwenService->analyzeText($prompt);
         $prediction->setRecommendation($recommendation);
+    }
+    public function interpretTrends(\App\Entity\User $user): string
+    {
+        $records = $this->wellBeingRepository->findBy(['user' => $user], ['createdAt' => 'DESC'], 10);
+        
+        if (count($records) < 3) {
+            return "Pas assez de données pour une analyse de tendance. Continuez à enregistrer votre bien-être !";
+        }
+
+        $dataSummary = "";
+        foreach ($records as $r) {
+            $dataSummary .= sprintf(
+                "Date: %s, Stress: %d, Sleep: %d, Confidence: %d, Anxiety: %d\n",
+                $r->getCreatedAt()->format('Y-m-d'),
+                $this->calculateSimpleScore($r),
+                $r->getSleepProblems(),
+                $r->getSubjectConfidence(),
+                $r->getAnxietyTension()
+            );
+        }
+
+        $prompt = "Analyze these well-being trends for the user:
+        $dataSummary
+        
+        Identify any patterns (e.g., 'Stress spikes on certain days', 'Sleep improving/worsening').
+        Also, check for 'Early Burnout signs': rising stress + low confidence + persistent sleep issues.
+        
+        Respond in a friendly, empathetic way. Include a warning if burnout risk is detected. 
+        Always end with the medical disclaimer: 'This is not medical advice.'";
+
+        return $this->qwenService->analyzeText($prompt);
+    }
+
+    private function calculateSimpleScore(UserWellBeingData $data): int
+    {
+        // Re-use logic or simplified version for trend summary
+        return (int)$data->getAnxietyTension() + (int)$data->getSleepProblems() + (int)$data->getRestlessness();
+    }
+    public function getAggregateRiskAnalysis(): string
+    {
+        $allRecords = $this->wellBeingRepository->findAll();
+        
+        if (count($allRecords) < 5) {
+            return "Pas assez de données globales pour une analyse pertinente.";
+        }
+
+        $highStressCount = 0;
+        $poorSleepCount = 0;
+        $lowConfidenceCount = 0;
+        
+        foreach ($allRecords as $r) {
+            if ($this->calculateSimpleScore($r) >= 12) $highStressCount++;
+            if ($r->getSleepProblems() >= 4) $poorSleepCount++;
+            if ($r->getSubjectConfidence() <= 2) $lowConfidenceCount++;
+        }
+
+        $statsSummary = sprintf(
+            "Total des entrées: %d. Utilisateurs en stress élevé: %d. Problèmes de sommeil majeurs: %d. Faible confiance académique: %d.",
+            count($allRecords),
+            $highStressCount,
+            $poorSleepCount,
+            $lowConfidenceCount
+        );
+
+        $prompt = "As an AI Wellness Administrator, analyze these aggregate statistics for the system:
+        $statsSummary
+        
+        Summarize the main health risks in the population.
+        Suggest 2-3 system-level recommendations (e.g., 'Organize sleep workshops', 'Academic support').
+        Keep it professional and data-driven.";
+
+        return $this->qwenService->analyzeText($prompt);
     }
 }

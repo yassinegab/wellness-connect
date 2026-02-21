@@ -3,11 +3,9 @@
 {% block title %}Edit Meal{% endblock %}
 
 {% block body %}
-<div class="flex min-h-screen bg-gray-50">
-    {% include 'components/sidebar.html.twig' %}
-
-    <div class="flex flex-1 flex-col">
-        {% include 'components/top-nav.html.twig' %}
+<div class="min-h-screen bg-gray-50 flex flex-col">
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
 
         <main class="flex-1 overflow-auto p-4 lg:p-6">
             <div class="max-w-3xl mx-auto">
@@ -90,6 +88,5 @@
 
             </div>
         </main>
-    </div>
 </div>
 {% endblock %}

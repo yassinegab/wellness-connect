@@ -12,7 +12,7 @@ class QwenService
 
     public function __construct(
         HttpClientInterface $client,
-        #[Autowire(env: 'OPENROUTER_API_KEY')] string $apiKey = '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' 
+        #[Autowire(env: 'OPENROUTER_API_KEY')] string $apiKey
     ) {
         $this->client = $client;
         $this->apiKey = $apiKey;
@@ -33,7 +33,15 @@ class QwenService
         if ($description) {
             $userPrompt .= "User description: " . $description . ". ";
         }
-        $userPrompt .= "Provide nutritional insights (calories, macros estimation) and health recommendations. Keep it concise and encouraging.";
+        $userPrompt .= "Provide nutritional insights and health recommendations. 
+        You MUST respond in JSON format with the following keys:
+        - calories: estimated calories (number)
+        - sugar: estimated sugar in grams (number)
+        - protein: estimated protein in grams (number)
+        - analysis: a concise and encouraging textual analysis
+        - stress_link: a brief insight on how this meal might affect stress or restlessness (e.g., 'High sugar might increase restlessness').
+        
+        Keep it professional and empathetic.";
 
         try {
             $response = $this->client->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
@@ -68,8 +76,14 @@ class QwenService
             $content = $response->toArray();
             return $content['choices'][0]['message']['content'] ?? 'No analysis available.';
 
+        } catch (\Symfony\Component\HttpClient\Exception\ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            if ($statusCode === 401 || $statusCode === 403) {
+                return json_encode(['analysis' => "AI Analysis failed: Authentication error. Please check your OPENROUTER_API_KEY."]);
+            }
+            return json_encode(['analysis' => "AI Analysis failed: " . $e->getMessage()]);
         } catch (\Exception $e) {
-            return "AI Analysis failed: " . $e->getMessage();
+            return json_encode(['analysis' => "AI Analysis failed: " . $e->getMessage()]);
         }
     }
 
@@ -96,8 +110,43 @@ class QwenService
             $data = $response->toArray();
             return $data['choices'][0]['message']['content'] ?? 'Analysis failed.';
 
+        } catch (\Symfony\Component\HttpClient\Exception\ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            if ($statusCode === 401 || $statusCode === 403) {
+                return "AI Recommendation Error: Authentication error. Please check your OPENROUTER_API_KEY.";
+            }
+            return 'AI Recommendation Error: ' . $e->getMessage();
         } catch (\Exception $e) {
             return 'AI Recommendation Error: ' . $e->getMessage();
+        }
+    }
+
+    public function getChatCompletion(array $messages): string
+    {
+        try {
+            $response = $this->client->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'HTTP-Referer' => 'https://localhost',
+                    'X-Title' => 'HealthCare App',
+                ],
+                'json' => [
+                    'model' => 'qwen/qwen-2.5-vl-72b-instruct',
+                    'messages' => $messages,
+                ],
+            ]);
+
+            $data = $response->toArray();
+            return $data['choices'][0]['message']['content'] ?? 'Response failed.';
+
+        } catch (\Symfony\Component\HttpClient\Exception\ClientException $e) {
+            $statusCode = $e->getResponse()->getStatusCode();
+            if ($statusCode === 401 || $statusCode === 403) {
+                return "AI Error: Authentication error. Please check your OPENROUTER_API_KEY.";
+            }
+            return 'AI Error: ' . $e->getMessage();
+        } catch (\Exception $e) {
+            return 'AI Error: ' . $e->getMessage();
         }
     }
 }

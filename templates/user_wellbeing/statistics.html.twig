@@ -4,7 +4,6 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .stats-container {
             max-width: 900px;
@@ -14,13 +13,12 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
-    {% include 'components/sidebar.html.twig' %}
+<div class="min-h-screen bg-gray-50 flex flex-col" x-data="{ sidebarOpen: false }">
     
-    <div class="flex-1 lg:ml-72">
-        {% include 'components/top-nav.html.twig' %}
-        
-        <main class="p-6">
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+    
+    <main class="flex-1 w-full p-6">
             <div class="stats-container animate-fadeIn">
                 <div class="flex items-center justify-between mb-8">
                     <div>
@@ -81,120 +79,48 @@
                     </div>
                     
                     <div class="h-[400px]">
-                        <canvas id="stressChart"></canvas>
+                        {{ render_chart(stressChart) }}
                     </div>
                 </div>
 
-                <!-- Stats Footer / Info -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-emerald-50 rounded-2xl p-6 border border-emerald-100">
-                        <p class="text-emerald-600 font-bold text-xs uppercase tracking-widest mb-1">Average Score</p>
-                        {% set total = 0 %}
-                        {% for p in predictions %}
-                            {% set total = total + p.confidenceScore %}
-                        {% endfor %}
-                        {% set avg = predictions|length > 0 ? (total / predictions|length) : 0 %}
-                        <p class="text-3xl font-black text-emerald-900">{{ avg|number_format(1) }}%</p>
+                <!-- Detailed Charts Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                    {# Mood Chart #}
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                        <h3 class="text-lg font-bold mb-4 text-gray-700 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-indigo-500"></i> Mood Trends
+                        </h3>
+                        <div class="h-64">
+                            {{ render_chart(moodChart) }}
+                        </div>
+                        <p class="mt-4 text-xs text-gray-500 italic">Tracking your anxiety and tension levels over the last 7 logs.</p>
                     </div>
-                    <div class="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
-                        <p class="text-indigo-600 font-bold text-xs uppercase tracking-widest mb-1">Total Logs</p>
-                        <p class="text-3xl font-black text-indigo-900">{{ predictions|length }}</p>
+
+                    {# Calories Chart #}
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                        <h3 class="text-lg font-bold mb-4 text-gray-700 flex items-center gap-2">
+                            <i class="fas fa-fire text-emerald-500"></i> Calorie History
+                        </h3>
+                        <div class="h-64">
+                            {{ render_chart(calChart) }}
+                        </div>
+                        <p class="mt-4 text-xs text-gray-500 italic">Total daily calories tracked from your meal logs.</p>
                     </div>
-                    <div class="bg-rose-50 rounded-2xl p-6 border border-rose-100 text-center flex flex-col justify-center">
-                         <p class="text-rose-900 font-bold text-sm italic">"Keep tracking to see long-term patterns!"</p>
+
+                    {# Activity Chart #}
+                    <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                        <h3 class="text-lg font-bold mb-4 text-gray-700 flex items-center gap-2">
+                            <i class="fas fa-calendar-check text-amber-500"></i> Log Frequency
+                        </h3>
+                        <div class="h-64">
+                            {{ render_chart(activityChart) }}
+                        </div>
+                        <p class="mt-4 text-xs text-gray-500 italic">Frequency of your wellness logs per day.</p>
                     </div>
                 </div>
             </div>
         </main>
-    </div>
+    </main>
 </div>
 
-{% block javascripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('stressChart').getContext('2d');
-
-        const labels = [
-            {% for p in predictions %}
-                '{{ p.createdAt|date("M d, H:i") }}',
-            {% endfor %}
-        ];
-
-        const scores = [
-            {% for p in predictions %}
-                {{ p.confidenceScore|default(0) }},
-            {% endfor %}
-        ];
-
-        const categories = [
-            {% for p in predictions %}
-                '{{ p.predictedStressType }}',
-            {% endfor %}
-        ];
-
-        const pointColors = categories.map(cat => {
-            if (cat === 'Low') return '#10B981';
-            if (cat === 'Moderate') return '#F59E0B';
-            return '#EF4444';
-        });
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Stress Score',
-                    data: scores,
-                    fill: {
-                        target: 'origin',
-                        above: 'rgba(99, 102, 241, 0.05)',
-                    },
-                    borderColor: '#6366F1',
-                    borderWidth: 4,
-                    pointBackgroundColor: pointColors,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: '#1E293B',
-                        padding: 12,
-                        titleFont: { size: 14, weight: 'bold' },
-                        bodyFont: { size: 13 },
-                        callbacks: {
-                            label: function(context) {
-                                const index = context.dataIndex;
-                                return ` Score: ${scores[index]}% (${categories[index]})`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        min: 0,
-                        max: 100,
-                        grid: { color: 'rgba(0, 0, 0, 0.03)' },
-                        ticks: {
-                            padding: 10,
-                            callback: function(value) { return value + '%' }
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { padding: 10 }
-                    }
-                }
-            }
-        });
-    });
-</script>
-{% endblock %}
 {% endblock %}

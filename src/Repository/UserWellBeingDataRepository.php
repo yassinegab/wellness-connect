@@ -83,14 +83,22 @@ class UserWellBeingDataRepository extends ServiceEntityRepository
 
         $totalUsers = count($users);
         $highAnxiety = count(array_filter($users, fn($u) => $u->getAnxietyTension() >= 4));
+        
         $averageSleepProblems = $totalUsers ? array_sum(array_map(fn($u) => $u->getSleepProblems(), $users)) / $totalUsers : 0;
         $averageHeartbeat = $totalUsers ? array_sum(array_map(fn($u) => $u->getHeartbeatPalpitations(), $users)) / $totalUsers : 0;
+        $averageWorkEnv = $totalUsers ? array_sum(array_map(fn($u) => (int)$u->getWorkEnvironment(), $users)) / $totalUsers : 0;
+        $averageHeadaches = $totalUsers ? array_sum(array_map(fn($u) => (int)$u->getHeadaches(), $users)) / $totalUsers : 0;
+        $averageRestlessness = $totalUsers ? array_sum(array_map(fn($u) => (int)$u->getRestlessness(), $users)) / $totalUsers : 0;
 
         return [
             'totalUsers' => $totalUsers,
             'highAnxiety' => $highAnxiety,
             'averageSleepProblems' => round($averageSleepProblems, 2),
             'averageHeartbeat' => round($averageHeartbeat, 2),
+            'averageSleep' => round($averageSleepProblems, 2), // Alias for chart template
+            'averageWorkEnv' => round($averageWorkEnv, 2),
+            'averageHeadaches' => round($averageHeadaches, 2),
+            'averageRestlessness' => round($averageRestlessness, 2),
         ];
     }
 

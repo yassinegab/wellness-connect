@@ -66,10 +66,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserWellBeingData::class)]
     private Collection $userWellBeingData;
 
+    /**
+     * @var Collection<int, ChatbotMessage>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ChatbotMessage::class, cascade: ['persist', 'remove'])]
+    private Collection $chatbotMessages;
+
+    /**
+     * @var Collection<int, Journal>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Journal::class, cascade: ['persist', 'remove'])]
+    private Collection $journals;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->userWellBeingData = new ArrayCollection();
+        $this->chatbotMessages = new ArrayCollection();
+        $this->journals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -215,6 +229,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($data->getUser() === $this) {
                 $data->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatbotMessage>
+     */
+    public function getChatbotMessages(): Collection
+    {
+        return $this->chatbotMessages;
+    }
+
+    public function addChatbotMessage(ChatbotMessage $chatbotMessage): static
+    {
+        if (!$this->chatbotMessages->contains($chatbotMessage)) {
+            $this->chatbotMessages->add($chatbotMessage);
+            $chatbotMessage->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChatbotMessage(ChatbotMessage $chatbotMessage): static
+    {
+        if ($this->chatbotMessages->removeElement($chatbotMessage)) {
+            // set the owning side to null (unless already changed)
+            if ($chatbotMessage->getUser() === $this) {
+                $chatbotMessage->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Journal>
+     */
+    public function getJournals(): Collection
+    {
+        return $this->journals;
+    }
+
+    public function addJournal(Journal $journal): static
+    {
+        if (!$this->journals->contains($journal)) {
+            $this->journals->add($journal);
+            $journal->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJournal(Journal $journal): static
+    {
+        if ($this->journals->removeElement($journal)) {
+            // set the owning side to null (unless already changed)
+            if ($journal->getUser() === $this) {
+                $journal->setUser(null);
             }
         }
 

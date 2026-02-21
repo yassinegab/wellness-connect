@@ -4,8 +4,6 @@
 
 {% block body %}
 <div class="flex min-h-screen bg-gray-50">
-    {% include 'components/sidebar.html.twig' %}
-
     <div class="flex flex-1 flex-col">
         {% include 'components/top-nav.html.twig' %}
 
@@ -51,20 +49,55 @@
                                     </p>
                                 </div>
 
-                                <div>
-                                    <h3 class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                 <div>
+                                    <h3 class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                                         <i class="fas fa-robot text-lg"></i> AI Nutrition Analysis
                                     </h3>
+
+                                    {# Nutritional Stats Grid #}
+                                    <div class="grid grid-cols-3 gap-4 mb-6">
+                                        <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 text-center transition-transform hover:scale-105">
+                                            <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Calories</p>
+                                            <p class="text-2xl font-black text-blue-900">{{ meal.calories|default('0') }}</p>
+                                            <p class="text-[10px] font-medium text-blue-500">kcal</p>
+                                        </div>
+                                        <div class="bg-rose-50/50 rounded-2xl p-4 border border-rose-100 text-center transition-transform hover:scale-105">
+                                            <p class="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-1">Sugar</p>
+                                            <p class="text-2xl font-black text-rose-900">{{ meal.sugar|default('0') }}</p>
+                                            <p class="text-[10px] font-medium text-rose-500">grams</p>
+                                        </div>
+                                        <div class="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100 text-center transition-transform hover:scale-105">
+                                            <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Protein</p>
+                                            <p class="text-2xl font-black text-emerald-900">{{ meal.protein|default('0') }}</p>
+                                            <p class="text-[10px] font-medium text-emerald-500">grams</p>
+                                        </div>
+                                    </div>
                                     
-                                    <div class="bg-indigo-50/50 rounded-xl p-6 border border-indigo-100 prose prose-indigo max-w-none text-gray-700">
-                                        {% if meal.aiAnalysis %}
-                                            {{ meal.aiAnalysis|nl2br }}
+                                    {% if meal.aiAnalysis %}
+                                        {% set fullText = meal.aiAnalysis|trim %}
+                                        {% if '**Stress Insight:**' in fullText %}
+                                            {% set parts = fullText|split('**Stress Insight:**') %}
+                                            {% set mainText = parts[0]|trim %}
+                                            {% set stressInsight = parts[1]|trim %}
                                         {% else %}
-                                            <div class="text-center py-6 text-gray-500">
-                                                <i class="fas fa-spinner fa-spin mr-2"></i> Analysis pending or not available.
+                                            {% set mainText = fullText %}
+                                            {% set stressInsight = null %}
+                                        {% endif %}
+
+                                        <div class="bg-indigo-50/50 rounded-xl p-5 border border-indigo-100 text-gray-700 text-sm leading-relaxed">
+                                            {{ mainText|nl2br }}
+                                        </div>
+                                        {% if stressInsight %}
+                                            <div class="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                                                <i class="fas fa-link text-amber-500 mt-0.5 flex-shrink-0"></i>
+                                                <span>{{ stressInsight }}</span>
                                             </div>
                                         {% endif %}
-                                    </div>
+                                    {% else %}
+                                        <div class="text-center py-6 text-gray-500">
+                                            <i class="fas fa-spinner fa-spin mr-2"></i> Analysis pending or not available.
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
 

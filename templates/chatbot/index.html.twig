@@ -1,0 +1,181 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mental Health Coach{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50 flex flex-col h-screen overflow-hidden">
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+
+    <main class="flex-1 overflow-hidden relative flex flex-col max-w-5xl mx-auto w-full p-4 lg:p-6">
+        
+        {# Chat Container #}
+        <div class="flex-1 bg-white rounded-3xl shadow-2xl shadow-indigo-100 border border-slate-100 overflow-hidden flex flex-col mb-4" 
+             x-data="chatbot()">
+            
+            {# Chat Header #}
+            <div class="px-6 py-4 border-b border-slate-100 bg-white/50 backdrop-blur-sm flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                            <i class="fas fa-robot text-xl"></i>
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-800">Coach Bien-être AI</h2>
+                        <p class="text-xs text-emerald-500 font-medium">En ligne • Toujours là pour vous</p>
+                    </div>
+                </div>
+                
+                <button @click="clearHistory()" class="text-slate-400 hover:text-rose-500 p-2 transition-colors rounded-xl hover:bg-rose-50">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+
+            {# Messages Area #}
+            <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-6" x-ref="chatBox">
+                {# Message de bienvenue si vide #}
+                <template x-if="messages.length === 0">
+                    <div class="text-center py-10 opacity-60">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-comment-dots text-2xl text-slate-400"></i>
+                        </div>
+                        <h3 class="text-slate-800 font-bold mb-1">Commencez une conversation</h3>
+                        <p class="text-sm text-slate-500 max-w-xs mx-auto">Parlez-moi de votre journée, de votre stress ou de votre sommeil. Je suis là pour vous écouter.</p>
+                    </div>
+                </template>
+
+                {% for message in messages %}
+                    <div class="flex {{ message.role == 'user' ? 'justify-end' : 'justify-start' }}">
+                        <div class="max-w-[80%] {{ message.role == 'user' ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-2xl rounded-tl-none' }} p-4 shadow-sm">
+                            <p class="text-sm leading-relaxed">{{ message.content|nl2br }}</p>
+                            <span class="text-[10px] opacity-60 mt-1 block {{ message.role == 'user' ? 'text-right' : 'text-left' }}">
+                                {{ message.createdAt|date('H:i') }}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <template x-for="msg in newMessages" :key="msg.id">
+                    <div class="flex" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+                        <div class="max-w-[80%] p-4 shadow-sm"
+                             :class="msg.role === 'user' ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-2xl rounded-tl-none'">
+                            <p class="text-sm leading-relaxed" x-text="msg.content"></p>
+                            <span class="text-[10px] opacity-60 mt-1 block" :class="msg.role === 'user' ? 'text-right' : 'text-left'" x-text="msg.time"></span>
+                        </div>
+                    </div>
+                </template>
+
+                {# Typing Indicator #}
+                <div x-show="isTyping" class="flex justify-start" style="display: none;">
+                    <div class="bg-slate-100 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                        <div class="flex gap-1">
+                            <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
+                            <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.2s]"></span>
+                            <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.4s]"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Input Area #}
+            <div class="p-6 pt-2">
+                <form @submit.prevent="sendMessage()" class="relative">
+                    <input type="text" x-model="userInput" 
+                           placeholder="Écrivez votre message ici..." 
+                           class="w-full bg-slate-100 border-none rounded-2xl py-4 pl-6 pr-20 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                           :disabled="isTyping">
+                    <button type="submit" 
+                            class="absolute right-2 top-2 bottom-2 px-6 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200"
+                            :disabled="isTyping || !userInput.trim()">
+                        <i class="fas fa-paper-plane" x-show="!isTyping"></i>
+                        <i class="fas fa-spinner fa-spin" x-show="isTyping"></i>
+                    </button>
+                </form>
+                <p class="text-center text-[10px] text-slate-400 mt-4 leading-relaxed">
+                    Je suis une IA qui donne des conseils de bien-être, pas un avis médical. 
+                    En cas d'urgence, contactez un professionnel de santé.
+                </p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+function chatbot() {
+    return {
+        userInput: '',
+        isTyping: false,
+        messages: {{ messages|length }},
+        newMessages: [],
+        
+        init() {
+            this.scrollToBottom();
+        },
+        
+        scrollToBottom() {
+            setTimeout(() => {
+                const box = this.$refs.chatBox;
+                box.scrollTop = box.scrollHeight;
+            }, 50);
+        },
+        
+        async sendMessage() {
+            if (!this.userInput.trim() || this.isTyping) return;
+            
+            const message = this.userInput;
+            this.userInput = '';
+            
+            // Add user message locally
+            this.newMessages.push({
+                id: Date.now(),
+                content: message,
+                role: 'user',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            this.scrollToBottom();
+            
+            this.isTyping = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('message', message);
+                
+                const response = await fetch("{{ path('user_chatbot_send') }}", {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.message) {
+                    this.newMessages.push({
+                        id: Date.now() + 1,
+                        content: data.message,
+                        role: 'assistant',
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+            } finally {
+                this.isTyping = false;
+                this.scrollToBottom();
+            }
+        },
+        
+        async clearHistory() {
+            if (!confirm('Voulez-vous effacer l\'historique ?')) return;
+            
+            try {
+                await fetch("{{ path('user_chatbot_clear') }}", { method: 'POST' });
+                window.location.reload();
+            } catch (error) {
+                console.error('Clear error:', error);
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

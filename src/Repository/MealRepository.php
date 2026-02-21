@@ -39,6 +39,35 @@ class MealRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    public function getStatistics(): array
+    {
+        $qb = $this->createQueryBuilder('m');
+        $totalMeals = $qb->select('count(m.id)')->getQuery()->getSingleScalarResult();
+
+        $qb = $this->createQueryBuilder('m');
+        $withImage = $qb->select('count(m.id)')->where('m.imageName IS NOT NULL')->getQuery()->getSingleScalarResult();
+
+        $qb = $this->createQueryBuilder('m');
+        $withoutImage = $qb->select('count(m.id)')->where('m.imageName IS NULL')->getQuery()->getSingleScalarResult();
+
+        $qb = $this->createQueryBuilder('m');
+        try {
+            // Using a simple approximation or just 0 if not supported easily
+            // Note: LENGTH() is not standard DQL but works on many DBs. 
+            // If it fails, we catch it.
+            $avgDesc = $qb->select('avg(length(m.description))')->getQuery()->getSingleScalarResult();
+        } catch (\Exception $e) {
+            $avgDesc = 0;
+        }
+
+        return [
+            'totalMeals' => $totalMeals,
+            'withImage' => $withImage,
+            'withoutImage' => $withoutImage,
+            'avgDescriptionLength' => $avgDesc,
+        ];
+    }
+
 
 
     //    /**

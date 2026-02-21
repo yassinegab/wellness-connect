@@ -3,18 +3,13 @@
 {% block title %}Tableau de bord - SmartHealth AI{% endblock %}
 
 {% block body %}
-<div class="flex min-h-screen bg-gray-50">
-
-    {# Sidebar #}
-    {% include 'components/sidebar.html.twig' %}
-
-    <div class="flex flex-1 flex-col lg:ml-72">
-
-        {# Top Navigation #}
-        {% include 'components/top-nav.html.twig' %}
-
-        <main class="flex-1 overflow-auto">
-            <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-8">
+<div class="min-h-screen bg-gray-50 flex flex-col">
+    
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+    
+    <main class="flex-1 w-full overflow-auto">
+        <div class="mx-auto max-w-7xl space-y-6 p-6 lg:p-10">
 
                 {# Header #}
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -211,10 +206,11 @@
                 </div>
 
             </div>
-        </main>
-
-        {# Footer #}
-        <footer class="border-t border-gray-200 bg-white mt-8 lg:ml-0">
+        </div>
+    </main>
+ 
+    {# Footer #}
+    <footer class="border-t border-gray-200 bg-white mt-8">
             <div class="max-w-7xl mx-auto px-4 lg:px-8 py-6">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-2 text-orange-600">
@@ -228,6 +224,5 @@
             </div>
         </footer>
 
-    </div>
 </div>
 {% endblock %}

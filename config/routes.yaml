@@ -9,15 +9,3 @@ app_dashboard:
     path: /
     controller: App\Controller\DashboardController::index
 
-app_rendez_vous:
-    path: /rendez-vous
-    controller: App\Controller\RendezVousController::index
-
-app_rendez_vous_new:
-    path: /rendez-vous/nouveau
-    controller: App\Controller\RendezVousController::new
-
-app_hopital:
-    path: /hopitaux
-    controller: App\Controller\HopitalController::index
-

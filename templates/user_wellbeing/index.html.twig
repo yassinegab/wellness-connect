@@ -12,19 +12,37 @@
 {% endblock %}
 
 {% block body %}
-<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+<div class="min-h-screen bg-gray-50 flex flex-col" x-data="{ sidebarOpen: false }">
 
-    {# Sidebar #}
-    {% include 'components/sidebar.html.twig' %}
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
 
-    <div class="flex flex-1 flex-col">
+    {# Page Content #}
+    <main class="flex-1 w-full">
+        <div class="mx-auto max-w-7xl p-6 lg:p-10 space-y-8">
 
-        {# Top Navigation #}
-        {% include 'components/top-nav.html.twig' %}
-
-        {# Page Content #}
-        <main class="flex-1 overflow-auto">
-            <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+            {# AI Wellness Insight Card — Compact & Collapsible #}
+            {% if aiTrends is defined and aiTrends %}
+                <div class="bg-gradient-to-r from-indigo-800 to-indigo-700 rounded-2xl px-6 py-4 text-white shadow-lg relative overflow-hidden border border-indigo-600/50"
+                     x-data="{ expanded: false }">
+                    <div class="relative z-10 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-500/30 flex items-center justify-center border border-indigo-400/30 flex-shrink-0">
+                                <i class="fas fa-brain text-indigo-200 text-sm"></i>
+                            </div>
+                            <h2 class="text-xs font-black uppercase tracking-widest text-indigo-200">Aperçu Bien-être AI</h2>
+                        </div>
+                        <button @click="expanded = !expanded" class="text-indigo-300 hover:text-white transition-colors text-xs font-bold flex items-center gap-1">
+                            <span x-text="expanded ? 'Réduire' : 'Voir plus'"></span>
+                            <i class="fas fa-chevron-down text-[10px] transition-transform" :class="expanded && 'rotate-180'"></i>
+                        </button>
+                    </div>
+                    <div class="relative z-10 mt-3" :class="expanded ? '' : 'max-h-20 overflow-hidden'"
+                         :style="!expanded && 'mask-image: linear-gradient(to bottom, black 40%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);'">
+                        <p class="text-sm leading-relaxed text-indigo-100">{{ aiTrends|nl2br }}</p>
+                    </div>
+                </div>
+            {% endif %}
 
                 <div class="flex items-center justify-between mb-6">
                     <h1 class="text-2xl font-bold">My Well-Being Data</h1>
@@ -98,18 +116,21 @@
                     {% endfor %}
                 </div>
 
-                <!-- Quick Overview Link -->
-                <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 flex items-center justify-between mb-8 group overflow-hidden relative">
-                    <div class="relative z-10">
-                        <h2 class="text-xl font-bold mb-1">Detailed Analysis Available</h2>
-                        <p class="text-indigo-100 text-sm">Visualize your well-being trends over time.</p>
+                <!-- Detailed Analysis Section -->
+                <div class="mt-12">
+                     <div class="bg-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 flex items-center justify-between mb-8 group overflow-hidden relative">
+                        <div class="relative z-10">
+                            <h2 class="text-xl font-bold mb-1">Detailed Analysis Available</h2>
+                            <p class="text-indigo-100 text-sm">Visualize your well-being trends over time.</p>
+                        </div>
+                        <a href="{{ path('user_wellbeing_statistics') }}" class="relative z-10 bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all transform group-hover:scale-105">
+                            View Stress Statistics <i class="fas fa-chevron-right ml-2 text-xs"></i>
+                        </a>
+                        <!-- Decor -->
+                        <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
                     </div>
-                    <a href="{{ path('user_wellbeing_statistics') }}" class="relative z-10 bg-white text-indigo-600 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all transform group-hover:scale-105">
-                        View Stress Statistics <i class="fas fa-chevron-right ml-2 text-xs"></i>
-                    </a>
-                    <!-- Decor -->
-                    <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
                 </div>
+
                 {# Meals Section #}
                 <div class="mt-12">
                      <div class="flex items-center justify-between mb-6">
@@ -172,10 +193,54 @@
                     </div>
                 </div>
 
-            </div>
-        </main>
+                {# Journal Section #}
+                <div class="mt-12 mb-12">
+                     <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold">My Journal</h2>
+                        <a href="{{ path('user_journal_index') }}" class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 flex items-center gap-2 transition-colors">
+                             <i class="fas fa-book"></i> Open Journal
+                        </a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for journal in journals %}
+                            <div class="bg-white rounded-xl shadow-lg border-l-4 border-amber-400 p-6 hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded">
+                                            {{ journal.createdAt|date('M d, Y') }}
+                                        </div>
+                                        {% if journal.detectedEmotion %}
+                                            <span class="text-xs font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700 capitalize">
+                                                <i class="fas fa-face-smile mr-1"></i> {{ journal.detectedEmotion }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-gray-700 leading-relaxed line-clamp-4 mb-6 italic">
+                                        "{{ journal.content }}"
+                                    </p>
+                                </div>
 
-    </div>
+                                <div class="flex items-center justify-end border-t pt-4">
+                                    <form method="post" action="{{ path('user_journal_delete', {'id': journal.id}) }}" onsubmit="return confirm('Delete this entry?');" class="inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ journal.id) }}">
+                                        <button class="text-gray-400 hover:text-red-600 transition-colors">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% else %}
+                             <div class="col-span-full text-center py-10 bg-white rounded-xl shadow-sm border border-gray-100">
+                                <i class="fas fa-book text-4xl text-gray-300 mb-3 block"></i>
+                                <p class="text-gray-500">Your journal is empty. Reflect on your day!</p>
+                             </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+        </div>
+    </main>
 </div>
 {% endblock %}
 
@@ -214,6 +279,122 @@
                     popup: 'rounded-2xl',
                 }
             });
+        }
+    </script>
+
+    {# Floating Chatbot Bubble #}
+    <div x-data="chatBubble()" class="fixed bottom-6 right-6 z-50" x-cloak>
+        {# Chat Window #}
+        <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90 translate-y-4"
+             class="mb-4 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style="height: 480px;">
+            
+            {# Header #}
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                        <i class="fas fa-brain text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm">Coach Bien-être</h3>
+                        <p class="text-indigo-200 text-[10px]">Spécialisé santé mentale</p>
+                    </div>
+                </div>
+                <button @click="open = false" class="text-white/70 hover:text-white transition-colors">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            {# Messages #}
+            <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50" x-ref="chatMessages">
+                <template x-if="messages.length === 0">
+                    <div class="text-center py-8">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-comment-dots text-indigo-500"></i>
+                        </div>
+                        <p class="text-slate-500 text-sm">Comment vous sentez-vous aujourd'hui ?</p>
+                    </div>
+                </template>
+                <template x-for="(msg, i) in messages" :key="i">
+                    <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                        <div :class="msg.role === 'user' 
+                            ? 'bg-indigo-600 text-white rounded-2xl rounded-br-md px-3 py-2 max-w-[80%] text-sm' 
+                            : 'bg-white text-slate-700 rounded-2xl rounded-bl-md px-3 py-2 max-w-[80%] text-sm shadow-sm border border-slate-100'"
+                            x-html="msg.content.replace(/\n/g, '<br>')">
+                        </div>
+                    </div>
+                </template>
+                <template x-if="loading">
+                    <div class="flex justify-start">
+                        <div class="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-slate-100">
+                            <div class="flex gap-1">
+                                <span class="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style="animation-delay: 0s"></span>
+                                <span class="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style="animation-delay: 0.15s"></span>
+                                <span class="w-2 h-2 rounded-full bg-slate-300 animate-bounce" style="animation-delay: 0.3s"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            {# Input #}
+            <div class="p-3 border-t border-slate-200 bg-white flex-shrink-0">
+                <form @submit.prevent="sendMessage" class="flex gap-2">
+                    <input x-model="newMessage" type="text" placeholder="Écrivez ici..." 
+                        class="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400"
+                        :disabled="loading">
+                    <button type="submit" :disabled="loading || !newMessage.trim()" 
+                        class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-colors disabled:opacity-40">
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {# Floating Button #}
+        <button @click="open = !open" 
+            class="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center relative">
+            <i class="fas fa-brain text-xl" x-show="!open"></i>
+            <i class="fas fa-xmark text-xl" x-show="open"></i>
+            <span x-show="!open && messages.length === 0" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+        </button>
+    </div>
+
+    <script>
+        function chatBubble() {
+            return {
+                open: false,
+                messages: [],
+                newMessage: '',
+                loading: false,
+                async sendMessage() {
+                    if (!this.newMessage.trim() || this.loading) return;
+                    const text = this.newMessage.trim();
+                    this.messages.push({ role: 'user', content: text });
+                    this.newMessage = '';
+                    this.loading = true;
+                    this.$nextTick(() => {
+                        this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
+                    });
+                    try {
+                        const formData = new FormData();
+                        formData.append('message', text);
+
+                        const res = await fetch('{{ path("user_chatbot_send") }}', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.json();
+                        this.messages.push({ role: 'assistant', content: data.message || 'Désolé, une erreur est survenue.' });
+                    } catch (e) {
+                        this.messages.push({ role: 'assistant', content: 'Erreur de connexion. Réessayez.' });
+                    }
+                    this.loading = false;
+                    this.$nextTick(() => {
+                        this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
+                    });
+                }
+            }
         }
     </script>
 {% endblock %}

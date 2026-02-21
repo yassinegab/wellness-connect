@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Journal Intime AI{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50 flex flex-col">
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+
+    <main class="flex-1 max-w-5xl mx-auto w-full p-4 lg:p-10">
+        
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            {# Writing Section #}
+            <div class="lg:w-2/3">
+                <div class="bg-white rounded-3xl shadow-xl p-8 border border-slate-100">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-500">
+                            <i class="fas fa-pen-nib text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-800 tracking-tight">Nouvelle Pensée</h2>
+                            <p class="text-sm text-slate-500 font-medium">Laissez libre cours à vos émotions</p>
+                        </div>
+                    </div>
+
+                    <form method="post" class="space-y-6">
+                        <textarea name="content" rows="8" 
+                                  class="w-full bg-slate-50 border-none rounded-2xl p-6 text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none resize-none"
+                                  placeholder="Comment vous sentez-vous aujourd'hui ?"></textarea>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                            <p class="text-[10px] text-slate-400 max-w-[60%] lowercase font-medium">
+                                <i class="fas fa-magic mr-1"></i> L'IA détectera automatiquement votre émotion pour vous aider à mieux vous comprendre.
+                            </p>
+                            <button type="submit" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {# History Section #}
+            <div class="lg:w-1/3 space-y-6">
+                <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-2 px-2">Historique Récent</h3>
+                
+                <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                    {% for journal in journals %}
+                        <div class="bg-white rounded-2xl p-4 shadow-md border border-slate-50 group hover:border-indigo-100 transition-colors">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                    {{ journal.createdAt|date('d M Y, H:i') }}
+                                </span>
+                                
+                                {% set emotion = journal.detectedEmotion %}
+                                {% set color = emotion == 'Happy' ? 'bg-emerald-500' 
+                                            : emotion == 'Sad' ? 'bg-blue-500' 
+                                            : emotion == 'Anxious' ? 'bg-amber-500' 
+                                            : emotion == 'Angry' ? 'bg-rose-500' 
+                                            : emotion == 'Overwhelmed' ? 'bg-purple-500' 
+                                            : 'bg-slate-400' %}
+                                
+                                <span class="{{ color }} text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full">
+                                    {{ emotion|default('Calm') }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-3">
+                                {{ journal.content }}
+                            </p>
+                            <div class="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                <form method="post" action="{{ path('user_journal_delete', {'id': journal.id}) }}" onsubmit="return confirm('Supprimer cette entrée ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ journal.id) }}">
+                                    <button class="text-slate-300 hover:text-rose-500 text-[10px]">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-10 opacity-30">
+                            <i class="fas fa-book-open text-3xl mb-2"></i>
+                            <p class="text-xs font-bold uppercase">Aucune pensée</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+</style>
+{% endblock %}
