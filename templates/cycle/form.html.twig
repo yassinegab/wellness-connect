@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+/* Form container */
+.cycle-form-container {
+    background-color: #fff1f2; /* pastel pink background */
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    max-width: 500px;
+    margin: 2rem auto;
+}
+
+/* Form labels */
+.cycle-form-container label {
+    font-weight: 600;
+    color: #9d174d;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Inputs */
+.cycle-form-container input[type="date"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #f9a8d4;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: #581c87;
+    background-color: #fff1f2;
+    transition: border-color 0.3s;
+}
+.cycle-form-container input[type="date"]:focus {
+    outline: none;
+    border-color: #ec4899;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+}
+
+/* Buttons */
+.cycle-form-container .btn-primary {
+    background-color: #ec4899;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+.cycle-form-container .btn-primary:hover {
+    background-color: #f472b6;
+}
+
+.cycle-form-container .btn-secondary {
+    background-color: #9d174d;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+.cycle-form-container .btn-secondary:hover {
+    background-color: #be185d;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-background">
+
+  {# Sidebar #}
+  {% include 'components/sidebar.html.twig' %}
+
+  <div class="flex flex-1 flex-col">
+
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+
+    <main class="flex-1 overflow-auto">
+      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+
+        {# Header #}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-foreground">
+              Bonjour, souha !
+            </h1>
+            <p class="text-muted-foreground">
+              Voici un aperçu de votre santé aujourd’hui
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 rounded-md border px-3 py-2">
+            📅 {{ "now"|date("l d F Y") }}
+          </div>
+        </div>
+
+        {# Cycle form #}
+        <div class="cycle-form-container">
+            <h1 class="text-2xl font-bold mb-6 text-center text-pink-700">{{ isEdit ? 'Modifier un cycle' : 'Ajouter un cycle' }}</h1>
+
+            {{ form_start(form, {'attr': {'id': 'cycle-form'}}) }}
+                <div class="space-y-4">
+                    {{ form_row(form.dateDebutM, {'attr': {'class': 'input-date'}}) }}
+                    {{ form_row(form.dateFinM, {'attr': {'class': 'input-date'}}) }}
+                </div>
+
+                <div class="mt-6 flex justify-center gap-3">
+                    <button type="submit" class="btn btn-primary">{{ isEdit ? 'Mettre à jour' : 'Ajouter' }}</button>
+                    <a href="{{ path('cycle_index') }}" class="btn btn-secondary">Annuler</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

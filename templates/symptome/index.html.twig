@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+
 {% block title %}Ajouter Symptomes{% endblock %}
 
 {% block body %}
@@ -44,7 +45,7 @@
 
 <div class="flex gap-4 mt-6">
     <button id="save-symptomes" class="px-6 py-2 bg-pink-500 text-white font-semibold rounded-2xl hover:bg-pink-600 transition">Enregistrer</button>
-    <a href="{{ path('cycle') }}" class="btn-outline">
+    <a href="{{ path('cycle_index') }}" class="btn-outline">
                     Annuler
                 </a>
 </div>
@@ -55,12 +56,95 @@
 </a>
     
     </div>
+<!-- AI Floating Button -->
+<button id="ai-btn" class="ai-fab">🤖</button>
 
+<!-- AI Chat Window -->
+<div id="ai-chat" class="ai-chat hidden">
+  <div class="ai-header">
+    <span>AI Assistant 💕</span>
+    <button id="ai-close">✖</button>
+  </div>
+
+  <div id="ai-messages" class="ai-messages"></div>
+
+  <div class="ai-input">
+    <input id="ai-text" type="text" placeholder="Ask me anything..." />
+    <button id="ai-send">➤</button>
+  </div>
+</div>
 
 {% endblock %}
 
 {% block javascripts %}
 <script>
+
+
+// AI Chat Logic
+const aiBtn = document.getElementById('ai-btn');
+const aiChat = document.getElementById('ai-chat');
+const aiClose = document.getElementById('ai-close');
+const aiSend = document.getElementById('ai-send');
+const aiInput = document.getElementById('ai-text');
+const aiMessages = document.getElementById('ai-messages');
+
+// Toggle Chat Window
+aiBtn.addEventListener('click', () => aiChat.classList.toggle('hidden'));
+aiClose.addEventListener('click', () => aiChat.classList.add('hidden'));
+
+// Function to append messages
+function appendMessage(role, text) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `ai-msg ${role}`;
+    msgDiv.innerHTML = `<span>${text}</span>`;
+    aiMessages.appendChild(msgDiv);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+}
+
+// Send Message Logic
+async function sendMessage() {
+    const message = aiInput.value.trim();
+    if (!message) return;
+
+    appendMessage('user', message);
+    aiInput.value = '';
+
+    // Show loading state
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'ai-msg ai';
+    loadingMsg.innerHTML = '<span>En train de réfléchir... 🌸</span>';
+    aiMessages.appendChild(loadingMsg);
+
+    try {
+        const response = await fetch('{{ path('ai_chat') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+        aiMessages.removeChild(loadingMsg); // Remove loading
+
+        if (data.reply) {
+            appendMessage('ai', data.reply);
+        } else {
+            appendMessage('ai', "Oups, j'ai eu un petit problème.");
+        }
+    } catch (error) {
+        aiMessages.removeChild(loadingMsg);
+        appendMessage('ai', "Erreur de connexion.");
+    }
+}
+
+aiSend.addEventListener('click', sendMessage);
+aiInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
+
+
+
+
 
 
 const symptomeItems = document.querySelectorAll('.symptome-item');
@@ -131,6 +215,90 @@ document.getElementById('cancel-symptomes').addEventListener('click', () => {
 {% endblock %}
 {% block stylesheets %}
 <style>
+/* Floating button */
+.ai-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ec4899;
+  color: white;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+  z-index: 9999;
+}
+
+/* Chat window */
+.ai-chat {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  width: 320px;
+  height: 420px;
+  background: #fff1f2;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+}
+
+.hidden { display: none; }
+
+.ai-header {
+  background: #ec4899;
+  color: white;
+  padding: 10px 14px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ai-messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.ai-msg.user { text-align: right; margin-bottom: 8px; }
+.ai-msg.ai { text-align: left; margin-bottom: 8px; }
+
+.ai-msg span {
+  display: inline-block;
+  padding: 8px 10px;
+  border-radius: 12px;
+  max-width: 80%;
+}
+
+.ai-msg.user span { background: #ec4899; color: white; }
+.ai-msg.ai span { background: #fbcfe8; color: #831843; }
+
+.ai-input {
+  display: flex;
+  padding: 10px;
+  gap: 6px;
+}
+
+.ai-input input {
+  flex: 1;
+  border-radius: 10px;
+  border: 1px solid #f9a8d4;
+  padding: 6px 10px;
+}
+
+.ai-input button {
+  background: #ec4899;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  padding: 0 12px;
+}
+
 /* === CHROMA CARD === */
 .chroma-card {
     position: relative;

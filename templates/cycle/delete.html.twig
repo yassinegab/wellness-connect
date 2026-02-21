@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+<div class="flex min-h-screen bg-background">
+
+  {# Sidebar #}
+  {% include 'components/sidebar.html.twig' %}
+
+  <div class="flex flex-1 flex-col">
+
+    {# Top Navigation #}
+    {% include 'components/top-nav.html.twig' %}
+
+    <main class="flex-1 overflow-auto">
+      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+
+        {# Header #}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-foreground">
+              Bonjour, souha!
+            </h1>
+            <p class="text-muted-foreground">
+              Voici un aperçu de votre santé aujourd’hui
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 rounded-md border px-3 py-2">
+            📅 {{ "now"|date("l d F Y") }}
+          </div>
+        </div>
+
+<div class="p-6">
+    <h1 class="text-2xl font-bold mb-4">Supprimer un cycle</h1>
+    <p>Êtes-vous sûr de vouloir supprimer le cycle allant du <strong>{{ cycle.dateDebutM|date('Y-m-d') }}</strong> au <strong>{{ cycle.dateFinM|date('Y-m-d') }}</strong> ?</p>
+    <form method="post" action="{{ path('cycle_delete', {'id': cycle.idCycle}) }}" class="mt-4">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete-cycle' ~ cycle.idCycle) }}">
+        <button class="btn btn-danger">Oui, supprimer</button>
+        <a href="{{ path('cycle_index') }}" class="btn btn-secondary ml-2">Non, annuler</a>
+    </form>
+</div>
+{% endblock %}

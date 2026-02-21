@@ -1,0 +1,191 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+/* reuse existing styles for calendar and theme */
+.fc {
+  --fc-border-color: #fbcfe8;
+  --fc-today-bg-color: #fce7f3;
+  --fc-page-bg-color: #fff1f2;
+  font-family: 'Inter', sans-serif;
+}
+
+.fc-toolbar-title { color: #be185d; font-weight: 600; }
+
+.fc-button {
+  background-color: #f9a8d4 !important;
+  border: none !important;
+  color: white !important;
+}
+.fc-button:hover { background-color: #f472b6 !important; }
+
+.fc-daygrid-day-number { color: #9d174d; font-weight: 500; }
+.fc-day-today { background-color: #fce7f3 !important; }
+
+/* menstruation event */
+.menstruation-event { background: transparent !important; border: none !important; }
+
+/* simple button styles */
+.button-group { margin-bottom: 1rem; }
+.button-group button,
+.button-group a { 
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    margin-right: 0.5rem;
+}
+.button-group .btn-primary { background: #ec4899; color: white; }
+.button-group .btn-secondary { background: #9d174d; color: white; }
+.button-group .btn-danger { background: #f43f5e; color: white; }
+.button-group button:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-background">
+  {% include 'components/sidebar.html.twig' %}
+  <div class="flex flex-1 flex-col">
+    {% include 'components/top-nav.html.twig' %}
+    <main class="flex-1 overflow-auto">
+      <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-2xl font-bold text-foreground">Mes cycles</h1>
+          </div>
+          <div class="button-group">
+            <a href="{{ path('cycle_new') }}" class="btn btn-primary">Ajouter menstruation</a>
+            <button id="btn-edit" class="btn btn-secondary" disabled>Modifier menstruation</button>
+            <button id="btn-delete" class="btn btn-danger" disabled>Supprimer menstruation</button>
+          </div>
+        </div>
+        <div id="calendar-error" class="hidden rounded-md border border-pink-300 bg-pink-100 p-3 text-pink-800 mb-4"></div>
+        <div id="calendar"></div>
+      </div>
+    </main>
+  </div>
+  
+  <div id="toast-container" class="fixed top-6 right-6 space-y-3 z-50"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    let selectedId = null;
+
+    const btnEdit = document.getElementById('btn-edit');
+    const btnDelete = document.getElementById('btn-delete');
+
+    function clearSelection() {
+        selectedId = null;
+        btnEdit.disabled = true;
+        btnDelete.disabled = true;
+    }
+
+    function showToast(type, message) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function showCalendarError(message) {
+        const errorEl = document.getElementById('calendar-error');
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+        setTimeout(() => errorEl.classList.add('hidden'), 4000);
+    }
+
+    // Initialize FullCalendar
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'fr',
+        events: {{ calendarEvents|raw }},
+        editable: false,
+        selectable: false,
+        height: 650,
+        eventClick: function(info) {
+            selectedId = info.event.id;
+            btnEdit.disabled = false;
+            btnDelete.disabled = false;
+        }
+    });
+
+    calendar.render();
+
+    // Edit & Delete buttons
+    btnEdit.addEventListener('click', () => {
+        if (selectedId) {
+            const url = '{{ path('cycle_edit', {'id':'ID'}) }}'.replace('ID', selectedId);
+            window.location.href = url;
+        }
+    });
+
+    btnDelete.addEventListener('click', () => {
+        if (selectedId && confirm('Voulez-vous supprimer cette période de menstruation ?')) {
+            const url = '{{ path('cycle_delete', {'id':'ID'}) }}'.replace('ID', selectedId);
+            window.location.href = url;
+        }
+    });
+
+    // AJAX function to save a new cycle and show blood drops
+function saveCycle(start, end) {
+    fetch("{{ path('cycle_new') }}", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json", 
+            "X-Requested-With": "XMLHttpRequest" 
+        },
+        body: JSON.stringify({ start, end })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.success) {
+
+            // 🔥 IMPORTANT: Work with plain date strings (NO timezone conversion)
+            let current = start;
+
+            while (current <= end) {
+
+                calendar.addEvent({
+                    id: data.id, // returned from backend
+                    title: '🩸',
+                    start: current,
+                    allDay: true,
+                    display: 'background', // optional if you want only icon
+                    classNames: ['menstruation-event']
+                });
+
+                // Move to next day safely
+                let dateObj = new Date(current + "T00:00:00");
+                dateObj.setDate(dateObj.getDate() + 1);
+                current = dateObj.toISOString().split('T')[0];
+            }
+
+            showToast('success','Période ajoutée avec succès ✨');
+        } 
+        else {
+            showCalendarError(data.message);
+            showToast('error', data.message || 'Cette période existe déjà 😅');
+        }
+
+        calendar.unselect();
+    })
+    .catch(() => {
+        showCalendarError("Erreur lors de l'enregistrement.");
+        calendar.unselect();
+    });
+}
+    // Example: call saveCycle when form submitted (replace with your own form handler)
+    // const cycleForm = document.getElementById('cycle-form');
+    // cycleForm.addEventListener('submit', function(e){
+    //     e.preventDefault();
+    //     const start = document.getElementById('cycle_start').value;
+    //     const end = document.getElementById('cycle_end').value;
+    //     saveCycle(start, end);
+    // });
+});
+</script>{% endblock %}

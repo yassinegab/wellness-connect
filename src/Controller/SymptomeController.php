@@ -12,10 +12,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
-
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 class SymptomeController extends AbstractController
 {
+
+private $httpClient;
+
+    public function __construct(HttpClientInterface $httpClient)
+    {
+        $this->httpClient = $httpClient;
+    }
+
     #[Route('/symptome', name: 'symptome_index')]
     public function index(ManagerRegistry $doctrine): Response
     {
@@ -93,9 +101,59 @@ class SymptomeController extends AbstractController
         'symptomes' => $symptomes,
     ]);
  }
-
-
-
-
   
+#[Route('/ai/chat', name: 'ai_chat', methods: ['POST'])]
+public function chat(Request $request, HttpClientInterface $httpClient): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+    $userMessage = $data['message'] ?? '';
+
+    if (empty($userMessage)) {
+        return new JsonResponse(['reply' => 'Le message est vide. 🌸']);
+    }
+
+    $apiKey = 'AIzaSyAY2ZQiC34DAdXvskuy8V-wkOSuhY3gb7I'; 
+
+    try {
+        // FREE TIER BEST SETTINGS: v1beta + gemini-1.5-flash
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $apiKey;
+
+        $response = $httpClient->request('POST', $url, [
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+            'json' => [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $userMessage]
+                        ]
+                    ]
+                ]
+            ],
+            'verify_peer' => false,
+            'verify_host' => false,
+        ]);
+
+        $result = $response->toArray(false);
+        
+        // Check for success
+        if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+            $aiText = $result['candidates'][0]['content']['parts'][0]['text'];
+            return new JsonResponse(['reply' => $aiText]);
+        }
+
+        // Handle specific Free Tier errors (like Rate Limiting)
+        if (isset($result['error'])) {
+            return new JsonResponse([
+                'reply' => "Désolé, le service gratuit est saturé ou indisponible : " . ($result['error']['message'] ?? 'Erreur inconnue')
+            ], 200);
+        }
+
+        return new JsonResponse(['reply' => 'L’IA n’a pas pu répondre. Réessayez dans un instant.']);
+
+    } catch (\Exception $e) {
+        return new JsonResponse(['reply' => "Erreur : " . $e->getMessage()], 200); 
+    }
+}
 }

@@ -17,11 +17,11 @@ class Cycle
     private ?int $idCycle = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\NotNull(message: "La date de début est obligatoire")]
+    #[Assert\NotBlank(message: "La date de début est obligatoire")]
     private ?\DateTime $dateDebutM = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Assert\NotNull(message: "La date de fin est obligatoire")]
+    #[Assert\NotBlank(message: "La date de fin est obligatoire")]
     private ?\DateTime $dateFinM = null;
 
     #[Assert\Callback]
