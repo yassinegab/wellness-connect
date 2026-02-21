@@ -26,7 +26,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             // ✅ Changé de medecin_dossier_consulter à medecin_dashboard
             $route = 'medecin_dashboard';
         } else {
-            $route = 'frontoffice_dashboard';
+            $route = 'app_dashboard';
         }
 
         return new RedirectResponse($this->urlGenerator->generate($route));

@@ -80,6 +80,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Journal::class, cascade: ['persist', 'remove'])]
     private Collection $journals;
 
+    /**
+     * @var Collection<int, DossierMedical>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: DossierMedical::class)]
+    private Collection $dossiersMedicaux;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
