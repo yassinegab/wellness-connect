@@ -1,0 +1,191 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Rendez-vous #{{ rendez_vous.id }}{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50">
+
+    {# Sidebar #}
+    {% include 'components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col lg:ml-72">
+
+        {# Top Navigation #}
+        {% include 'components/top-nav.html.twig' %}
+
+        <main class="flex-1 overflow-auto">
+            <div class="mx-auto max-w-4xl space-y-6 p-4 lg:p-8">
+
+                {# Header #}
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">
+                            <i class="fas fa-calendar-check text-blue-600 mr-2"></i>
+                            Rendez-vous #{{ rendez_vous.id }}
+                        </h1>
+                        <p class="text-gray-600 mt-2">Détails complets du rendez-vous</p>
+                    </div>
+                    <a href="{{ path('app_service_home') }}" class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Retour
+                    </a>
+                </div>
+
+                {# Détails #}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-user text-blue-600 mr-1"></i>
+                                Patient
+                            </dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {% if rendez_vous.patient %}
+                                    {{ rendez_vous.patient.nom }} {{ rendez_vous.patient.prenom }}
+                                {% else %}
+                                    <span class="text-gray-400">Non assigné</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-user-md text-green-600 mr-1"></i>
+                                Médecin
+                            </dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {% if rendez_vous.medecin %}
+                                    Dr. {{ rendez_vous.medecin.nom }} {{ rendez_vous.medecin.prenom }}
+                                {% else %}
+                                    <span class="text-gray-400">Non assigné</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div class="bg-purple-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-hospital text-purple-600 mr-1"></i>
+                                Hôpital
+                            </dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {% if rendez_vous.hopital %}
+                                    {{ rendez_vous.hopital.nom }}
+                                {% else %}
+                                    <span class="text-gray-400">Non assigné</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-calendar text-orange-600 mr-1"></i>
+                                Date et heure
+                            </dt>
+                            <dd class="text-lg font-semibold text-gray-900">
+                                {{ rendez_vous.dateRendezVous|date('d/m/Y à H:i') }}
+                            </dd>
+                        </div>
+
+                        <div class="bg-indigo-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-stethoscope text-indigo-600 mr-1"></i>
+                                Type de consultation
+                            </dt>
+                            <dd>
+                                {% if rendez_vous.typeConsultation == 'Présentiel' %}
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-hospital mr-1"></i>Présentiel
+                                    </span>
+                                {% elseif rendez_vous.typeConsultation == 'Téléconsultation' %}
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-video mr-1"></i>Téléconsultation
+                                    </span>
+                                {% elseif rendez_vous.typeConsultation == 'Urgence' %}
+                                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-ambulance mr-1"></i>Urgence
+                                    </span>
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        <div class="bg-yellow-50 rounded-lg p-4">
+                            <dt class="text-sm font-medium text-gray-500 mb-2">
+                                <i class="fas fa-info-circle text-yellow-600 mr-1"></i>
+                                Statut
+                            </dt>
+                            <dd>
+                                {% if rendez_vous.statut == 'En attente' %}
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-clock mr-1"></i>En attente
+                                    </span>
+                                {% elseif rendez_vous.statut == 'Confirmé' %}
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-check mr-1"></i>Confirmé
+                                    </span>
+                                {% elseif rendez_vous.statut == 'Annulé' %}
+                                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-times mr-1"></i>Annulé
+                                    </span>
+                                {% elseif rendez_vous.statut == 'Terminé' %}
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-semibold rounded-full">
+                                        <i class="fas fa-check-double mr-1"></i>Terminé
+                                    </span>
+                                {% endif %}
+                            </dd>
+                        </div>
+
+                        {% if rendez_vous.notes %}
+                            <div class="md:col-span-2 bg-gray-50 rounded-lg p-4">
+                                <dt class="text-sm font-medium text-gray-500 mb-2">
+                                    <i class="fas fa-sticky-note text-gray-600 mr-1"></i>
+                                    Notes
+                                </dt>
+                                <dd class="text-gray-900">{{ rendez_vous.notes }}</dd>
+                            </div>
+                        {% endif %}
+
+                        <div class="md:col-span-2 grid grid-cols-2 gap-4 bg-gray-50 rounded-lg p-4">
+                            <div>
+                                <dt class="text-xs text-gray-500 mb-1">Créé le</dt>
+                                <dd class="text-sm font-medium text-gray-700">
+                                    {{ rendez_vous.createdAt|date('d/m/Y à H:i') }}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-500 mb-1">Mis à jour le</dt>
+                                <dd class="text-sm font-medium text-gray-700">
+                                    {{ rendez_vous.updatedAt|date('d/m/Y à H:i') }}
+                                </dd>
+                            </div>
+                        </div>
+                    </dl>
+
+                    <div class="flex gap-4 mt-6 pt-6 border-t">
+                        <a href="{{ path('app_rendez_vous_edit', {'id': rendez_vous.id}) }}" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-edit mr-2"></i>
+                            Modifier
+                        </a>
+                        <button onclick="confirmDelete()" class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">
+                            <i class="fas fa-trash mr-2"></i>
+                            Supprimer
+                        </button>
+                        <form id="delete-form" method="post" action="{{ path('app_rendez_vous_delete', {'id': rendez_vous.id}) }}" style="display: none;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ rendez_vous.id) }}">
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce rendez-vous ?')) {
+        document.getElementById('delete-form').submit();
+    }
+}
+</script>
+{% endblock %}

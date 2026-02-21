@@ -1,0 +1,529 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord - Services{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50">
+    {# Sidebar #}
+    {% include 'components/sidebar.html.twig' %}
+
+    <div class="flex flex-1 flex-col lg:ml-72">
+        {# Top Navigation #}
+        {% include 'components/top-nav.html.twig' %}
+
+        <main class="flex-1 overflow-auto pb-12">
+            <div class="mx-auto max-w-7xl space-y-8 p-4 lg:p-8">
+
+                {# Header de la page #}
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">
+                            <i class="fas fa-hospital-user text-purple-600 mr-3"></i>
+                            Tableau de bord Services
+                        </h1>
+                        <p class="text-gray-600 mt-1">
+                            Vue d'ensemble de l'activité médicale
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ path('app_rendez_vous_new') }}"
+                           class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-md">
+                            <i class="fas fa-plus mr-2"></i> Nouveau RDV
+                        </a>
+                        <a href="{{ path('app_rendez_vous_index') }}"
+                           class="inline-flex items-center px-5 py-2.5 bg-purple-100 text-purple-700 font-semibold rounded-lg hover:bg-purple-200 transition">
+                            <i class="fas fa-calendar-days mr-2"></i> Tous les RDV
+                        </a>
+                    </div>
+                </div>
+
+                {# Messages flash #}
+                {% for message in app.flashes('success') %}
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-5 py-4 rounded-xl" role="alert">
+                        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-5 py-4 rounded-xl" role="alert">
+                        <i class="fas fa-exclamation-circle mr-2"></i> {{ message }}
+                    </div>
+                {% endfor %}
+
+                {# Barre de recherche et filtres - SANS VALIDATION HTML/JS #}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                    <form method="get" action="{{ path('app_service_home') }}">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                            
+                            {# Champ de recherche - PAS de validation HTML #}
+                            <div class="md:col-span-5">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-search mr-1"></i> Rechercher
+                                </label>
+                                <input type="text"
+                                       name="q"
+                                       value="{{ search|default('') }}"
+                                       placeholder="Nom, adresse, patient, médecin..."
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            </div>
+
+                            {# Filtre #}
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-filter mr-1"></i> Filtrer par
+                                </label>
+                                <select name="filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option value="all" {{ filter == 'all' ? 'selected' : '' }}>Tous</option>
+                                    <option value="hopital" {{ filter == 'hopital' ? 'selected' : '' }}>Hôpitaux uniquement</option>
+                                    <option value="rdv" {{ filter == 'rdv' ? 'selected' : '' }}>Rendez-vous uniquement</option>
+                                </select>
+                            </div>
+
+                            {# Tri Hôpitaux #}
+                            {% if filter in ['all', 'hopital'] %}
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-sort mr-1"></i> Trier hôpitaux
+                                </label>
+                                <select name="sort_hopital" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option value="nom" {{ sort_hopital == 'nom' ? 'selected' : '' }}>Nom</option>
+                                    <option value="capacite" {{ sort_hopital == 'capacite' ? 'selected' : '' }}>Capacité</option>
+                                    <option value="urgence" {{ sort_hopital == 'urgence' ? 'selected' : '' }}>Urgences</option>
+                                </select>
+                            </div>
+                            {% endif %}
+
+                            {# Tri Rendez-vous #}
+                            {% if filter in ['all', 'rdv'] %}
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-sort mr-1"></i> Trier RDV
+                                </label>
+                                <select name="sort_rdv" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option value="date" {{ sort_rdv == 'date' ? 'selected' : '' }}>Date</option>
+                                    <option value="patient" {{ sort_rdv == 'patient' ? 'selected' : '' }}>Patient</option>
+                                    <option value="statut" {{ sort_rdv == 'statut' ? 'selected' : '' }}>Statut</option>
+                                </select>
+                            </div>
+                            {% endif %}
+
+                            {# Bouton de soumission #}
+                            <div class="md:col-span-1 flex items-end">
+                                <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+
+                            {# Bouton Reset #}
+                            {% if search %}
+                            <div class="md:col-span-1 flex items-end">
+                                <a href="{{ path('app_service_home') }}" 
+                                   class="w-full px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 text-center transition-colors" 
+                                   title="Réinitialiser">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+
+                {# Cartes de statistiques (affichées uniquement si filter = "all") #}
+                {% if filter == 'all' %}
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <!-- Médecins -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Médecins</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-1">{{ medecin_count }}</p>
+                            </div>
+                            <div class="bg-blue-100 p-4 rounded-lg">
+                                <i class="fas fa-user-md text-blue-600 text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patients -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Patients</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-1">{{ patient_count }}</p>
+                            </div>
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <i class="fas fa-users text-green-600 text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hôpitaux -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Hôpitaux</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-1">{{ hopital_count }}</p>
+                            </div>
+                            <div class="bg-purple-100 p-4 rounded-lg">
+                                <i class="fas fa-hospital text-purple-600 text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rendez-vous -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Rendez-vous</p>
+                                <p class="text-3xl font-bold text-gray-900 mt-1">{{ total_rdv }}</p>
+                            </div>
+                            <div class="bg-orange-100 p-4 rounded-lg">
+                                <i class="fas fa-calendar-check text-orange-600 text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {# SECTION HÔPITAUX (affichée si filter = "all" ou "hopital") #}
+                {% if filter in ['all', 'hopital'] %}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900">
+                                    <i class="fas fa-hospital text-purple-600 mr-2"></i>
+                                    Liste des Hôpitaux
+                                </h2>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    {{ total_hopitaux }} hôpital(x) trouvé(s)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if hopitaux is empty %}
+                        <div class="p-12 text-center">
+                            <i class="fas fa-hospital text-gray-300 text-6xl mb-4"></i>
+                            <p class="text-gray-500 text-lg">Aucun hôpital trouvé</p>
+                        </div>
+                    {% else %}
+                        {# Grille des hôpitaux #}
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {% for hopital in hopitaux %}
+                                    <div class="border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-1">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <i class="fas fa-hospital text-purple-600 text-xl"></i>
+                                                </div>
+                                                <div>
+                                                    <h3 class="font-bold text-gray-900 text-base">{{ hopital.nom }}</h3>
+                                                    {% if hopital.serviceUrgenceDispo %}
+                                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full inline-block mt-1">
+                                                            <i class="fas fa-check mr-1"></i>Urgences
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full inline-block mt-1">
+                                                            <i class="fas fa-times mr-1"></i>Pas d'urgences
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-2 mb-4">
+                                            <div class="flex items-start gap-2 text-sm text-gray-600">
+                                                <i class="fas fa-map-marker-alt text-red-500 mt-1 flex-shrink-0"></i>
+                                                <span>{{ hopital.adresse }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm text-gray-600">
+                                                <i class="fas fa-phone text-green-500 flex-shrink-0"></i>
+                                                <span>{{ hopital.tel }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm text-gray-600">
+                                                <i class="fas fa-bed text-blue-500 flex-shrink-0"></i>
+                                                <span>{{ hopital.capacite ?? 'N/A' }} lits</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-2">
+                                            <a href="{{ path('app_rendez_vous_new') }}" 
+                                               class="flex-1 px-4 py-2 bg-blue-600 text-white text-center text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                                                <i class="fas fa-calendar-plus mr-1"></i>
+                                                Réserver
+                                            </a>
+                                            <button class="px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-lg hover:bg-purple-200 transition-colors" 
+                                                    title="Voir détails">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {# Pagination Hôpitaux #}
+                        {% if total_pages_hopital > 1 %}
+                        <div class="p-6 border-t border-gray-200 bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-600">
+                                    Page {{ page_hopital }} sur {{ total_pages_hopital }}
+                                </div>
+                                <div class="flex gap-2">
+                                    {# Bouton Précédent #}
+                                    {% if page_hopital > 1 %}
+                                        <a href="{{ path('app_service_home', {
+                                            q: search, 
+                                            filter: filter, 
+                                            sort_hopital: sort_hopital,
+                                            sort_rdv: sort_rdv,
+                                            page_hopital: page_hopital - 1,
+                                            page_rdv: page_rdv
+                                        }) }}" 
+                                           class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                            <i class="fas fa-chevron-left"></i> Précédent
+                                        </a>
+                                    {% endif %}
+
+                                    {# Numéros de pages #}
+                                    {% for i in 1..total_pages_hopital %}
+                                        {% if i == page_hopital %}
+                                            <span class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold">{{ i }}</span>
+                                        {% elseif i > page_hopital - 3 and i < page_hopital + 3 %}
+                                            <a href="{{ path('app_service_home', {
+                                                q: search, 
+                                                filter: filter, 
+                                                sort_hopital: sort_hopital,
+                                                sort_rdv: sort_rdv,
+                                                page_hopital: i,
+                                                page_rdv: page_rdv
+                                            }) }}" 
+                                               class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                                {{ i }}
+                                            </a>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {# Bouton Suivant #}
+                                    {% if page_hopital < total_pages_hopital %}
+                                        <a href="{{ path('app_service_home', {
+                                            q: search, 
+                                            filter: filter, 
+                                            sort_hopital: sort_hopital,
+                                            sort_rdv: sort_rdv,
+                                            page_hopital: page_hopital + 1,
+                                            page_rdv: page_rdv
+                                        }) }}" 
+                                           class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                            Suivant <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {# SECTION RENDEZ-VOUS (affichée si filter = "all" ou "rdv") #}
+                {% if filter in ['all', 'rdv'] %}
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-green-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-calendar-alt text-blue-600 text-2xl"></i>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900">Derniers Rendez-vous</h2>
+                                    <p class="text-sm text-gray-600">{{ total_rdv }} rendez-vous trouvé(s)</p>
+                                </div>
+                            </div>
+                            <a href="{{ path('app_rendez_vous_index') }}"
+                               class="text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors">
+                                Voir tous <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Médecin</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for rdv in rendezvous %}
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            #{{ rdv.id }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ rdv.patient ? rdv.patient.nom ~ ' ' ~ rdv.patient.prenom : '<span class="text-gray-400">—</span>'|raw }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ rdv.medecin ? rdv.medecin.nom ~ ' ' ~ rdv.medecin.prenom : '<span class="text-gray-400">—</span>'|raw }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ rdv.dateRendezVous ? rdv.dateRendezVous|date('d/m/Y H:i') : '<span class="text-gray-400">—</span>'|raw }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            {% if rdv.statut == 'En attente' %}
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    En attente
+                                                </span>
+                                            {% elseif rdv.statut == 'Confirmé' %}
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Confirmé
+                                                </span>
+                                            {% elseif rdv.statut == 'Annulé' %}
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Annulé
+                                                </span>
+                                            {% else %}
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                    {{ rdv.statut }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
+                                            <a href="{{ path('app_rendez_vous_show', {'id': rdv.id}) }}" 
+                                               class="text-blue-600 hover:text-blue-900 transition-colors" 
+                                               title="Voir">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ path('app_rendez_vous_edit', {'id': rdv.id}) }}" 
+                                               class="text-green-600 hover:text-green-900 transition-colors" 
+                                               title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button onclick="confirmDelete({{ rdv.id }})" 
+                                                    class="text-red-600 hover:text-red-900 transition-colors" 
+                                                    title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+
+                                            {# Formulaire caché de suppression #}
+                                            <form id="delete-form-{{ rdv.id }}" 
+                                                  method="post" 
+                                                  action="{{ path('app_rendez_vous_delete', {'id': rdv.id}) }}" 
+                                                  style="display: none;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ rdv.id) }}">
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-16 text-center text-gray-500">
+                                            <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4 block"></i>
+                                            <p class="text-lg">Aucun rendez-vous enregistré pour le moment</p>
+                                            <a href="{{ path('app_rendez_vous_new') }}"
+                                               class="mt-6 inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                                <i class="fas fa-plus mr-2"></i> Créer un rendez-vous
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {# Pagination Rendez-vous #}
+                    {% if total_pages_rdv > 1 %}
+                    <div class="p-6 border-t border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-600">
+                                Page {{ page_rdv }} sur {{ total_pages_rdv }}
+                            </div>
+                            <div class="flex gap-2">
+                                {# Bouton Précédent #}
+                                {% if page_rdv > 1 %}
+                                    <a href="{{ path('app_service_home', {
+                                        q: search, 
+                                        filter: filter, 
+                                        sort_hopital: sort_hopital,
+                                        sort_rdv: sort_rdv,
+                                        page_hopital: page_hopital,
+                                        page_rdv: page_rdv - 1
+                                    }) }}" 
+                                       class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                        <i class="fas fa-chevron-left"></i> Précédent
+                                    </a>
+                                {% endif %}
+
+                                {# Numéros de pages #}
+                                {% for i in 1..total_pages_rdv %}
+                                    {% if i == page_rdv %}
+                                        <span class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold">{{ i }}</span>
+                                    {% elseif i > page_rdv - 3 and i < page_rdv + 3 %}
+                                        <a href="{{ path('app_service_home', {
+                                            q: search, 
+                                            filter: filter, 
+                                            sort_hopital: sort_hopital,
+                                            sort_rdv: sort_rdv,
+                                            page_hopital: page_hopital,
+                                            page_rdv: i
+                                        }) }}" 
+                                           class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                            {{ i }}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {# Bouton Suivant #}
+                                {% if page_rdv < total_pages_rdv %}
+                                    <a href="{{ path('app_service_home', {
+                                        q: search, 
+                                        filter: filter, 
+                                        sort_hopital: sort_hopital,
+                                        sort_rdv: sort_rdv,
+                                        page_hopital: page_hopital,
+                                        page_rdv: page_rdv + 1
+                                    }) }}" 
+                                       class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                        Suivant <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+            </div>
+        </main>
+
+        {# Footer #}
+        <footer class="border-t border-gray-200 bg-white mt-8">
+            <div class="max-w-7xl mx-auto px-4 lg:px-8 py-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2 text-orange-600">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span class="text-sm font-medium">SmartHealth AI - Gestion des services médicaux</span>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        © {{ "now"|date("Y") }} SmartHealth AI. Tous droits réservés.
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+</div>
+
+{# ✅ JavaScript UNIQUEMENT pour la confirmation de suppression - PAS de validation #}
+<script>
+function confirmDelete(id) {
+    if (confirm('Voulez-vous vraiment supprimer ce rendez-vous ? Cette action est irréversible.')) {
+        document.getElementById('delete-form-' + id).submit();
+    }
+}
+</script>
+{% endblock %}

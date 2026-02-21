@@ -1,64 +1,81 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Tableau de bord - SmartHealth AI{% endblock %}
+
 {% block body %}
-<div class="min-h-screen bg-background flex flex-col">
-
-  {# Top Navigation #}
-  {% include 'components/top-nav.html.twig' %}
-
-  <main class="flex-1 w-full overflow-auto">
-    <div class="mx-auto max-w-7xl p-6 lg:p-10 space-y-6">
-
-        {# Header #}
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-foreground">
-              Bonjour, {{ user.prenom }} !
-            </h1>
-            <p class="text-muted-foreground">
-              Voici un aperçu de votre santé aujourd’hui
-            </p>
-          </div>
-
-          <div class="flex items-center gap-2 rounded-md border px-3 py-2">
-            📅 {{ "now"|date("l d F Y") }}
-          </div>
-        </div>
-
-        {# Stat Cards #}
-        {% include 'components/stat-cards.html.twig' %}
-
-        {# Widgets #}
-        <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          {% include 'components/widgets/health-summary.html.twig' %}
-          {% include 'components/widgets/mental.html.twig' %}
-          {% include 'components/widgets/activity.html.twig' %}
-        </div>
-
-        <div class="grid gap-6 lg:grid-cols-2">
-          {% include 'components/widgets/nutrition.html.twig' %}
-          {% include 'components/widgets/cycle.html.twig' %}
-        </div>
-
-        {# Quick Actions #}
-        <div class="rounded-xl border border-border bg-card p-4">
-          <div class="mb-4 flex items-center justify-between">
-            <h2 class="font-semibold text-card-foreground">Actions rapides</h2>
-          </div>
-
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {% for action in quickActions %}
-              <button class="flex items-center gap-3 rounded-lg border border-border bg-background p-3 text-left hover:bg-muted">
-                <span class="text-xl">{{ action.emoji }}</span>
-                <span class="text-sm font-medium text-card-foreground">
-                  {{ action.label }}
-                </span>
-              </button>
-            {% endfor %}
-          </div>
-        </div>
-
+<div class="flex min-h-screen bg-gray-50" x-data="{ sidebarOpen: false }">
+    
+    {# Sidebar removed as requested #}
+    
+    <div class="flex flex-1 flex-col">
+        
+        {# Top Navigation #}
+        {% include 'components/top-nav.html.twig' %}
+        
+        <main class="flex-1 overflow-auto">
+            <div class="mx-auto max-w-7xl space-y-6 p-4 lg:p-6">
+                
+                {# Header #}
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-fadeIn">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            Bonjour, {{ user.prenom }} ! 👋
+                        </h1>
+                        <p class="text-gray-600 mt-1">
+                            Voici un aperçu de votre santé aujourd'hui
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 shadow-sm">
+                        <i class="fas fa-calendar-alt text-blue-600"></i>
+                        <span class="text-sm font-medium text-gray-700">
+                            {{ "now"|date("d/m/Y") }}
+                        </span>
+                    </div>
+                </div>
+                
+                {# Stat Cards #}
+                <div class="animate-fadeIn" style="animation-delay: 0.1s;">
+                    {% include 'components/stat-cards.html.twig' %}
+                </div>
+                
+                {# Health Widgets Grid #}
+                <div class="grid gap-6 lg:grid-cols-2 xl:grid-cols-3 animate-fadeIn" style="animation-delay: 0.2s;">
+                    {% include 'components/widgets/health-summary.html.twig' %}
+                    {% include 'components/widgets/mental.html.twig' %}
+                    {% include 'components/widgets/activity.html.twig' %}
+                </div>
+                
+                <div class="grid gap-6 lg:grid-cols-2 animate-fadeIn" style="animation-delay: 0.3s;">
+                    {% include 'components/widgets/nutrition.html.twig' %}
+                    {% include 'components/widgets/cycle.html.twig' %}
+                </div>
+                
+                {# Quick Actions #}
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm animate-fadeIn" style="animation-delay: 0.4s;">
+                    <div class="mb-4 flex items-center justify-between">
+                        <h2 class="font-bold text-gray-900">Actions rapides</h2>
+                    </div>
+                    
+                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        {% set quickActions = [
+                            {'label': 'Nouveau repas', 'icon': '🍎', 'path': path('user_meal_new')},
+                            {'label': 'Journal', 'icon': '📔', 'path': path('user_journal_new')},
+                            {'label': 'Symptôme', 'icon': '🤒', 'path': '#'},
+                            {'label': 'Médicament', 'icon': '💊', 'path': '#'}
+                        ] %}
+                        
+                        {% for action in quickActions %}
+                        <a href="{{ action.path }}" class="group flex items-center gap-3 rounded-lg border border-gray-200 p-3 transition-all hover:border-blue-500 hover:bg-blue-50">
+                            <span class="text-xl">{{ action.icon }}</span>
+                            <span class="font-medium text-gray-700 group-hover:text-blue-700">{{ action.label }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+            </div>
+        </main>
     </div>
-  </main>
 </div>
 {% endblock %}

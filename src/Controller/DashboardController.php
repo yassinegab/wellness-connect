@@ -2,21 +2,48 @@
 
 namespace App\Controller;
 
+use App\Repository\HopitalRepository;
+use App\Repository\RendezVousRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\StressPrediction;
 
 class DashboardController extends AbstractController
 {
-    #[Route('/dashboard', name: 'frontoffice_dashboard')]
+    #[Route('/', name: 'app_dashboard')]
     public function index(
-        \Doctrine\ORM\EntityManagerInterface $em
+        EntityManagerInterface $em,
+        RendezVousRepository $rendezVousRepository,
+        HopitalRepository $hopitalRepository
     ): Response
     {
-        // Données utilisateur (exemple statique, remplacer par authentification réelle)
-        $user = [
-            'prenom' => $this->getUser() ? $this->getUser()->getPrenom() : 'Yassine',
-            'nom' => $this->getUser() ? $this->getUser()->getNom() : '',
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Medical Services Statistics
+        $upcomingAppointments = $rendezVousRepository->count([
+            'patient' => $user,
+            'statut' => 'En attente'
+        ]);
+        
+        $completedConsultations = $rendezVousRepository->count([
+            'patient' => $user,
+            'statut' => 'Terminé'
+        ]);
+        
+        $availableHospitals = $hopitalRepository->count([
+            'serviceUrgenceDispo' => true
+        ]);
+
+        // Données utilisateur pour l'affichage (si nécessaire, sinon utiliser app.user dans twig)
+        $userData = [
+            'prenom' => $user->getPrenom(),
+            'nom' => $user->getNom(),
         ];
 
         // Actions rapides
@@ -27,8 +54,8 @@ class DashboardController extends AbstractController
             ['emoji' => '🥗', 'label' => 'Nutrition'],
         ];
 
-        // Stress Statistics for Admin
-        $allPredictions = $em->getRepository(\App\Entity\StressPrediction::class)->findBy([], ['createdAt' => 'ASC']);
+        // Stress Statistics for Admin (or User History)
+        $allPredictions = $em->getRepository(StressPrediction::class)->findBy([], ['createdAt' => 'ASC']);
         
         $stats = [
             'Low' => 0,
@@ -52,10 +79,13 @@ class DashboardController extends AbstractController
         }
 
         return $this->render('dashboard/index.html.twig', [
-            'user' => $user,
+            'user' => $userData,
             'quickActions' => $quickActions,
             'stressStats' => $stats,
             'scatterData' => $scatterData,
+            'upcomingAppointments' => $upcomingAppointments,
+            'completedConsultations' => $completedConsultations,
+            'availableHospitals' => $availableHospitals,
         ]);
     }
 }

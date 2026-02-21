@@ -33,6 +33,45 @@
                         </span>
                     </div>
                 </div>
+
+                {# Medical Stats #}
+                <div class="grid gap-6 md:grid-cols-3 animate-fadeIn" style="animation-delay: 0.05s;">
+                    <div class="rounded-xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-blue-600">Rendez-vous à venir</p>
+                                <p class="text-3xl font-bold text-blue-900 mt-2">{{ upcomingAppointments }}</p>
+                            </div>
+                            <div class="rounded-full bg-blue-100 p-3 text-blue-600">
+                                <i class="fas fa-calendar-check text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rounded-xl border border-green-100 bg-green-50 p-6 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-green-600">Consultations terminées</p>
+                                <p class="text-3xl font-bold text-green-900 mt-2">{{ completedConsultations }}</p>
+                            </div>
+                            <div class="rounded-full bg-green-100 p-3 text-green-600">
+                                <i class="fas fa-user-md text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="rounded-xl border border-purple-100 bg-purple-50 p-6 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-purple-600">Hôpitaux disponibles</p>
+                                <p class="text-3xl font-bold text-purple-900 mt-2">{{ availableHospitals }}</p>
+                            </div>
+                            <div class="rounded-full bg-purple-100 p-3 text-purple-600">
+                                <i class="fas fa-hospital text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 {# Stat Cards #}
                 <div class="animate-fadeIn" style="animation-delay: 0.1s;">

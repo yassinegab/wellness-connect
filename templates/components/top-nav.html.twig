@@ -1,16 +1,12 @@
 <header class="sticky top-0 z-50 w-full border-b border-white/20 bg-white/80 backdrop-blur-md dark:bg-slate-900/80">
-<div class="ml-4 flex h-20 max-w-7xl items-center justify-between px-4 lg:px-8">
+  <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 lg:px-8">
     
     <div class="flex items-center gap-10">
       {# Logo #}
-     <a href="/" class="flex items-center shrink-0">
-  <img 
-    src="/images/logo.png"
-    alt="SOSI+" 
-    class="h-16 object-contain"
-  >
-</a>
-      
+      <a href="/" class="flex items-center gap-3 transition-transform hover:scale-105 active:scale-95">
+        <img src="{{ asset('images/logo.png') }}" alt="SOSI+" class="h-10 w-auto drop-shadow-sm">
+        <span class="hidden text-xl font-bold text-slate-900 dark:text-white sm:block">Sosi</span>
+      </a>
 
       {# Navigation Links #}
       <nav class="hidden items-center gap-2 lg:flex">
@@ -108,7 +104,7 @@
             </div>
             <div class="flex flex-col items-start leading-tight">
               <span class="text-xs font-bold text-slate-900 dark:text-slate-100">Marie Dupont</span>
-              <span class="text-[10px] font-medium text-slate-500">Premium Plan</span>
+              <span class="text-xs font-medium text-slate-500">Premium Plan</span>
             </div>
             <svg class="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </button>
