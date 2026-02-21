@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h2 class="text-2xl font-semibold mb-6">Tableau de bord – Services médicaux</h2>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <div class="bg-white rounded-xl shadow p-6 hover:scale-105 transition">
+        <h3 class="text-lg font-bold text-rose-600">📅 Rendez-vous</h3>
+        <p class="mt-2 text-sm text-gray-600">Planifier une consultation médicale</p>
+        <a href="#" class="mt-4 inline-block bg-rose-600 text-white px-4 py-2 rounded-lg">
+            Accéder
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 hover:scale-105 transition">
+        <h3 class="text-lg font-bold text-green-600">📹 Téléconsultation</h3>
+        <p class="mt-2 text-sm text-gray-600">Consultation vidéo sécurisée</p>
+        <a href="#" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded-lg">
+            Accéder
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 hover:scale-105 transition">
+        <h3 class="text-lg font-bold text-indigo-600">🤖 Analyse IA</h3>
+        <p class="mt-2 text-sm text-gray-600">Analyse intelligente des symptômes</p>
+        <a href="#" class="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-lg">
+            Accéder
+        </a>
+    </div>
+
+</div>
+{% endblock %}

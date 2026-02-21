@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Enum\UserRole;
+use App\Entity\Front_office\DossierMedical;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -81,6 +83,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->dossiersMedicaux = new ArrayCollection();
         $this->userWellBeingData = new ArrayCollection();
         $this->chatbotMessages = new ArrayCollection();
         $this->journals = new ArrayCollection();
@@ -131,9 +134,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function eraseCredentials(): void
-    {
-    }
+    public function eraseCredentials(): void {}
 
     public function getNom(): ?string
     {
@@ -289,6 +290,116 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($journal->getUser() === $this) {
                 $journal->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // ================= INFOS PHYSIQUES & ROLES =================
+    public function getUserRole(): ?UserRole
+    {
+        return $this->userRole;
+    }
+
+    public function setUserRole(?UserRole $userRole): static
+    {
+        $this->userRole = $userRole;
+
+        if ($userRole) {
+            $roleString = match ($userRole) {
+                UserRole::PATIENT => 'ROLE_PATIENT',
+                UserRole::MEDECIN => 'ROLE_MEDECIN',
+                UserRole::ADMIN   => 'ROLE_ADMIN',
+            };
+
+            if (!in_array($roleString, $this->roles)) {
+                $this->roles[] = $roleString;
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAge(): ?int
+    {
+        return $this->age;
+    }
+
+    public function setAge(?int $age): static
+    {
+        $this->age = $age;
+        return $this;
+    }
+
+    public function getPoids(): ?float
+    {
+        return $this->poids;
+    }
+
+    public function setPoids(?float $poids): static
+    {
+        $this->poids = $poids;
+        return $this;
+    }
+
+    public function getTaille(): ?float
+    {
+        return $this->taille;
+    }
+
+    public function setTaille(?float $taille): static
+    {
+        $this->taille = $taille;
+        return $this;
+    }
+
+    public function getSexe(): ?string
+    {
+        return $this->sexe;
+    }
+
+    public function setSexe(?string $sexe): static
+    {
+        $this->sexe = $sexe;
+        return $this;
+    }
+
+    public function isHandicap(): bool
+    {
+        return $this->handicap;
+    }
+
+    public function setHandicap(bool $handicap): static
+    {
+        $this->handicap = $handicap;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DossierMedical>
+     */
+    public function getDossiersMedicaux(): Collection
+    {
+        return $this->dossiersMedicaux;
+    }
+
+    public function addDossierMedical(DossierMedical $dossierMedical): static
+    {
+        if (!$this->dossiersMedicaux->contains($dossierMedical)) {
+            $this->dossiersMedicaux->add($dossierMedical);
+            $dossierMedical->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDossierMedical(DossierMedical $dossierMedical): static
+    {
+        if ($this->dossiersMedicaux->removeElement($dossierMedical)) {
+            // set the owning side to null (unless already changed)
+            if ($dossierMedical->getUser() === $this) {
+                $dossierMedical->setUser(null);
             }
         }
 
