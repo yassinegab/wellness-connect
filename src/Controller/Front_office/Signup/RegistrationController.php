@@ -71,31 +71,34 @@ class RegistrationController extends AbstractController
             }
 
             // ================= INFOS PHYSIQUES =================
-            $age = (int) $request->request->get('age', 0);
-            $poids = (float) $request->request->get('poids', 0);
-            $taille = (float) $request->request->get('taille', 0);
-            $sexe = $request->request->get('sexe');
+            // On ne demande ces infos que si ce n'est PAS un admin
+            if ($user->getUserRole() !== UserRole::ADMIN) {
+                $age = (int) $request->request->get('age', 0);
+                $poids = (float) $request->request->get('poids', 0);
+                $taille = (float) $request->request->get('taille', 0);
+                $sexe = $request->request->get('sexe');
 
-            // Validation stricte
-            if ($age <= 0) {
-                $this->addFlash('error', 'Veuillez saisir un âge valide.');
-                return $this->redirectToRoute('app_register');
+                // Validation stricte
+                if ($age <= 0) {
+                    $this->addFlash('error', 'Veuillez saisir un âge valide.');
+                    return $this->redirectToRoute('app_register');
+                }
+
+                if ($poids <= 0 || $taille <= 0) {
+                    $this->addFlash('error', 'Veuillez saisir un poids et une taille valides.');
+                    return $this->redirectToRoute('app_register');
+                }
+
+                if (!in_array($sexe, ['Homme', 'Femme'])) {
+                    $this->addFlash('error', 'Veuillez sélectionner un sexe valide.');
+                    return $this->redirectToRoute('app_register');
+                }
+
+                $user->setAge($age);
+                $user->setPoids($poids);
+                $user->setTaille($taille);
+                $user->setSexe($sexe);
             }
-
-            if ($poids <= 0 || $taille <= 0) {
-                $this->addFlash('error', 'Veuillez saisir un poids et une taille valides.');
-                return $this->redirectToRoute('app_register');
-            }
-
-            if (!in_array($sexe, ['Homme', 'Femme'])) {
-                $this->addFlash('error', 'Veuillez sélectionner un sexe valide.');
-                return $this->redirectToRoute('app_register');
-            }
-
-            $user->setAge($age);
-            $user->setPoids($poids);
-            $user->setTaille($taille);
-            $user->setSexe($sexe);
 
             // ================= HANDICAP =================
             $isHandicapped = $request->request->get('is_handicapped') ? true : false;
@@ -114,6 +117,6 @@ class RegistrationController extends AbstractController
         }
 
         // Affichage du formulaire
-        return $this->render('registration/register.html.twig');
+        return $this->render('Front_office/registration/register.html.twig');
     }
 }

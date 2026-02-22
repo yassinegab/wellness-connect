@@ -50,6 +50,6 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('medecin_dashboard');
         }
 
-        return $this->redirectToRoute('frontoffice_dashboard');
+        return $this->redirectToRoute('app_dashboard');
     }
 }

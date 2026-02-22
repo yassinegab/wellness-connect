@@ -23,35 +23,31 @@ class UserWellBeingDataFrontController extends AbstractController
 {
     #[Route('/', name: 'index')]
     public function index(
-        UserWellBeingDataRepository $repo, 
-        MealRepository $mealRepo, 
+        UserWellBeingDataRepository $repo,
+        MealRepository $mealRepo,
         JournalRepository $journalRepo,
         EntityManagerInterface $em,
         \App\Service\StressPredictionService $predictionService
-    ): Response
-    {
-        // Try to get the logged-in user, otherwise fallback to user 1 for testing
-        $user = $this->getUser() ?? $em->getRepository(User::class)->find(1);
+    ): Response {
+        // Get the logged-in user
+        $user = $this->getUser();
 
         if (!$user) {
-             return $this->render('user_wellbeing/index.html.twig', [
-                'dataList' => [],
-                'meals' => [],
-                'journals' => [],
-            ]);
+            return $this->redirectToRoute('app_login');
         }
 
-        $data = $repo->findBy(['user' => $user], ['createdAt' => 'DESC']);
-        $meals = $mealRepo->findBy(['user' => $user], ['createAt' => 'DESC']);
-        $journals = $journalRepo->findBy(['user' => $user], ['createdAt' => 'DESC']);
+        // 1. Fetch Current User Data
+        $userData = $repo->findBy(['user' => $user], ['createdAt' => 'DESC']);
+        $userMeals = $mealRepo->findBy(['user' => $user], ['createAt' => 'DESC']);
+        $userJournals = $journalRepo->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
-        // AI Trend Interpretation
+        // 2. AI Trend Interpretation
         $aiTrends = $predictionService->interpretTrends($user);
 
         return $this->render('user_wellbeing/index.html.twig', [
-            'dataList' => $data,
-            'meals' => $meals,
-            'journals' => $journals,
+            'dataList' => $userData,
+            'meals' => $userMeals,
+            'journals' => $userJournals,
             'aiTrends' => $aiTrends,
         ]);
     }
@@ -61,17 +57,17 @@ class UserWellBeingDataFrontController extends AbstractController
         UserWellBeingDataRepository $repo,
         MealRepository $mealRepo,
         JournalRepository $journalRepo,
-        \App\Repository\StressPredictionRepository $predictRepo, 
+        \App\Repository\StressPredictionRepository $predictRepo,
         EntityManagerInterface $em,
         ChartBuilderInterface $chartBuilder
-    ): Response
-    {
-        $user = $this->getUser() ?? $em->getRepository(User::class)->find(1);
-        
+    ): Response {
+        $user = $this->getUser();
+
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
 
+        // 1. Fetch Current User Data
         $predictions = $predictRepo->findAllForUser($user);
         $data = $repo->findBy(['user' => $user], ['createdAt' => 'ASC']);
         $meals = $mealRepo->findBy(['user' => $user], ['createAt' => 'ASC']);
@@ -160,50 +156,50 @@ class UserWellBeingDataFrontController extends AbstractController
         ]);
     }
 
-   #[Route('/new', name: 'new')]
-public function new(Request $request, EntityManagerInterface $em, \App\Service\StressPredictionService $predictionService): Response
-{
-    $uwbData = new UserWellBeingData();
+    #[Route('/new', name: 'new')]
+    public function new(Request $request, EntityManagerInterface $em, \App\Service\StressPredictionService $predictionService): Response
+    {
+        $uwbData = new UserWellBeingData();
 
-    $form = $this->createForm(UserWellBeingDataType::class, $uwbData);
-    $form->handleRequest($request);
+        $form = $this->createForm(UserWellBeingDataType::class, $uwbData);
+        $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Assign user only if not already set (though handleRequest shouldn't set it)
             if (!$uwbData->getUser()) {
-                 // Double check user fallback
-                 $user = $this->getUser() ?? $em->getRepository(User::class)->find(1);
-                 if ($user) {
-                     $uwbData->setUser($user);
-                 }
+                // Double check user fallback
+                $user = $this->getUser() ?? $em->getRepository(User::class)->find(1);
+                if ($user) {
+                    $uwbData->setUser($user);
+                }
             }
-            
+
             // Final safety check
             if (!$uwbData->getUser()) {
-                 // Try to fallback to user 1 again if somehow lost
-                 $fallbackUser = $em->getRepository(User::class)->find(1);
-                 if ($fallbackUser) {
-                     $uwbData->setUser($fallbackUser);
-                 } else {
-                     throw new \Exception('No user found. Please ensure User ID 1 exists.');
-                 }
+                // Try to fallback to user 1 again if somehow lost
+                $fallbackUser = $em->getRepository(User::class)->find(1);
+                if ($fallbackUser) {
+                    $uwbData->setUser($fallbackUser);
+                } else {
+                    throw new \Exception('No user found. Please ensure User ID 1 exists.');
+                }
             }
 
             $em->persist($uwbData);
-            
+
             // Generate Prediction
             $prediction = $predictionService->predict($uwbData);
             $em->persist($prediction);
-            
+
             $em->flush();
 
             return $this->redirectToRoute('user_wellbeing_index');
         }
 
-    return $this->render('user_wellbeing/new.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
+        return $this->render('user_wellbeing/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
 
 
@@ -212,9 +208,9 @@ public function new(Request $request, EntityManagerInterface $em, \App\Service\S
     {
         // Try to get the logged-in user, otherwise fallback to user 1 for testing
         $user = $this->getUser() ?? $userRepo->find(1);
-        
+
         if (!$user) {
-             throw $this->createNotFoundException('No user found.');
+            throw $this->createNotFoundException('No user found.');
         }
 
         $uwbData->setUser($user);
@@ -223,7 +219,7 @@ public function new(Request $request, EntityManagerInterface $em, \App\Service\S
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             // Regenerate Prediction on edit
             $prediction = $predictionService->predict($uwbData);
             $em->persist($prediction);

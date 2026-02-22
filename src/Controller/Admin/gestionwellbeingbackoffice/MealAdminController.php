@@ -65,7 +65,24 @@ class MealAdminController extends AbstractController
                     // AI Analysis
                     $fullPath = $targetDir . '/' . $newFilename;
                     $analysis = $qwenService->analyzeMeal($fullPath, $meal->getDescription());
-                    $meal->setAiAnalysis($analysis);
+
+                    // Parse JSON response
+                    $cleanJson = preg_replace('/^```json\s*|\s*```$/', '', trim($analysis));
+                    $data = json_decode($cleanJson, true);
+
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                        $meal->setCalories($data['calories'] ?? null);
+                        $meal->setSugar($data['sugar'] ?? null);
+                        $meal->setProtein($data['protein'] ?? null);
+
+                        $aiText = $data['analysis'] ?? '';
+                        if (!empty($data['stress_link'])) {
+                            $aiText .= "\n\n**Stress Insight:** " . $data['stress_link'];
+                        }
+                        $meal->setAiAnalysis($aiText);
+                    } else {
+                        $meal->setAiAnalysis($analysis);
+                    }
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Image upload failed: ' . $e->getMessage());
                 }
@@ -111,7 +128,24 @@ class MealAdminController extends AbstractController
                     // AI Analysis
                     $fullPath = $targetDir . '/' . $newFilename;
                     $analysis = $qwenService->analyzeMeal($fullPath, $meal->getDescription());
-                    $meal->setAiAnalysis($analysis);
+
+                    // Parse JSON response
+                    $cleanJson = preg_replace('/^```json\s*|\s*```$/', '', trim($analysis));
+                    $data = json_decode($cleanJson, true);
+
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                        $meal->setCalories($data['calories'] ?? null);
+                        $meal->setSugar($data['sugar'] ?? null);
+                        $meal->setProtein($data['protein'] ?? null);
+
+                        $aiText = $data['analysis'] ?? '';
+                        if (!empty($data['stress_link'])) {
+                            $aiText .= "\n\n**Stress Insight:** " . $data['stress_link'];
+                        }
+                        $meal->setAiAnalysis($aiText);
+                    } else {
+                        $meal->setAiAnalysis($analysis);
+                    }
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Image upload failed: ' . $e->getMessage());
                 }

@@ -1,47 +1,79 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hopital index{% endblock %}
+{% block title %}Services Médicaux - Sosi{% endblock %}
 
 {% block body %}
-    <h1>Hopital index</h1>
+{% include 'components/top-nav.html.twig' %}
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        {# Header #}
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Services Médicaux
+            </h1>
+            <p class="mt-4 text-xl text-gray-500">
+                Retrouvez les hôpitaux et services d'urgence disponibles près de chez vous.
+            </p>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nom</th>
-                <th>Adresse</th>
-                <th>Tel</th>
-                <th>ServiceUrgenceDispo</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Capacite</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for hopital in hopitals %}
-            <tr>
-                <td>{{ hopital.id }}</td>
-                <td>{{ hopital.nom }}</td>
-                <td>{{ hopital.adresse }}</td>
-                <td>{{ hopital.tel }}</td>
-                <td>{{ hopital.serviceUrgenceDispo ? 'Yes' : 'No' }}</td>
-                <td>{{ hopital.latitude }}</td>
-                <td>{{ hopital.longitude }}</td>
-                <td>{{ hopital.capacite }}</td>
-                <td>
-                    <a href="{{ path('app_hopital_show', {'id': hopital.id}) }}">show</a>
-                    <a href="{{ path('app_hopital_edit', {'id': hopital.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="9">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_hopital_new') }}">Create new</a>
+        {# Grid #}
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for hopital in hopitaux %}
+                <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-300">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex-shrink-0">
+                                <span class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <i class="fas fa-hospital text-blue-600 text-xl"></i>
+                                </span>
+                            </div>
+                            {% if hopital.serviceUrgenceDispo %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-ambulance mr-1"></i> Urgences
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Pas d'urgences
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <h3 class="text-lg font-medium text-gray-900 truncate" title="{{ hopital.nom }}">
+                            {{ hopital.nom }}
+                        </h3>
+                        
+                        <div class="mt-4 space-y-2">
+                            <div class="flex items-start text-sm text-gray-500">
+                                <i class="fas fa-map-marker-alt mt-1 mr-2 text-gray-400 w-4"></i>
+                                <span>{{ hopital.adresse }}</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-phone mt-0.5 mr-2 text-gray-400 w-4"></i>
+                                <span>{{ hopital.tel }}</span>
+                            </div>
+                             <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-bed mt-0.5 mr-2 text-gray-400 w-4"></i>
+                                <span>Capacité: {{ hopital.capacite }} lits</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 px-6 py-4">
+                        <a href="{{ path('app_hopital_show', {'id': hopital.id}) }}" class="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Voir détails
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-span-full text-center py-12">
+                    <div class="mx-auto h-24 w-24 text-gray-300">
+                        <i class="fas fa-hospital-alt text-6xl"></i>
+                    </div>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun hôpital trouvé</h3>
+                    <p class="mt-1 text-sm text-gray-500">Nous n'avons trouvé aucun établissement médical pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock %}

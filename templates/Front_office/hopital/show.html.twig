@@ -1,50 +1,112 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hopital{% endblock %}
+{% block title %}Détails de l'hôpital - Sosi{% endblock %}
 
 {% block body %}
-    <h1>Hopital</h1>
+{% include 'components/top-nav.html.twig' %}
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        {# Breadcrumb/Back Link #}
+        <div class="mb-6">
+            <a href="{{ path('frontoffice_hopitaux') }}" class="flex items-center text-sm text-gray-500 hover:text-gray-700">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Retour à la liste
+            </a>
+        </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ hopital.id }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ hopital.nom }}</td>
-            </tr>
-            <tr>
-                <th>Adresse</th>
-                <td>{{ hopital.adresse }}</td>
-            </tr>
-            <tr>
-                <th>Tel</th>
-                <td>{{ hopital.tel }}</td>
-            </tr>
-            <tr>
-                <th>ServiceUrgenceDispo</th>
-                <td>{{ hopital.serviceUrgenceDispo ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Latitude</th>
-                <td>{{ hopital.latitude }}</td>
-            </tr>
-            <tr>
-                <th>Longitude</th>
-                <td>{{ hopital.longitude }}</td>
-            </tr>
-            <tr>
-                <th>Capacite</th>
-                <td>{{ hopital.capacite }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            {# Header #}
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center bg-gray-50">
+                <div>
+                    <h3 class="text-2xl font-bold leading-6 text-gray-900">
+                        {{ hopital.nom }}
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        Détails et informations de l'établissement
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-hospital text-blue-600 text-2xl"></i>
+                    </span>
+                </div>
+            </div>
+            
+            {# Details List #}
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                <dl class="sm:divide-y sm:divide-gray-200">
+                    {# Address #}
+                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 flex items-center">
+                            <i class="fas fa-map-marker-alt w-5 text-gray-400 mr-2"></i> Adresse
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ hopital.adresse }}
+                            <div class="mt-2">
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ hopital.latitude }},{{ hopital.longitude }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs font-medium inline-flex items-center">
+                                    <i class="fas fa-external-link-alt mr-1"></i> Voir sur la carte
+                                </a>
+                            </div>
+                        </dd>
+                    </div>
 
-    <a href="{{ path('app_hopital_index') }}">back to list</a>
+                    {# Phone #}
+                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 flex items-center">
+                            <i class="fas fa-phone w-5 text-gray-400 mr-2"></i> Téléphone
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a href="tel:{{ hopital.tel }}" class="hover:text-blue-600">{{ hopital.tel }}</a>
+                        </dd>
+                    </div>
 
-    <a href="{{ path('app_hopital_edit', {'id': hopital.id}) }}">edit</a>
+                    {# Emergency Service #}
+                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 flex items-center">
+                            <i class="fas fa-ambulance w-5 text-gray-400 mr-2"></i> Service d'urgence
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if hopital.serviceUrgenceDispo %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Disponible 24/7
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Non disponible
+                                </span>
+                            {% endif %}
+                        </dd>
+                    </div>
 
-    {{ include('hopital/_delete_form.html.twig') }}
+                    {# Capacity #}
+                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 flex items-center">
+                            <i class="fas fa-bed w-5 text-gray-400 mr-2"></i> Capacité d'accueil
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {{ hopital.capacite }} lits
+                        </dd>
+                    </div>
+
+                    {# Coordinates #}
+                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500 flex items-center">
+                            <i class="fas fa-globe w-5 text-gray-400 mr-2"></i> Coordonnées GPS
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-500 sm:mt-0 sm:col-span-2">
+                            Lat: {{ hopital.latitude }}, Long: {{ hopital.longitude }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+            
+            {# Actions #}
+            <div class="bg-gray-50 px-4 py-4 sm:px-6 flex justify-end gap-3">
+                <a href="{{ path('app_rendez_vous_new') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-calendar-plus mr-2"></i> Prendre rendez-vous
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

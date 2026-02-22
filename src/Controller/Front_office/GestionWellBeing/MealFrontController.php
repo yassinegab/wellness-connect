@@ -25,20 +25,25 @@ class MealFrontController extends AbstractController
 
     private function getActualUser()
     {
-        return $this->getUser() ?? $this->entityManager->getRepository(\App\Entity\User::class)->find(1);
+        return $this->getUser();
     }
 
     #[Route('/new', name: 'user_meal_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, QwenService $qwenService): Response
     {
+        $user = $this->getActualUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $meal = new Meal();
-        $meal->setUser($this->getActualUser()); // Assign current/fallback user
+        $meal->setUser($user); // Assign current user
 
         $form = $this->createForm(MealType::class, $meal);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $imageFile = $form->get('imageName')->getData();
 
             if ($imageFile) {
@@ -52,10 +57,26 @@ class MealFrontController extends AbstractController
                     // AI Analysis
                     $fullPath = $targetDir . '/' . $newFilename;
                     $analysis = $qwenService->analyzeMeal($fullPath, $meal->getDescription());
-                    $meal->setAiAnalysis($analysis);
 
+                    // Parse JSON response
+                    $cleanJson = preg_replace('/^```json\s*|\s*```$/', '', trim($analysis));
+                    $data = json_decode($cleanJson, true);
+
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                        $meal->setCalories($data['calories'] ?? null);
+                        $meal->setSugar($data['sugar'] ?? null);
+                        $meal->setProtein($data['protein'] ?? null);
+
+                        $aiText = $data['analysis'] ?? '';
+                        if (!empty($data['stress_link'])) {
+                            $aiText .= "\n\n**Stress Insight:** " . $data['stress_link'];
+                        }
+                        $meal->setAiAnalysis($aiText);
+                    } else {
+                        $meal->setAiAnalysis($analysis);
+                    }
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Image upload failed: '.$e->getMessage());
+                    $this->addFlash('error', 'Image upload failed: ' . $e->getMessage());
                 }
             }
 
@@ -88,16 +109,33 @@ class MealFrontController extends AbstractController
             if ($imageFile) {
                 $newFilename = uniqid() . '.' . $imageFile->guessExtension();
                 $targetDir = $this->getParameter('meal_images_directory');
-                
+
                 $imageFile->move($targetDir, $newFilename);
                 $meal->setImageName($newFilename);
 
                 // Re-analyze if image changes
                 $fullPath = $targetDir . '/' . $newFilename;
                 $analysis = $qwenService->analyzeMeal($fullPath, $meal->getDescription());
-                $meal->setAiAnalysis($analysis);
+
+                // Parse JSON response
+                $cleanJson = preg_replace('/^```json\s*|\s*```$/', '', trim($analysis));
+                $data = json_decode($cleanJson, true);
+
+                if (json_last_error() === JSON_ERROR_NONE && is_array($data)) {
+                    $meal->setCalories($data['calories'] ?? null);
+                    $meal->setSugar($data['sugar'] ?? null);
+                    $meal->setProtein($data['protein'] ?? null);
+
+                    $aiText = $data['analysis'] ?? '';
+                    if (!empty($data['stress_link'])) {
+                        $aiText .= "\n\n**Stress Insight:** " . $data['stress_link'];
+                    }
+                    $meal->setAiAnalysis($aiText);
+                } else {
+                    $meal->setAiAnalysis($analysis);
+                }
             }
-            
+
             $entityManager->flush();
 
             return $this->redirectToRoute('user_wellbeing_index');
@@ -116,14 +154,14 @@ class MealFrontController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        if ($this->isCsrfTokenValid('delete'.$meal->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $meal->getId(), $request->request->get('_token'))) {
             $entityManager->remove($meal);
             $entityManager->flush();
         }
 
         return $this->redirectToRoute('user_wellbeing_index');
     }
-    
+
     #[Route('/{id}', name: 'user_meal_show', methods: ['GET'])]
     public function show(Meal $meal): Response
     {
